@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.galimatias.tests.HelloParsingTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2021-02-01T09:08:00" hostname="DESKTOP-F0KLRRB" time="0.699">
+  <properties/>
+  <testcase name="loadModel()" classname="org.galimatias.tests.HelloParsingTest" time="0.699"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

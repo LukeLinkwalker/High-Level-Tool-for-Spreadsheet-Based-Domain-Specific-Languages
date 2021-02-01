@@ -1,0 +1,36 @@
+apply plugin: 'application'
+
+dependencies {
+	compile project(':org.galimatias.hello')
+	compile project(':org.galimatias.hello.ide')
+	compile 'org.eclipse.xtext:org.eclipse.xtext.ide:' + project['xtext']
+	compile 'org.eclipse.xtext:org.eclipse.xtext.xbase.ide:' + project['xtext']
+	compile 'org.slf4j:slf4j-api:1.7.22'
+	compile 'org.slf4j:slf4j-simple:1.6.1'
+	compile 'org.java-websocket:Java-WebSocket:1.3.8'
+}
+
+mainClassName = 'org.galimatias.hello.websockets.RunWebSocketServer3'
+startScripts {
+	applicationName = 'composer-language-server-expression-websocket'
+}
+
+task standaloneStartScript(type: CreateStartScripts) {
+	mainClassName = 'org.galimatias.hello.websockets.RunWebSocketServer3'
+	applicationName = 'composer-language-server-expression-websocket'
+	outputDir = new File(project.buildDir, 'scripts')
+	classpath = jar.outputs.files + project.configurations.runtime
+}
+
+applicationDistribution.into('bin') {
+	from(standaloneStartScript)
+	fileMode = 0755
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Composer Language Server Expression Websocket',
+                   'Implementation-Version': project['composer-language-server'],
+                   'Main-Class': 'org.galimatias.hello.websockets.RunWebSocketServer3'
+    }
+}

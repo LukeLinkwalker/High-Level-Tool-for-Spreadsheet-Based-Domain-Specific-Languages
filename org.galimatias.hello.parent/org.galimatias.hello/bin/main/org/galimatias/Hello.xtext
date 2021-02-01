@@ -1,0 +1,15 @@
+grammar org.galimatias.Hello with org.eclipse.xtext.common.Terminals
+
+generate hello "http://www.galimatias.org/Hello"
+
+Program:
+	webserver=Webserver// wifis+=Wifi+
+;
+
+Webserver:
+	'Webserver'// url=STRING port=INT
+;
+
+Wifi:
+	'Wifi' ssid=STRING password=STRING
+;

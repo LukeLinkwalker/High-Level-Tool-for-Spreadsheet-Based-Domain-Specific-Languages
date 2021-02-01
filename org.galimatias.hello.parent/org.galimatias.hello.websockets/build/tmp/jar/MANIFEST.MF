@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Implementation-Title: Composer Language Server Expression Websocket
+Bundle-SymbolicName: org.galimatias.hello.websockets
+Implementation-Version: 0.0.0-SNAPSHOT
+Main-Class: org.galimatias.hello.websockets.RunWebSocketServer3
+

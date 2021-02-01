@@ -1,0 +1,4 @@
+include 'org.galimatias.hello'
+include 'org.galimatias.hello.ide'
+include 'org.galimatias.hello.websockets'
+include 'org.galimatias.hello.tests'
