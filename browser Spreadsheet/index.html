@@ -11,8 +11,15 @@
   <script src="spreadsheet.js"></script>
 </head>
 <body>
-    <div id="table-container">
-
+    <div id="action-container"></div>
+    <div id="input-container">
+      <input id="input-bar" type="text"></input>
     </div>
+    <div id="cell-container"></div>
+
+    <script>
+      init();
+      initCells("cell-container");
+    </script>
 </body>
 </html>
