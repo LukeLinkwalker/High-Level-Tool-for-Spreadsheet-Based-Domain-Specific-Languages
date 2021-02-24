@@ -8,6 +8,7 @@ let mouseDown = false
 let cellsMarked = false
 let selectedCells = []
 let selectedStartCell, selectedEndCell
+let columnSize, rowSize
 
 $(() =>  {
     $('#mergeButton').on('click', () => {
@@ -43,28 +44,23 @@ function initCells(container) {
 }
 
 function createCells(container) {
-    let tableSize = 10
+    columnSize = 10
+    rowSize = 10
     let tableBody = $('<tbody id="dynamicBody">')
 
-    for (let row = 1; row <= tableSize; row++) {
+    for (let row = 0; row < rowSize; row++) {
         let newRow = $('<tr>')
 
-        for (let column = 1; column <= tableSize; column++) {
-            // let cell = $('td')
-            // cell.
-            // row.append('<td contenteditable="false" colspan="1" mouseenter="function() { console.log("test!"); };' +
-            //     '"onclick="activateCell(' + column + ',' + row + ')" ' +
-            //     'onkeyup="store(' + column + ',' + row + ')" ' +
-            //     'id="' + "tr-" + column + "-" + row + '"></td>');
+        for (let column = 0; column < columnSize; column++) {
             newRow.append(createCell(column, row))
         }
         tableBody.append(newRow)
     }
 
-    createRowHeader(tableSize, tableBody)
-
     let table = $('<table id="dynamicTable">')
-    createColumnHeader(tableSize, table)
+
+    createRowHeader(rowSize, tableBody)
+    createColumnHeader(columnSize, table)
     table.append(tableBody)
     $('#' + container).append(table)
 }
@@ -105,7 +101,7 @@ function onCellMouseDown(e) {
     editingCell = e.target
     selectedStartCell = editingCell
 
-    if (cellsMarked) setAndMarkSelectedCells(-1, -1)
+    if (cellsMarked) clearMarkedCells()
 }
 
 function onCellMouseUp() {
@@ -116,7 +112,10 @@ function onCellMouseOver(e) {
     if (editingCell !== e.target && mouseDown) {
         selectedEndCell = e.target
         cellsMarked = true
-        setAndMarkSelectedCells(getCellIndexes(selectedStartCell), (getCellIndexes(selectedEndCell)))
+        setSelectedCells(getCellIndexes(selectedStartCell), (getCellIndexes(selectedEndCell)))
+        // setAndMarkSelectedCells(getCellIndexes(selectedStartCell), (getCellIndexes(selectedEndCell)))
+        clearMarkedCells()
+        markCells()
     }
 }
 
@@ -141,7 +140,7 @@ function createRowHeader(tableSize, table) {
     })
 }
 
-function setAndMarkSelectedCells(selectedStartIndexes, selectedEndIndexes) {
+function setSelectedCells(selectedStartIndexes, selectedEndIndexes) {
     let column1 = selectedStartIndexes[0]
     let row1 = selectedStartIndexes[1]
     let column2 = selectedEndIndexes[0]
@@ -160,21 +159,29 @@ function setAndMarkSelectedCells(selectedStartIndexes, selectedEndIndexes) {
 
     selectedCells = []
 
-    for (let column = 1; column <= 10; column++) {
-        for (let row = 1; row <= 10; row++) {
+    for (let column = 0; column < 10; column++) {
+        for (let row = 0; row < 10; row++) {
             let cell = getCellFromID(column, row)
             if (column >= column1 && column <= column2 && row >= row1 && row <= row2) {
                 selectedCells.push(cell)
-                $(cell).addClass('selected')
-            } else {
-                $(cell).removeClass('selected')
             }
         }
     }
 }
 
+function markCells() {
+    selectedCells.forEach((cell) => {
+        $(cell).addClass('selected')
+    })
+}
+
+function clearMarkedCells() {
+    $('.selected').each((i, element) => {
+        $(element).removeClass('selected')
+    })
+}
+
 function mergeCells() {
-    console.log("merge ffcalled")
     let numberOfRowsSelected = new Set()
 
     selectedCells.forEach((cell) => {
@@ -190,12 +197,11 @@ function mergeCells() {
         })
 
         editingCell = selectedCells[0]
-        setAndMarkSelectedCells(-1, -1)
+        clearMarkedCells()
     }
 }
 
-//TODO: Fix. Demerger ikke hvis jeg vælger flere, hvor kun nogle af dem er merged. Fordi editing cell ikke er den merged
-//TODO: Hvad skal editing cell være efter, når flere er valgt?
+//TODO: Fokus og editing cell bliver ikke sat til leftmost
 function demergeCells(mergedCells) {
     mergedCells.forEach((mergedCell) => {
         let cellWidth = $(mergedCell).attr('colspan')
@@ -207,24 +213,8 @@ function demergeCells(mergedCells) {
         }
 
         $(mergedCell).removeAttr('colspan')
-
-        // let cellIndexes = getCellIndexes(editingCell)
-        // $(cellIndexes)
     })
-    // let cellWidth = $(editingCell).attr('colspan')
-    // let editingCellIndexes = getCellIndexes(editingCell)
-    //
-    // for (let i = 0; i < cellWidth; i++) {
-    //     let cell = getCellFromID(editingCellIndexes[0] + i + 1, editingCellIndexes[1])
-    //     $(cell).css('display', '')
-    // }
-    //
-    // $(editingCell).removeAttr('colspan')
-    //
-    // let cellIndexes = getCellIndexes(editingCell)
-    // $(cellIndexes)
 }
-
 
 
 
