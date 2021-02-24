@@ -1,92 +1,251 @@
-var arr = null;
-var mouseDown = false;
-var initialCell = null;
-var hoveringCell = null;
+let array = null;
+let initialCell = null;
+let hoveringCell = null;
+
+//MIT
+let editingCell = null
+let mouseDown = false
+let cellsMarked = false
+let selectedCells = []
+let selectedStartCell, selectedEndCell
+
+$(() =>  {
+    $('#mergeButton').on('click', () => {
+        //Used for when multiple merged cells are selected
+        let mergedCells = []
+
+        selectedCells.forEach((cell) => {
+            if ($(cell).attr('colspan') > 1) mergedCells.push(cell)
+        })
+
+        if ($(editingCell).attr('colspan') > 1) mergedCells.push(editingCell)
+
+        if (mergedCells.length > 0) demergeCells(mergedCells)
+        else mergeCells()
+    }).on('mousedown',(e) => {
+        //Don't remove focus from cell, when button is clicked
+        e.preventDefault()
+    })
+})
+
 
 function init() {
-};
-
-function initActionBar(container) {
-
-};
-
-function initInputBar(container) {
-
-};
-
-function initCells(container) {
-    createCells(container);
-};
-
-function createCells(container) {
-    let tableSize = 10;
-    arr = create2DArray(tableSize);
-
-    $("#" + container).append('<table id="dynamicTable">');
-    $("#" + container).append('<tbody id="dynamicBody">');
-
-    for(var row = 0; row < tableSize; row += 1) {
-
-        $("#" + container).append('<tr>');
-
-        for(var column = 0; column < tableSize; column += 1) {
-            $("#" + container).append('<td contenteditable="false" colspan="1" mouseenter="function() { console.log("test!"); };"onclick="activateCell(' + column + ',' + row + ')" onkeyup="store(' + column + ',' + row + ')" id="' + "tr-" + column + "-" + row + '"></td>');
-            $("#td-" + column + "-" + row).mouseenter(function() {
-                console.log("mouse over!");
-            });
-        }
-
-        $("#" + container).append('</tr>');
-    }
-
-    $("#" + container).append('</tbody>');
-    $("#" + container).append('</table>');
-
-    $('body').mousedown(function() {
-        mouseDown = true;
-        hoveringCell.addClass("selected");
-        initialCell = ID2POS(hoveringCell.prop('id'));
-        console.log(initialCell);
-    });
-
-    $('body').mouseup(function() {
-        mouseDown = false;
-        // trigger editable and more events
-        initialCell = null;
-    });
-
-    $('td').mouseover(function() {
-        hoveringCell = $(this);
-
-        if(mouseDown == true) {
-            //console.log(hoveringCell);
-            //let column = Number(ID2POS(hoveringCell.prop('id')[0]));
-            //console.log(initialCell[0] + " - " + column);
-            //console.log(Number(Math.abs(Number(initialCell[0]) - column)));
-            //console.log(Number(initialCell[0]) - Number(column))
-            //if(Math.abs(initialCell[0] - column) > 0) {
-            //    if(column < initialCell[0]) {
-            //        // left
-            //        for(var i = 0; i < Math.abs(initialCell[0] - column); i += 1) {
-            //            console.log("Selected: " + "#tr-" + (initialCell[0] - i) + "-" + initialCell[1]);
-            //            $("#tr-" + (initialCell[0] - i) + "-" + initialCell[1]).addClass("selected");
-            //        }
-            //    } else {
-            //        // right
-            //        for(var i = 0; i < Math.abs(initialCell[0] - column); i += 1) {
-            //            $("#tr-" + (initialCell[0] + i) + "-" + initialCell[1]).addClass("selected");
-            //        }
-            //    }
-            //}
-        }
-    });
 }
 
-var activeCell = null;
+function initActionBar(container) {
+}
+
+function initInputBar(container) {
+}
+
+function initCells(container) {
+    createCells(container)
+}
+
+function createCells(container) {
+    let tableSize = 10
+    let tableBody = $('<tbody id="dynamicBody">')
+
+    for (let row = 1; row <= tableSize; row++) {
+        let newRow = $('<tr>')
+
+        for (let column = 1; column <= tableSize; column++) {
+            // let cell = $('td')
+            // cell.
+            // row.append('<td contenteditable="false" colspan="1" mouseenter="function() { console.log("test!"); };' +
+            //     '"onclick="activateCell(' + column + ',' + row + ')" ' +
+            //     'onkeyup="store(' + column + ',' + row + ')" ' +
+            //     'id="' + "tr-" + column + "-" + row + '"></td>');
+            newRow.append(createCell(column, row))
+        }
+        tableBody.append(newRow)
+    }
+
+    createRowHeader(tableSize, tableBody)
+
+    let table = $('<table id="dynamicTable">')
+    createColumnHeader(tableSize, table)
+    table.append(tableBody)
+    $('#' + container).append(table)
+}
+
+function createCell(column, row) {
+    let cell = $('<td>')
+    cell.attr('id', createCellID(column, row))
+    cell.attr('contenteditable', true)
+    cell.on('mousedown', (e) => onCellMouseDown(e))
+    cell.on('mouseup', (e) => onCellMouseUp(e))
+    cell.on('mouseover', (e) => onCellMouseOver(e))
+
+    return cell
+
+    // td.ondblclick = onDoubleClick;
+    // td.onkeypress = onTdKeyPress;
+    // var text = document.createTextNode("");
+    // td.appendChild(text);
+}
+
+function createCellID(column, row) {
+    return "cell-" + column + "-" + row
+}
+
+function getCellFromID(column, row) {
+    return $('#' + createCellID(column, row))[0]
+}
+
+function getCellIndexes(cell) {
+    let cellID = $(cell).attr('id')
+    let matches = cellID.match(/^cell-(\d+)-(\d+)/)
+
+    if (matches) return [Number(matches[1]), Number(matches[2])]
+}
+
+function onCellMouseDown(e) {
+    mouseDown = true
+    editingCell = e.target
+    selectedStartCell = editingCell
+
+    if (cellsMarked) setAndMarkSelectedCells(-1, -1)
+}
+
+function onCellMouseUp() {
+    mouseDown = false
+}
+
+function onCellMouseOver(e) {
+    if (editingCell !== e.target && mouseDown) {
+        selectedEndCell = e.target
+        cellsMarked = true
+        setAndMarkSelectedCells(getCellIndexes(selectedStartCell), (getCellIndexes(selectedEndCell)))
+    }
+}
+
+function createColumnHeader(tableSize, table) {
+    let columnRow = $('<thead>')
+    columnRow.append($('<th>'))
+
+    for (let column = 0; column < tableSize; column++) {
+        let tableHeader = $('<th>')
+        tableHeader.text(String.fromCharCode(65 + column))
+        columnRow.append(tableHeader)
+    }
+
+    $(table).prepend(columnRow)
+}
+
+function createRowHeader(tableSize, table) {
+    $('tr', table).each( (index, element) => {
+        let tableHeader = $('<th>')
+        tableHeader.text(index + 1)
+        $(element).prepend(tableHeader)
+    })
+}
+
+function setAndMarkSelectedCells(selectedStartIndexes, selectedEndIndexes) {
+    let column1 = selectedStartIndexes[0]
+    let row1 = selectedStartIndexes[1]
+    let column2 = selectedEndIndexes[0]
+    let row2 = selectedEndIndexes[1]
+
+    if (column2 < column1) {
+        let temp = column1;
+        column1 = column2;
+        column2 = temp;
+    }
+    if (row2 < row1) {
+        let temp = row1;
+        row1 = row2;
+        row2 = temp;
+    }
+
+    selectedCells = []
+
+    for (let column = 1; column <= 10; column++) {
+        for (let row = 1; row <= 10; row++) {
+            let cell = getCellFromID(column, row)
+            if (column >= column1 && column <= column2 && row >= row1 && row <= row2) {
+                selectedCells.push(cell)
+                $(cell).addClass('selected')
+            } else {
+                $(cell).removeClass('selected')
+            }
+        }
+    }
+}
+
+function mergeCells() {
+    console.log("merge ffcalled")
+    let numberOfRowsSelected = new Set()
+
+    selectedCells.forEach((cell) => {
+        let cellIndexes = getCellIndexes(cell)
+        numberOfRowsSelected.add(cellIndexes[1])
+    })
+
+    if (numberOfRowsSelected.size > 1) alert("Cannot merge rows!")
+    else {
+        $(selectedCells[0]).attr('colspan', selectedCells.length)
+        selectedCells.splice(1).forEach((cell) => {
+            $(cell).css('display', 'none')
+        })
+
+        editingCell = selectedCells[0]
+        setAndMarkSelectedCells(-1, -1)
+    }
+}
+
+//TODO: Fix. Demerger ikke hvis jeg vælger flere, hvor kun nogle af dem er merged. Fordi editing cell ikke er den merged
+//TODO: Hvad skal editing cell være efter, når flere er valgt?
+function demergeCells(mergedCells) {
+    mergedCells.forEach((mergedCell) => {
+        let cellWidth = $(mergedCell).attr('colspan')
+        let cellIndexes = getCellIndexes(mergedCell)
+
+        for (let i = 1; i < cellWidth; i++) {
+            let cell = getCellFromID(cellIndexes[0] + i, cellIndexes[1])
+            $(cell).css('display', '')
+        }
+
+        $(mergedCell).removeAttr('colspan')
+
+        // let cellIndexes = getCellIndexes(editingCell)
+        // $(cellIndexes)
+    })
+    // let cellWidth = $(editingCell).attr('colspan')
+    // let editingCellIndexes = getCellIndexes(editingCell)
+    //
+    // for (let i = 0; i < cellWidth; i++) {
+    //     let cell = getCellFromID(editingCellIndexes[0] + i + 1, editingCellIndexes[1])
+    //     $(cell).css('display', '')
+    // }
+    //
+    // $(editingCell).removeAttr('colspan')
+    //
+    // let cellIndexes = getCellIndexes(editingCell)
+    // $(cellIndexes)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let activeCell = null
+
 function activateCell(column, row) {
-    if(activeCell != null && ("#tr-" + column + "-" + row) != activeCell) {
-        $(activeCell).prop("contenteditable", false);
-        $(activeCell).removeClass("selected");
+    if(activeCell != null && ("#tr-" + column + "-" + row) !== activeCell) {
+        $(activeCell).prop("contenteditable", false)
+        $(activeCell).removeClass("selected")
     }
 
     activeCell = "#tr-" + column + "-" + row;
@@ -95,20 +254,21 @@ function activateCell(column, row) {
 }
 
 function store(column, row) {
-    arr[column][row] = $("#tr-" + column + "-" + row).text();
+    array[column][row] = $("#tr-" + column + "-" + row).text();
 }
 
 function create2DArray(size) {
-    var array = new Array(size);
+    let array = new Array(size)
 
-    for(var i = 0; i < size; i += 1) {
-        array[i] = new Array(size);
+    for (let i = 0; i < size; i++) {
+        array[i] = new Array(size)
     }
 
-    return array;
+    return array
 }
 
 function ID2POS(id) {
     let parts = id.split('-');
     return [parts[1], parts[2]];
 }
+
