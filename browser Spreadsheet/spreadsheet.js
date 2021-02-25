@@ -7,6 +7,10 @@ let selectedCells = []
 let selectedStartCell, selectedEndCell
 let columnSize, rowSize
 
+let errorMessage = "ERROR!"
+let errorCellIndexes = [0, 0]
+let errorLineIndexes = [1, 3]
+
 function init() {
     initActionBar()
     initInputBar()
@@ -18,6 +22,15 @@ function initActionBar(container) {
     setupBoldTextButton()
     setupCellAsHeaderButton()
     setupBlackBorderButton()
+
+    //TODO: Remove when showError works
+    $('#testErrorButton').on('click', () => {
+        showError(errorCellIndexes, errorLineIndexes, errorMessage)
+    })
+
+    $('#removeErrorButton').on('click', () => {
+        removeError(editingCell)
+    })
 }
 
 function initInputBar(container) {
@@ -54,6 +67,7 @@ function createCell(column, row) {
     let cell = $('<td>')
     cell.attr('id', createCellID(column, row))
     cell.attr('contenteditable', true)
+    cell.data('error', false)
     cell.on('mousedown', () => onCellMouseDown())
     cell.on('mouseup', () => onCellMouseUp())
     cell.on('mouseover', (e) => onCellMouseOver(e))
@@ -140,14 +154,15 @@ function onCellFocus(e) {
 function onCellInput(e) {
     let cell = $(e.target)
     let inputBar = $('#input-bar')
-
     let regex = new RegExp('^[a-zA-Z0-9_]')
+    let hiddenText = cell.data('hiddenText')
+
     if (!regex.test(cell.text())) cell.removeData('hiddenText')
 
-    let hiddenText = cell.data('hiddenText')
-    if (hiddenText !== undefined) inputBar.val(hiddenText + cell.text())
+    if (hiddenText !== undefined && !cell.data('error')) inputBar.val(hiddenText + cell.text())
     else inputBar.val(cell.text())
 }
+
 //TODO: Måske fjerne cellChosen når en celle msiter fokus? Eller den bliver jo nok bare overwritten, men kan den miste fokus uden en anden skal vælges???
 function onCellLosesFocus(e) {
     let cell = $(e.target)
@@ -155,7 +170,7 @@ function onCellLosesFocus(e) {
     let hiddenText = cell.data('hiddenText')
 
     let regex = new RegExp('^[a-zA-Z0-9_]+ : [a-zA-Z0-9_]+')
-    if (regex.test(cellText) && hiddenText === undefined) {
+    if (regex.test(cellText) && hiddenText === undefined && !cell.data('error')) {
         let textToBeHidden = cellText.substr(0, cellText.indexOf(":") + 2)
         cell.data('hiddenText', textToBeHidden)
         cell.text(cellText.replace(textToBeHidden, ""))
@@ -357,7 +372,21 @@ function removeBlackBorder() {
     })
 }
 
+function showError(errorCellIndexes, errorLineIndexes, errorMessage) {
+    let cell = $(getCellFromID(errorCellIndexes[0], errorCellIndexes[1]))
+    let span = $('span')
+    let errorText = cell.text().substring(errorLineIndexes[0], errorLineIndexes[1])
 
+    cell.data('error', true)
+    span.addClass('error')
+    cell.html(cell.html().replace(errorText, '<span class="error">' + errorText + '</span>'))
+}
+
+function removeError(cell) {
+    $(cell).data('error', false)
+    let textWithSpanRemoved = $(cell).html().replace('<span class="error">', "").replace('</span>', "")
+    $(cell).html(textWithSpanRemoved)
+}
 
 
 

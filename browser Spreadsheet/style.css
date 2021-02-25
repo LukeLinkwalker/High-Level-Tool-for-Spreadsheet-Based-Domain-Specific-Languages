@@ -78,5 +78,27 @@ td {
 }
 
 .error {
+    text-decoration: underline;
+    text-decoration-color: red;
+    text-decoration-skip-ink: none;
+    text-decoration-thickness: 3px;
+}
 
+/* BELOW IS COPIED! */
+
+.errorMessage {
+    visibility: hidden;
+    width: 120px;
+    background-color: white;
+    color: black;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+    top: 100%;
+    left: 50%;
+    margin-left: -60px;
 }
