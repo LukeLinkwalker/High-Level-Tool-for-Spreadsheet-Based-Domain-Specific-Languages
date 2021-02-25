@@ -1,8 +1,5 @@
 let array = null;
-let initialCell = null;
-let hoveringCell = null;
 
-//MIT
 let editingCell = null
 let mouseDown = false
 let cellsMarked = false
@@ -10,12 +7,22 @@ let selectedCells = []
 let selectedStartCell, selectedEndCell
 let columnSize, rowSize
 
-$(() =>  {
+function init() {
+    initActionBar()
+    initInputBar()
+    initCells()
+}
+
+function initActionBar(container) {
     setupMergeButton()
     setupBoldTextButton()
     setupCellAsHeaderButton()
     setupBlackBorderButton()
-})
+}
+
+function initInputBar(container) {
+    setupInputBar()
+}
 
 function initCells(container) {
     createCells(container)
@@ -72,6 +79,30 @@ function getCellIndexes(cell) {
     if (matches) return [Number(matches[1]), Number(matches[2])]
 }
 
+function setupInputBar() {
+    $('#input-bar')
+        .on('input', (e) => onInputBarInput(e))
+    //TODO: Virker ikke ordenligt, da markøren ikke flytter op i inputbare, og det skal den.
+        // .on('mousedown', (e) => e.preventDefault())
+}
+
+function onInputBarInput(e) {
+    let inputBar = $(e.target)
+    let inputBarText = String(inputBar.val())
+    let regex = new RegExp('^[a-zA-Z0-9_]+ : [a-zA-Z0-9_]+')
+    let chosenCell = $(inputBar.data('chosenCell'))
+
+    if (!regex.test(inputBarText)) {
+        chosenCell.text(inputBarText)
+        chosenCell.removeData('hiddenText')
+    }
+    else {
+        let textToBeHidden = inputBarText.substr(0, inputBarText.indexOf(":") + 2)
+        chosenCell.data('hiddenText', textToBeHidden)
+        chosenCell.text(inputBarText.replace(textToBeHidden, ""))
+    }
+}
+
 function onCellMouseDown() {
     mouseDown = true
 }
@@ -96,53 +127,38 @@ function onCellFocus(e) {
     selectedStartCell = editingCell
     selectedCells = [editingCell]
 
-    $('#input-bar').val($(e.target).text())
+    let cell = $(e.target)
+    let hiddenText = cell.data('hiddenText')
+    let inputBar = $('#input-bar')
+
+    if (hiddenText !== undefined) inputBar.val(hiddenText + cell.text())
+    else inputBar.val(cell.text())
+
+    inputBar.data('chosenCell', editingCell)
 }
 
 function onCellInput(e) {
-    // let cell = $(e.target)
-    //
-    // //TODO: Virker ikke med ": ", tror ikke spacet blievr registeret korrekt. Måske brug nbsp eller sådan noget.
-    // if (!$('span', cell).hasClass('hiddenCellText')) {
-    //     if (cell.text().includes(":")) {
-    //         let cellText = cell.text()
-    //         let textToBeHidden = cellText.substr(0, cellText.indexOf(":") + 1)
-    //         let hiddenText = $('<span class="hiddenCellText">')
-    //         let newText = cellText.replace(textToBeHidden, "")
-    //         cell.text(newText)
-    //
-    //         // cell.text(cellText.replace(textToBeHidden, "&nbsp;"))
-    //         // hiddenText.text(textToBeHidden)
-    //         cell.prepend(hiddenText)
-    //         cell.append(document.createTextNode("NU"))
-    //         // cell.append(newText)
-    //
-    //
-    //
-    //     }
-    // }
-    // console.log(cell.text())
+    let cell = $(e.target)
+    let inputBar = $('#input-bar')
 
+    let regex = new RegExp('^[a-zA-Z0-9_]')
+    if (!regex.test(cell.text())) cell.removeData('hiddenText')
 
-    // $('#input-bar').val(cellText)
-
-    // if (e.t)
+    let hiddenText = cell.data('hiddenText')
+    if (hiddenText !== undefined) inputBar.val(hiddenText + cell.text())
+    else inputBar.val(cell.text())
 }
-
+//TODO: Måske fjerne cellChosen når en celle msiter fokus? Eller den bliver jo nok bare overwritten, men kan den miste fokus uden en anden skal vælges???
 function onCellLosesFocus(e) {
     let cell = $(e.target)
     let cellText = cell.text()
+    let hiddenText = cell.data('hiddenText')
 
-    //Match String mellemrum kolon mellemrum string
-    //^[a-z0-9_]+:\K(?!//).*
-    let regex = new RegExp("^[a-zA-Z0-9_]+ : [a-zA-Z0-9_]+")
-    if (regex.test(cellText)) {
-        let textToBeHidden = cellText.substr(0, cellText.indexOf(":") + 1)
-        let hiddenText = $('<span class="hiddenCellText">')
-
+    let regex = new RegExp('^[a-zA-Z0-9_]+ : [a-zA-Z0-9_]+')
+    if (regex.test(cellText) && hiddenText === undefined) {
+        let textToBeHidden = cellText.substr(0, cellText.indexOf(":") + 2)
+        cell.data('hiddenText', textToBeHidden)
         cell.text(cellText.replace(textToBeHidden, ""))
-        hiddenText.text(textToBeHidden)
-        cell.prepend(hiddenText)
     }
 }
 
@@ -209,7 +225,8 @@ function clearMarkedCells() {
 }
 
 function setupMergeButton() {
-    $('#mergeButton').on('click', () => {
+    $('#mergeButton')
+        .on('click', () => {
         //Used for when multiple merged cells are selected.
         let mergedCells = []
 
@@ -221,11 +238,10 @@ function setupMergeButton() {
 
         if (mergedCells.length > 0) demergeCells(mergedCells)
         else mergeCells()
-    }).on('mousedown',(e) => {
-        //TODO: Virker ikke altid?
-        //Doesn't remove focus from cell, when button is clicked.
-        e.preventDefault()
     })
+        .on('mousedown',(e) => e.preventDefault())
+    //TODO: Virker ikke altid?
+    //Doesn't remove focus from cell, when button is clicked.
 }
 
 function mergeCells() {
@@ -239,6 +255,7 @@ function mergeCells() {
     if (numberOfRowsSelected.size > 1) alert("Cannot merge rows!")
     else {
         $(selectedCells[0]).attr('colspan', selectedCells.length)
+
         selectedCells.splice(1).forEach((cell) => {
             $(cell).css('display', 'none')
         })
@@ -264,17 +281,18 @@ function demergeCells(mergedCells) {
 }
 
 function setupBoldTextButton() {
-    $('#boldText').on('click', () => {
+    $('#boldText')
+        .on('click', () => {
         let allCellsAreBold = true
+
         selectedCells.forEach((cell) => {
             if (!$(cell).hasClass('bold')) allCellsAreBold = false
         })
 
         if (allCellsAreBold) removeBoldText()
         else setBoldText()
-    }).on('mousedown', (e) => {
-        e.preventDefault()
     })
+        .on('mousedown', (e) => e.preventDefault())
 }
 
 function setBoldText() {
@@ -290,16 +308,18 @@ function removeBoldText() {
 }
 
 function setupCellAsHeaderButton() {
-    $('#setCellAsHeader').on('click', () => {
+    $('#setCellAsHeader')
+        .on('click', () => {
         let allCellsAreHeaders = true
+
         selectedCells.forEach((cell) => {
             if (!$(cell).hasClass('header')) allCellsAreHeaders = false
         })
+
         if (allCellsAreHeaders) removeCellAsHeader()
         else setCellAsHeader()
-    }).on('mousedown', (e) => {
-        e.preventDefault()
     })
+        .on('mousedown', (e) => e.preventDefault())
 }
 
 function setCellAsHeader() {
@@ -328,7 +348,6 @@ function setupBlackBorderButton() {
 function setBlackBorder() {
     selectedCells.forEach((cell) => {
         $(cell).addClass('blackBorder')
-        $(cell).css('background-color', 'black')
     })
 }
 
@@ -346,14 +365,8 @@ function removeBlackBorder() {
 
 
 
-function init() {
-}
 
-function initActionBar(container) {
-}
 
-function initInputBar(container) {
-}
 
 
 let activeCell = null
