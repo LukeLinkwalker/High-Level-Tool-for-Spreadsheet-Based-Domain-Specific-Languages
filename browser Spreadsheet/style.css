@@ -57,6 +57,26 @@ td {
     text-align: right;
 }
 
+.hiddenCellText {
+    display: none;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+.header {
+    background-color: #efefef;
+}
+
+.blackBorder {
+    border: 1px double #000000;
+}
+
 .selected {
     background-color: #e0eeff;
+}
+
+.error {
+
 }

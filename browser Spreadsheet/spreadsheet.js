@@ -11,33 +11,11 @@ let selectedStartCell, selectedEndCell
 let columnSize, rowSize
 
 $(() =>  {
-    $('#mergeButton').on('click', () => {
-        //Used for when multiple merged cells are selected
-        let mergedCells = []
-
-        selectedCells.forEach((cell) => {
-            if ($(cell).attr('colspan') > 1) mergedCells.push(cell)
-        })
-
-        if ($(editingCell).attr('colspan') > 1) mergedCells.push(editingCell)
-
-        if (mergedCells.length > 0) demergeCells(mergedCells)
-        else mergeCells()
-    }).on('mousedown',(e) => {
-        //Don't remove focus from cell, when button is clicked
-        e.preventDefault()
-    })
+    setupMergeButton()
+    setupBoldTextButton()
+    setupCellAsHeaderButton()
+    setupBlackBorderButton()
 })
-
-
-function init() {
-}
-
-function initActionBar(container) {
-}
-
-function initInputBar(container) {
-}
 
 function initCells(container) {
     createCells(container)
@@ -69,16 +47,14 @@ function createCell(column, row) {
     let cell = $('<td>')
     cell.attr('id', createCellID(column, row))
     cell.attr('contenteditable', true)
-    cell.on('mousedown', (e) => onCellMouseDown(e))
-    cell.on('mouseup', (e) => onCellMouseUp(e))
+    cell.on('mousedown', () => onCellMouseDown())
+    cell.on('mouseup', () => onCellMouseUp())
     cell.on('mouseover', (e) => onCellMouseOver(e))
+    cell.on('focus', (e) => onCellFocus(e))
+    cell.on('input', (e) => onCellInput(e))
+    cell.on('focusout', (e) => onCellLosesFocus(e))
 
     return cell
-
-    // td.ondblclick = onDoubleClick;
-    // td.onkeypress = onTdKeyPress;
-    // var text = document.createTextNode("");
-    // td.appendChild(text);
 }
 
 function createCellID(column, row) {
@@ -96,12 +72,8 @@ function getCellIndexes(cell) {
     if (matches) return [Number(matches[1]), Number(matches[2])]
 }
 
-function onCellMouseDown(e) {
+function onCellMouseDown() {
     mouseDown = true
-    editingCell = e.target
-    selectedStartCell = editingCell
-
-    if (cellsMarked) clearMarkedCells()
 }
 
 function onCellMouseUp() {
@@ -113,9 +85,64 @@ function onCellMouseOver(e) {
         selectedEndCell = e.target
         cellsMarked = true
         setSelectedCells(getCellIndexes(selectedStartCell), (getCellIndexes(selectedEndCell)))
-        // setAndMarkSelectedCells(getCellIndexes(selectedStartCell), (getCellIndexes(selectedEndCell)))
         clearMarkedCells()
         markCells()
+    }
+}
+
+function onCellFocus(e) {
+    if (cellsMarked) clearMarkedCells()
+    editingCell = e.target
+    selectedStartCell = editingCell
+    selectedCells = [editingCell]
+
+    $('#input-bar').val($(e.target).text())
+}
+
+function onCellInput(e) {
+    // let cell = $(e.target)
+    //
+    // //TODO: Virker ikke med ": ", tror ikke spacet blievr registeret korrekt. Måske brug nbsp eller sådan noget.
+    // if (!$('span', cell).hasClass('hiddenCellText')) {
+    //     if (cell.text().includes(":")) {
+    //         let cellText = cell.text()
+    //         let textToBeHidden = cellText.substr(0, cellText.indexOf(":") + 1)
+    //         let hiddenText = $('<span class="hiddenCellText">')
+    //         let newText = cellText.replace(textToBeHidden, "")
+    //         cell.text(newText)
+    //
+    //         // cell.text(cellText.replace(textToBeHidden, "&nbsp;"))
+    //         // hiddenText.text(textToBeHidden)
+    //         cell.prepend(hiddenText)
+    //         cell.append(document.createTextNode("NU"))
+    //         // cell.append(newText)
+    //
+    //
+    //
+    //     }
+    // }
+    // console.log(cell.text())
+
+
+    // $('#input-bar').val(cellText)
+
+    // if (e.t)
+}
+
+function onCellLosesFocus(e) {
+    let cell = $(e.target)
+    let cellText = cell.text()
+
+    //Match String mellemrum kolon mellemrum string
+    //^[a-z0-9_]+:\K(?!//).*
+    let regex = new RegExp("^[a-zA-Z0-9_]+ : [a-zA-Z0-9_]+")
+    if (regex.test(cellText)) {
+        let textToBeHidden = cellText.substr(0, cellText.indexOf(":") + 1)
+        let hiddenText = $('<span class="hiddenCellText">')
+
+        cell.text(cellText.replace(textToBeHidden, ""))
+        hiddenText.text(textToBeHidden)
+        cell.prepend(hiddenText)
     }
 }
 
@@ -181,6 +208,26 @@ function clearMarkedCells() {
     })
 }
 
+function setupMergeButton() {
+    $('#mergeButton').on('click', () => {
+        //Used for when multiple merged cells are selected.
+        let mergedCells = []
+
+        selectedCells.forEach((cell) => {
+            if ($(cell).attr('colspan') > 1) mergedCells.push(cell)
+        })
+
+        if ($(editingCell).attr('colspan') > 1) mergedCells.push(editingCell)
+
+        if (mergedCells.length > 0) demergeCells(mergedCells)
+        else mergeCells()
+    }).on('mousedown',(e) => {
+        //TODO: Virker ikke altid?
+        //Doesn't remove focus from cell, when button is clicked.
+        e.preventDefault()
+    })
+}
+
 function mergeCells() {
     let numberOfRowsSelected = new Set()
 
@@ -216,6 +263,80 @@ function demergeCells(mergedCells) {
     })
 }
 
+function setupBoldTextButton() {
+    $('#boldText').on('click', () => {
+        let allCellsAreBold = true
+        selectedCells.forEach((cell) => {
+            if (!$(cell).hasClass('bold')) allCellsAreBold = false
+        })
+
+        if (allCellsAreBold) removeBoldText()
+        else setBoldText()
+    }).on('mousedown', (e) => {
+        e.preventDefault()
+    })
+}
+
+function setBoldText() {
+    selectedCells.forEach((cell) => {
+        $(cell).addClass('bold')
+    })
+}
+
+function removeBoldText() {
+    selectedCells.forEach((cell) => {
+        $(cell).removeClass('bold')
+    })
+}
+
+function setupCellAsHeaderButton() {
+    $('#setCellAsHeader').on('click', () => {
+        let allCellsAreHeaders = true
+        selectedCells.forEach((cell) => {
+            if (!$(cell).hasClass('header')) allCellsAreHeaders = false
+        })
+        if (allCellsAreHeaders) removeCellAsHeader()
+        else setCellAsHeader()
+    }).on('mousedown', (e) => {
+        e.preventDefault()
+    })
+}
+
+function setCellAsHeader() {
+    selectedCells.forEach((cell) => {
+        $(cell).addClass('header')
+    })
+}
+
+function removeCellAsHeader() {
+    selectedCells.forEach((cell) => {
+        $(cell).removeClass('header')
+    })
+}
+
+function setupBlackBorderButton() {
+    $('#setBlackBorders').on('click', () => {
+        let allCellsHaveBlackBorders = true
+        selectedCells.forEach((cell) => {
+            if (!$(cell).hasClass('blackBorder')) allCellsHaveBlackBorders = false
+        })
+        if (allCellsHaveBlackBorders) removeBlackBorder()
+        else setBlackBorder()
+    })
+}
+
+function setBlackBorder() {
+    selectedCells.forEach((cell) => {
+        $(cell).addClass('blackBorder')
+        $(cell).css('background-color', 'black')
+    })
+}
+
+function removeBlackBorder() {
+    selectedCells.forEach((cell) => {
+        $(cell).removeClass('blackBorder')
+    })
+}
 
 
 
@@ -225,9 +346,14 @@ function demergeCells(mergedCells) {
 
 
 
+function init() {
+}
 
+function initActionBar(container) {
+}
 
-
+function initInputBar(container) {
+}
 
 
 let activeCell = null
