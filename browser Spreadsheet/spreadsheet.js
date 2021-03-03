@@ -67,10 +67,13 @@ function createCell(column, row) {
     let cell = $('<td>')
     cell.attr('id', createCellID(column, row))
     cell.attr('contenteditable', true)
-    cell.data('error', false)
+    cell.data('hasError', false)
+    cell.data('hiddenText', '')
     cell.on('mousedown', () => onCellMouseDown())
     cell.on('mouseup', () => onCellMouseUp())
-    cell.on('mouseover', (e) => onCellMouseOver(e))
+    //Have changed this from mouseover to mouseenter - don't know if it breaks anything? Change onCellMouseEnter name aswell
+    cell.on('mouseenter', (e) => onCellMouseEnter(e))
+    cell.on('mouseleave', (e) => onCellMouseLeave(e))
     cell.on('focus', (e) => onCellFocus(e))
     cell.on('input', (e) => onCellInput(e))
     cell.on('focusout', (e) => onCellLosesFocus(e))
@@ -125,7 +128,7 @@ function onCellMouseUp() {
     mouseDown = false
 }
 
-function onCellMouseOver(e) {
+function onCellMouseEnter(e) {
     if (editingCell !== e.target && mouseDown) {
         selectedEndCell = e.target
         cellsMarked = true
@@ -133,6 +136,14 @@ function onCellMouseOver(e) {
         clearMarkedCells()
         markCells()
     }
+
+    let cell = $(e.target)
+    if (cell.data('hasError')) showErrorMessage(e.target, errorMessage)
+}
+
+function onCellMouseLeave(e) {
+    let cell = $(e.target)
+    if (cell.data('hasError')) hideErrorMessage(e.target)
 }
 
 function onCellFocus(e) {
@@ -159,7 +170,7 @@ function onCellInput(e) {
 
     if (!regex.test(cell.text())) cell.removeData('hiddenText')
 
-    if (hiddenText !== undefined && !cell.data('error')) inputBar.val(hiddenText + cell.text())
+    if (hiddenText !== undefined && !cell.data('hasError')) inputBar.val(hiddenText + cell.text())
     else inputBar.val(cell.text())
 }
 
@@ -170,7 +181,7 @@ function onCellLosesFocus(e) {
     let hiddenText = cell.data('hiddenText')
 
     let regex = new RegExp('^[a-zA-Z0-9_]+ : [a-zA-Z0-9_]+')
-    if (regex.test(cellText) && hiddenText === undefined && !cell.data('error')) {
+    if (regex.test(cellText) && hiddenText === undefined && !cell.data('hasError')) {
         let textToBeHidden = cellText.substr(0, cellText.indexOf(":") + 2)
         cell.data('hiddenText', textToBeHidden)
         cell.text(cellText.replace(textToBeHidden, ""))
@@ -372,23 +383,47 @@ function removeBlackBorder() {
     })
 }
 
-function showError(errorCellIndexes, errorLineIndexes, errorMessage) {
+function showError(errorCellIndexes, errorLineIndexes) {
     let cell = $(getCellFromID(errorCellIndexes[0], errorCellIndexes[1]))
-    let span = $('span')
     let errorText = cell.text().substring(errorLineIndexes[0], errorLineIndexes[1])
 
-    cell.data('error', true)
-    span.addClass('error')
+    cell.data('hasError', true)
     cell.html(cell.html().replace(errorText, '<span class="error">' + errorText + '</span>'))
+
+    createErrorMessage(cell, errorMessage)
 }
 
 function removeError(cell) {
-    $(cell).data('error', false)
     let textWithSpanRemoved = $(cell).html().replace('<span class="error">', "").replace('</span>', "")
+
+    $(cell).data('hasError', false)
     $(cell).html(textWithSpanRemoved)
+
+    removeErrorMessage(cell)
 }
 
+function showErrorMessage(cell) {
+    let errorMessage = $('div.errorMessage', cell)
+    errorMessage.css('visibility', 'visible')
+}
 
+function hideErrorMessage(cell) {
+    let errorMessage = $('div.errorMessage', cell)
+    errorMessage.css('visibility', 'hidden')
+}
+
+function createErrorMessage(cell, errorMessage) {
+    let div = $('<div/>')
+    div.addClass('errorMessage')
+    div.text(errorMessage)
+    div.prop('contenteditable', false)
+    cell.append(div)
+}
+
+function removeErrorMessage(cell) {
+    let errorMessage = $('div.errorMessage', cell)
+    errorMessage.remove()
+}
 
 
 

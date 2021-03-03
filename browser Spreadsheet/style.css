@@ -85,12 +85,13 @@ td {
 }
 
 /* BELOW IS COPIED! */
+/*update background color - generelt design*/
 
-.errorMessage {
-    visibility: hidden;
+.errorMessageNOTWKRING {
+    /*visibility: hidden;*/
     width: 120px;
-    background-color: white;
-    color: black;
+    background-color: red;
+    color: blue;
     text-align: center;
     border-radius: 6px;
     padding: 5px 0;
@@ -102,3 +103,23 @@ td {
     left: 50%;
     margin-left: -60px;
 }
+
+.borderHovertest {
+    position: absolute;
+    background: green;
+    width: 5px;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.errorMessage {
+    background-color: white;
+    color: black;
+    display: block;
+    position: absolute;
+    border: 1px solid black;
+    margin: 15px 10px;
+    /*cursor: pointer;*/
+}
+
