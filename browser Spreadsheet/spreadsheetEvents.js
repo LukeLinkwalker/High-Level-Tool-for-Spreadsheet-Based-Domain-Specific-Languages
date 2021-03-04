@@ -15,6 +15,15 @@ export function onInputBarInput(inputBar) {
     }
 }
 
+export function onInputBarFocus() {
+    $(globals.editingCell).css('outline', 'royalblue auto')
+    $('#input-bar').css('outline', 'none')
+}
+
+export function onInputBarFocusOut() {
+    $(globals.editingCell).css('outline', '')
+}
+
 export function onCellMouseDown() {
     globals.setMouseDown(true)
 }
@@ -52,8 +61,21 @@ export function onCellFocus(cell) {
     let hiddenText = $(cell).data('hiddenText')
     let inputBar = $('#input-bar')
 
-    if (hiddenText !== undefined) inputBar.val(hiddenText + $(cell).text())
+    if (hiddenText !== '') inputBar.val(hiddenText + $(cell).text())
     else inputBar.val($(cell).text())
+}
+
+export function onCellFocusOut(cell) {
+    let $cell = $(cell)
+    let cellText = $cell.text()
+    let hiddenText = $cell.data('hiddenText')
+
+    let regex = new RegExp('^[a-zA-Z0-9_]+ : [a-zA-Z0-9_]+')
+    if (regex.test(cellText) && hiddenText === '' && !$cell.data('hasError')) {
+        let textToBeHidden = cellText.substr(0, cellText.indexOf(':') + 2)
+        $cell.data('hiddenText', textToBeHidden)
+        $cell.text(cellText.replace(textToBeHidden, ''))
+    }
 }
 
 export function onCellInput(cell) {
@@ -64,7 +86,7 @@ export function onCellInput(cell) {
 
     if (!regex.test($cell.text())) $cell.removeData('hiddenText')
 
-    if (hiddenText !== undefined && !$cell.data('hasError')) {
+    if (hiddenText !== '' && !$cell.data('hasError')) {
         inputBar.val(hiddenText + $cell.text())
     }
     else {
@@ -72,16 +94,77 @@ export function onCellInput(cell) {
     }
 }
 
-//TODO: Måske fjerne cellChosen når en celle msiter fokus? Eller den bliver jo nok bare overwritten, men kan den miste fokus uden en anden skal vælges???
-export function onCellLosesFocus(cell) {
-    let $cell = $(cell)
-    let cellText = $cell.text()
-    let hiddenText = $cell.data('hiddenText')
+export function onMergeButtonClick() {
+    let mergedCells = []
 
-    let regex = new RegExp('^[a-zA-Z0-9_]+ : [a-zA-Z0-9_]+')
-    if (regex.test(cellText) && hiddenText === undefined && !$cell.data('hasError')) {
-        let textToBeHidden = cellText.substr(0, cellText.indexOf(':') + 2)
-        $cell.data('hiddenText', textToBeHidden)
-        $cell.text(cellText.replace(textToBeHidden, ''))
+    globals.selectedCells.forEach((cell) => {
+        if ($(cell).attr('colspan') > 1) mergedCells.push(cell)
+    })
+
+    if (mergedCells.length > 1) tools.demergeCell(mergedCells)
+    else tools.mergeCells()
+}
+
+//TODO: Fjern denne hvis e.preventDefault() virker
+export function onMergeButtonMouseDown() {
+    globals.editingCell.focus()
+}
+
+export function onBoldTextButtonClick() {
+    let allCellsAreBold = true
+
+    globals.selectedCells.forEach((cell) => {
+        if (!$(cell).hasClass('bold')) allCellsAreBold = false
+    })
+
+    if (allCellsAreBold) tools.removeBoldText()
+    else tools.setBoldText()
+}
+
+export function onCellAsHeaderButtonClick() {
+    let allCellsAreHeaders = globals.selectedCells.every((cell) => {
+        return $(cell).hasClass('header')
+    })
+
+    if (allCellsAreHeaders) tools.removeCellAsHeader()
+    else tools.setCellAsHeader()
+}
+
+export function onBlackBorderButtonClick() {
+    let allCellsHaveBlackBorders = globals.selectedCells.every((cell) => {
+        return $(cell).hasClass('blackBorder')
+    })
+
+    if (allCellsHaveBlackBorders) tools.removeBlackBorder()
+    else tools.setBlackBorder()
+}
+
+export function onDocumentReady() {
+    spreadsheet.setInitialEditingCell()
+}
+
+export function onDocumentKeypressTab(event) {
+    let editingCellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
+
+    event.preventDefault()
+
+    if (editingCellIndexes[0] < globals.columnSize - 1) {
+        let newEditingCell = spreadsheet.getCellFromID(editingCellIndexes[0] + 1, editingCellIndexes[1])
+
+        globals.setEditingCell(newEditingCell)
+        newEditingCell.focus()
+    }
+}
+
+export function onDocumentKeypressEnter(event) {
+    let editingCellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
+
+    event.preventDefault()
+
+    if (editingCellIndexes[1] < globals.rowSize - 1) {
+        let newEditingCell = spreadsheet.getCellFromID(editingCellIndexes[0], editingCellIndexes[1] + 1)
+
+        globals.setEditingCell(newEditingCell)
+        newEditingCell.focus()
     }
 }

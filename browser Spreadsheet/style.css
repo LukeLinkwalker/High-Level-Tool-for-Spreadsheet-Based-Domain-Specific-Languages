@@ -84,35 +84,6 @@ td {
     text-decoration-thickness: 3px;
 }
 
-/* BELOW IS COPIED! */
-/*update background color - generelt design*/
-
-.errorMessageNOTWKRING {
-    /*visibility: hidden;*/
-    width: 120px;
-    background-color: red;
-    color: blue;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 0;
-
-    /* Position the tooltip */
-    position: absolute;
-    z-index: 1;
-    top: 100%;
-    left: 50%;
-    margin-left: -60px;
-}
-
-.borderHovertest {
-    position: absolute;
-    background: green;
-    width: 5px;
-    height: 100%;
-    top: 0;
-    left: 0;
-}
-
 .errorMessage {
     background-color: white;
     color: black;

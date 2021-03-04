@@ -39,7 +39,7 @@ export function mergeCells() {
 }
 
 //TODO: Fokus og editing cell bliver ikke sat til leftmost
-export function demergeCells(mergedCells) {
+export function demergeCell(mergedCells) {
     mergedCells.forEach((mergedCell) => {
         let cellWidth = $(mergedCell).attr('colspan')
         let cellIndexes = spreadsheet.getCellIndexes(mergedCell)

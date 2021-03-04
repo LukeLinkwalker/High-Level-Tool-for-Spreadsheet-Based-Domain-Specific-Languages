@@ -5,7 +5,19 @@ import * as globals from './spreadsheetGlobalVariables.js'
 
 initialize()
 
+//TODO: Remove
+function testFunction() {
+    $('#testErrorButton').on('click', () => {
+        tools.showError(globals.errorCellIndexes, globals.errorLineIndexes, globals.errorMessage)
+    })
+
+    $('#removeErrorButton').on('click', () => {
+        tools.removeError(globals.editingCell)
+    })
+}
+
 function initialize() {
+    setup.setupDocument()
     setup.setupMergeButton()
     setup.setupBoldTextButton()
     setup.setupCellAsHeaderButton()
@@ -15,14 +27,8 @@ function initialize() {
 
     createTable()
 
-    //TODO: Remove when showError works
-    $('#testErrorButton').on('click', () => {
-        tools.showError(globals.errorCellIndexes, globals.errorLineIndexes, globals.errorMessage)
-    })
-
-    $('#removeErrorButton').on('click', () => {
-        tools.removeError(globals.editingCell)
-    })
+    //TODO Remove
+    testFunction()
 }
 
 function createTable() {
@@ -59,7 +65,7 @@ function createCell(column, row) {
     cell.on('mouseleave', (e) => events.onCellMouseLeave(e.target))
     cell.on('focus', (e) => events.onCellFocus(e.target))
     cell.on('input', (e) => events.onCellInput(e.target))
-    cell.on('focusout', (e) => events.onCellLosesFocus(e.target))
+    cell.on('focusout', (e) => events.onCellFocusOut(e.target))
 
     return cell
 }
@@ -77,6 +83,13 @@ export function getCellIndexes(cell) {
     let matches = cellID.match(/^cell-(\d+)-(\d+)/)
 
     if (matches) return [Number(matches[1]), Number(matches[2])]
+}
+
+export function setInitialEditingCell() {
+    let cell = getCellFromID(0, 0)
+
+    globals.setEditingCell(cell)
+    cell.focus()
 }
 
 export function createColumnHeader(tableSize, table) {
