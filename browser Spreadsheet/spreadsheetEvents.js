@@ -7,7 +7,10 @@ export function onInputBarInput(inputBar) {
     let regex = new RegExp('^[a-zA-Z0-9_]+ : [a-zA-Z0-9_]+')
     let $editingCell = $(globals.editingCell)
 
-    if (!regex.test(inputBarText)) $editingCell.data('hiddenText', '')
+    if (!regex.test(inputBarText)) {
+        $editingCell.text($editingCell.data('hiddenText') + inputBarText)
+        $editingCell.data('hiddenText', '')
+    }
     else {
         let textToBeHidden = inputBarText.substr(0, inputBarText.indexOf(':') + 2)
         $editingCell.data('hiddenText', textToBeHidden)
@@ -60,9 +63,15 @@ export function onCellFocus(cell) {
 
     let hiddenText = $(cell).data('hiddenText')
     let inputBar = $('#input-bar')
+    let cellClone = $(cell).clone()
+    let divs = $('.errorMessage', cellClone)
 
-    if (hiddenText !== '') inputBar.val(hiddenText + $(cell).text())
-    else inputBar.val($(cell).text())
+    divs.each((i, element) => {
+        element.remove()
+    })
+
+    if (hiddenText !== '') inputBar.val(hiddenText + cellClone.text())
+    else inputBar.val(cellClone.text())
 }
 
 export function onCellFocusOut(cell) {
@@ -83,15 +92,17 @@ export function onCellInput(cell) {
     let inputBar = $('#input-bar')
     let regex = new RegExp('^[a-zA-Z0-9_]')
     let hiddenText = $cell.data('hiddenText')
+    let cellClone = $(cell).clone()
+    let divs = $('.errorMessage', cellClone)
 
-    if (!regex.test($cell.text())) $cell.removeData('hiddenText')
+    divs.each((i, element) => {
+        element.remove()
+    })
 
-    if (hiddenText !== '' && !$cell.data('hasError')) {
-        inputBar.val(hiddenText + $cell.text())
-    }
-    else {
-        inputBar.val($cell.text())
-    }
+    if (!regex.test(cellClone.text())) $cell.data('')
+
+    if (hiddenText !== '' && !$cell.data('hasError')) inputBar.val(hiddenText + cellClone.text())
+    else inputBar.val(cellClone.text())
 }
 
 export function onMergeButtonClick() {
@@ -147,6 +158,7 @@ export function onDocumentKeypressTab(event) {
     let editingCellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
 
     event.preventDefault()
+    $(globals.editingCell).css('outline', '')
 
     if (editingCellIndexes[0] < globals.columnSize - 1) {
         let newEditingCell = spreadsheet.getCellFromID(editingCellIndexes[0] + 1, editingCellIndexes[1])
@@ -160,6 +172,7 @@ export function onDocumentKeypressEnter(event) {
     let editingCellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
 
     event.preventDefault()
+    $(globals.editingCell).css('outline', '')
 
     if (editingCellIndexes[1] < globals.rowSize - 1) {
         let newEditingCell = spreadsheet.getCellFromID(editingCellIndexes[0], editingCellIndexes[1] + 1)
