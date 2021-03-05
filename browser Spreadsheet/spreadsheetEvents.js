@@ -1,6 +1,7 @@
 import * as globals from './spreadsheetGlobalVariables.js'
 import * as tools from './spreadsheetTools.js'
 import * as spreadsheet from './spreadsheet.js'
+import * as client from './ssclient.js'
 
 export function onInputBarInput(inputBar) {
     let inputBarText = String($(inputBar).val())
@@ -16,6 +17,8 @@ export function onInputBarInput(inputBar) {
         $editingCell.data('hiddenText', textToBeHidden)
         $editingCell.text(inputBarText.replace(textToBeHidden, ''))
     }
+
+    client.sendChange(globals.editingCell)
 }
 
 export function onInputBarFocus() {
@@ -70,8 +73,7 @@ export function onCellFocus(cell) {
         element.remove()
     })
 
-    if (hiddenText !== '') inputBar.val(hiddenText + cellClone.text())
-    else inputBar.val(cellClone.text())
+    inputBar.val(hiddenText + cellClone.text())
 }
 
 export function onCellFocusOut(cell) {
@@ -103,6 +105,8 @@ export function onCellInput(cell) {
 
     if (hiddenText !== '' && !$cell.data('hasError')) inputBar.val(hiddenText + cellClone.text())
     else inputBar.val(cellClone.text())
+
+    client.sendChange(cell)
 }
 
 export function onMergeButtonClick() {

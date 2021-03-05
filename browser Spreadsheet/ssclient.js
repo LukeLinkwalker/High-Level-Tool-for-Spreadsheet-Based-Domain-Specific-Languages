@@ -1,3 +1,5 @@
+import * as spreadsheet from './spreadsheet.js'
+
 const socket = new WebSocket('ws://localhost:20895');
 const debug = true;
 
@@ -9,22 +11,28 @@ socket.addEventListener('message', function(event) {
     console.log('Message from server ', event.data);
 })
 
-function sendChange(cellIndexes, width, data) {
-    // let  obj = {
-    //     cellx: _cellx,
-    //     celly: _celly,
-    //     position: _position,
-    //     character: _character
-    // }
+export function sendChange(cell) {
+    let cellIndexes = spreadsheet.getCellIndexes(cell)
+    let colspan = $(cell).attr('colspan')
+    let width = (colspan === undefined) ? 1 : colspan
+    let hiddenText = $(cell).data('hiddenText')
+    let cellClone = $(cell).clone()
+    let divs = $('.errorMessage', cellClone)
 
-    let  obj = {
+    divs.each((i, element) => {
+        element.remove()
+    })
+
+    let data = hiddenText + cellClone.text()
+
+    let object = {
         column: cellIndexes[0],
         row: cellIndexes[1],
-        position: width,
+        width: width,
         character: data
     }
 
-    if (debug) console.log("Send change: " + JSON.stringify(obj));
+    if (debug) console.log("Send change: " + JSON.stringify(object));
 
-    socket.send(JSON.stringify(obj));
+    socket.send(JSON.stringify(object));
 }

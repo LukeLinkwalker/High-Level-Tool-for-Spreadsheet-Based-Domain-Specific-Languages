@@ -32,7 +32,7 @@ body {
     background-color: white;
     width: 100%;
     height: auto;
-    padding: 0px;
+    padding: 0;
 }
 
 table {
@@ -55,10 +55,6 @@ td {
     height: 16pt;
     padding: 0;
     text-align: right;
-}
-
-.hiddenCellText {
-    display: none;
 }
 
 .bold {
@@ -90,7 +86,6 @@ td {
     display: block;
     position: absolute;
     border: 1px solid black;
-    margin: 15px 10px;
-    /*cursor: pointer;*/
+    margin: 5px 10px;
 }
 
