@@ -11,12 +11,18 @@
 </head>
 <body>
     <div id="action-container">
-        <button id="mergeButton">Merge</button>
-        <button id="boldText">Bold</button>
-        <button id="setCellAsHeader">Set Cell as Header</button>
-        <button id="setBlackBorders">Set Black Borders</button>
-        <button id="testErrorButton">TEST ERROR</button>
-        <button id="removeErrorButton">REMOVE ERROR TEST</button>
+        <input type="radio" id="sdslRadioButton" name="spreadsheetType" value="sdsl">
+        <label for="sdslRadioButton">SDSL</label>
+        <input type="radio" id="sglRadioButton" name="spreadsheetType" value="sgl">
+        <label for="sglRadioButton">SGL</label>
+
+        <button id="createTable" class="sdslClass">Create Table</button>
+        <button id="addRow" class="sdslClass">Add Row</button>
+
+        <button id="convertToTable" class="sglClass">Convert to Table</button>
+
+        <button id="testErrorButton">Show Error (test)</button>
+        <button id="removeErrorButton">Hide Error (test)</button>
     </div>
     <div id="input-container">
         <label for="input-bar"></label><input id="input-bar" type="text">

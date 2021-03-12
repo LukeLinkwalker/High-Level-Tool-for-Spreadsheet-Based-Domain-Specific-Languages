@@ -1,92 +1,83 @@
 import * as spreadsheet from './spreadsheet.js';
 import * as globals from './spreadsheetGlobalVariables.js'
 
-export function markCells() {
-    globals.setCellsMarked(true)
+export function mergeCells(cells) {
+    let leftmostCellIndexes = spreadsheet.getCellIndexes(cells[0])
+    let leftmostCellID = spreadsheet.createCellID(leftmostCellIndexes[0], leftmostCellIndexes[1])
 
-    globals.selectedCells.forEach((cell) => {
-        $(cell).addClass('selected')
+    $(cells[0]).attr('colspan', cells.length)
+
+    cells.forEach((cell) => {
+        let className = 'merged-' + leftmostCellID
+        $(cell).addClass(className)
+    })
+
+    cells.splice(1).forEach((cell) => {
+        $(cell).css('display', 'none')
+        $(cell).text('')
     })
 }
 
-export function clearMarkedCells() {
-    globals.setCellsMarked(false)
+export function getMergedCells(cell) {
+    let classNames = $(cell).attr('class')
 
-    $('.selected').each((i, element) => {
-        $(element).removeClass('selected')
-    })
-}
+    if (classNames !== undefined) {
+        let classNamesArray = classNames.split(/\s+/)
+        let mergedCellClassName = undefined
 
-export function mergeCells() {
-    let numberOfRowsSelected = new Set()
-
-    globals.selectedCells.forEach((cell) => {
-        let cellIndexes = spreadsheet.getCellIndexes(cell)
-        numberOfRowsSelected.add(cellIndexes[1])
-    })
-
-    if (numberOfRowsSelected.size > 1) alert('Cannot merge rows!')
-    else {
-        $(globals.selectedCells[0]).attr('colspan', globals.selectedCells.length)
-
-        globals.selectedCells.splice(1).forEach((cell) => {
-            $(cell).css('display', 'none')
+        classNamesArray.forEach((className) => {
+            if (className.startsWith('merged-cell-')) mergedCellClassName = className
         })
 
-        globals.setEditingCell(globals.selectedCells[0])
-        clearMarkedCells()
+        if (mergedCellClassName === undefined) return null
+        else return $('.' + mergedCellClassName)
     }
+    else return null
 }
 
-//TODO: Fokus og editing cell bliver ikke sat til leftmost
-export function demergeCell(mergedCells) {
-    mergedCells.forEach((mergedCell) => {
-        let cellWidth = $(mergedCell).attr('colspan')
-        let cellIndexes = spreadsheet.getCellIndexes(mergedCell)
-
-        for (let i = 1; i < cellWidth; i++) {
-            let cell = spreadsheet.getCellFromID(cellIndexes[0] + i, cellIndexes[1])
-            $(cell).css('display', '')
-        }
-
-        $(mergedCell).removeAttr('colspan')
-    })
+export function demergeCell(cell) {
+    $(cell).css('display', '')
+    $(cell).removeAttr('colspan')
 }
 
-export function setBoldText() {
-    globals.selectedCells.forEach((cell) => {
-        $(cell).addClass('bold')
-    })
+export function setBoldText(cell) {
+    $(cell).addClass('bold')
 }
 
-export function removeBoldText() {
-    globals.selectedCells.forEach((cell) => {
-        $(cell).removeClass('bold')
-    })
+export function removeBoldText(cell) {
+    $(cell).removeClass('bold')
 }
 
-export function setCellAsHeader() {
-    globals.selectedCells.forEach((cell) => {
-        $(cell).addClass('header')
-    })
+export function setCenterText(cell) {
+    $(cell).addClass('center')
 }
 
-export function removeCellAsHeader() {
-    globals.selectedCells.forEach((cell) => {
-        $(cell).removeClass('header')
-    })
+export function removeCenterText(cell) {
+    $(cell).removeClass('center')
 }
 
-export function setBlackBorder() {
-    globals.selectedCells.forEach((cell) => {
-        $(cell).addClass('blackBorder')
-    })
+export function setCellAsHeader(cell) {
+    $(cell).addClass('header')
 }
 
-export function removeBlackBorder() {
-    globals.selectedCells.forEach((cell) => {
-        $(cell).removeClass('blackBorder')
-    })
+export function removeCellAsHeader(cell) {
+    $(cell).removeClass('header')
+}
+
+export function setCellAsData(cell) {
+    $(cell).addClass('data')
+}
+
+export function removeCellAsData(cell) {
+    $(cell).removeClass('data')
+}
+
+export function setBlackBorder(cell) {
+    $(cell).addClass('blackBorder')
+}
+
+export function removeBlackBorder(cell) {
+    $(cell).removeClass('blackBorder')
 }
 
 export function showError(errorCellIndexes, errorLineIndexes) {

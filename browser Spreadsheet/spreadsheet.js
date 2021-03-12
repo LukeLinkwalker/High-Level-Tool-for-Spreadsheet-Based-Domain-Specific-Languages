@@ -1,12 +1,9 @@
 import * as events from './spreadsheetEvents.js'
 import * as tools from './spreadsheetTools.js'
-import * as setup from './spreadsheetSetup.js'
 import * as globals from './spreadsheetGlobalVariables.js'
 
-initialize()
-
-//TODO: Remove
-function testFunction() {
+//TODO: Remove after testing
+export function testFunction() {
     $('#testErrorButton').on('click', () => {
         tools.showError(globals.errorCellIndexes, globals.errorLineIndexes, globals.errorMessage)
     })
@@ -16,24 +13,9 @@ function testFunction() {
     })
 }
 
-function initialize() {
-    setup.setupDocument()
-    setup.setupMergeButton()
-    setup.setupBoldTextButton()
-    setup.setupCellAsHeaderButton()
-    setup.setupBlackBorderButton()
-
-    setup.setupInputBar()
-
-    createTable()
-
-    //TODO Remove
-    testFunction()
-}
-
-function createTable() {
-    globals.setColumnSize(10)
-    globals.setRowSize(10)
+export function createTable() {
+    globals.setColumnSize(20)
+    globals.setRowSize(20)
 
     let table = $('<table id="dynamicTable">')
     let tableBody = $('<tbody id="dynamicBody">')
@@ -53,7 +35,7 @@ function createTable() {
     $('#cell-container').append(table)
 }
 
-function createCell(column, row) {
+export function createCell(column, row) {
     let cell = $('<td>')
     cell.attr('id', createCellID(column, row))
     cell.attr('contenteditable', 'true')
@@ -132,8 +114,8 @@ export function findSelectedCells(selectedStartIndexes, selectedEndIndexes) {
 
     globals.setSelectedCells([])
 
-    for (let column = 0; column < 10; column++) {
-        for (let row = 0; row < 10; row++) {
+    for (let column = 0; column < globals.columnSize; column++) {
+        for (let row = 0; row < globals.rowSize; row++) {
             let cell = getCellFromID(column, row)
 
             if (column >= column1 && column <= column2 && row >= row1 && row <= row2) {
@@ -141,4 +123,64 @@ export function findSelectedCells(selectedStartIndexes, selectedEndIndexes) {
             }
         }
     }
+}
+
+export function getCellsInRange(startCell, endCell) {
+    let cellsInRange = []
+
+    for (let i = startCell[0]; i <= endCell[0] ; i++) {
+        for (let j = startCell[1]; j <= endCell[1]; j++) {
+            cellsInRange.push(getCellFromID(i, j))
+        }
+    }
+
+    return cellsInRange
+}
+
+export function checkCellIsEmpty(cell) {
+    return $(cell).text() === ''
+}
+
+export function setText(cell, text) {
+    //TODO: Change this based on errorMessage and hiddenText? Not sure.
+    $(cell).text(text)
+}
+
+export function markCells() {
+    globals.setCellsMarked(true)
+
+    //TODO: Update for data cells as well.
+    globals.selectedCells.forEach((cell) => {
+        if ($(cell).hasClass('header')) $(cell).addClass('selectedHeader')
+        else $(cell).addClass('selected')
+    })
+}
+
+export function clearMarkedCells() {
+    globals.setCellsMarked(false)
+
+    //TODO: Update for data cells as well.
+    $('.selected').each((i, element) => $(element).removeClass('selected'))
+    $('.selectedHeader').each((i, element) => $(element).removeClass('selectedHeader'))
+}
+
+export function clearCell(cell) {
+    let mergedCells = tools.getMergedCells(cell)
+
+    if (mergedCells !== null) {
+        mergedCells.each((i, mergedCell) => {
+            tools.demergeCell(mergedCell)
+            clearCellHelper(mergedCell)
+        })
+    }
+    else clearCellHelper(cell)
+}
+
+function clearCellHelper(cell) {
+    tools.removeBoldText(cell)
+    tools.removeCenterText(cell)
+    tools.removeCellAsHeader(cell)
+    tools.removeCellAsData(cell)
+    tools.removeBlackBorder(cell)
+    $(cell).text('')
 }
