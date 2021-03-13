@@ -13,7 +13,7 @@ export function testFunction() {
     })
 }
 
-export function createTable() {
+export function createSpreadsheet() {
     globals.setColumnSize(20)
     globals.setRowSize(20)
 
@@ -35,7 +35,7 @@ export function createTable() {
     $('#cell-container').append(table)
 }
 
-export function createCell(column, row) {
+function createCell(column, row) {
     let cell = $('<td>')
     cell.attr('id', createCellID(column, row))
     cell.attr('contenteditable', 'true')
@@ -50,6 +50,27 @@ export function createCell(column, row) {
     cell.on('focusout', (e) => events.onCellFocusOut(e.target))
 
     return cell
+}
+
+function createColumnHeader(tableSize, table) {
+    let columnRow = $('<thead>')
+    columnRow.append($('<th>'))
+
+    for (let column = 0; column < tableSize; column++) {
+        let tableHeader = $('<th>')
+        tableHeader.text(String.fromCharCode(65 + column))
+        columnRow.append(tableHeader)
+    }
+
+    $(table).prepend(columnRow)
+}
+
+function createRowHeader(tableSize, table) {
+    $('tr', table).each( (index, element) => {
+        let tableHeader = $('<th>')
+        tableHeader.text(index + 1)
+        $(element).prepend(tableHeader)
+    })
 }
 
 export function createCellID(column, row) {
@@ -72,27 +93,6 @@ export function setInitialEditingCell() {
 
     globals.setEditingCell(cell)
     cell.focus()
-}
-
-export function createColumnHeader(tableSize, table) {
-    let columnRow = $('<thead>')
-    columnRow.append($('<th>'))
-
-    for (let column = 0; column < tableSize; column++) {
-        let tableHeader = $('<th>')
-        tableHeader.text(String.fromCharCode(65 + column))
-        columnRow.append(tableHeader)
-    }
-
-    $(table).prepend(columnRow)
-}
-
-export function createRowHeader(tableSize, table) {
-    $('tr', table).each( (index, element) => {
-        let tableHeader = $('<th>')
-        tableHeader.text(index + 1)
-        $(element).prepend(tableHeader)
-    })
 }
 
 export function findSelectedCells(selectedStartIndexes, selectedEndIndexes) {
@@ -126,10 +126,12 @@ export function findSelectedCells(selectedStartIndexes, selectedEndIndexes) {
 }
 
 export function getCellsInRange(startCell, endCell) {
+    let startCellIndexes = getCellIndexes(startCell)
+    let endCellIndexes = getCellIndexes(endCell)
     let cellsInRange = []
 
-    for (let i = startCell[0]; i <= endCell[0] ; i++) {
-        for (let j = startCell[1]; j <= endCell[1]; j++) {
+    for (let i = startCellIndexes[0]; i <= endCellIndexes[0] ; i++) {
+        for (let j = startCellIndexes[1]; j <= endCellIndexes[1]; j++) {
             cellsInRange.push(getCellFromID(i, j))
         }
     }
@@ -141,46 +143,93 @@ export function checkCellIsEmpty(cell) {
     return $(cell).text() === ''
 }
 
-export function setText(cell, text) {
-    //TODO: Change this based on errorMessage and hiddenText? Not sure.
-    $(cell).text(text)
+export function createTableName(cell) {
+    let cellIndexes = getCellIndexes(cell)
+    let cellID = createCellID(cellIndexes[0], cellIndexes[1])
+    return 'table-' + cellID
 }
 
-export function markCells() {
-    globals.setCellsMarked(true)
+export function getTableName(cell) {
+    let classNames = $(cell).attr('class')
 
-    //TODO: Update for data cells as well.
-    globals.selectedCells.forEach((cell) => {
-        if ($(cell).hasClass('header')) $(cell).addClass('selectedHeader')
-        else $(cell).addClass('selected')
-    })
-}
+    if (classNames !== undefined) {
+        let classNamesArray = classNames.split(/\s+/)
+        let tableName = undefined
 
-export function clearMarkedCells() {
-    globals.setCellsMarked(false)
-
-    //TODO: Update for data cells as well.
-    $('.selected').each((i, element) => $(element).removeClass('selected'))
-    $('.selectedHeader').each((i, element) => $(element).removeClass('selectedHeader'))
-}
-
-export function clearCell(cell) {
-    let mergedCells = tools.getMergedCells(cell)
-
-    if (mergedCells !== null) {
-        mergedCells.each((i, mergedCell) => {
-            tools.demergeCell(mergedCell)
-            clearCellHelper(mergedCell)
+        classNamesArray.forEach((className) => {
+            if (className.startsWith('table-cell-')) tableName = className
         })
+
+        if (tableName === undefined) return null
+        else return tableName
     }
-    else clearCellHelper(cell)
+    else return null
 }
 
-function clearCellHelper(cell) {
-    tools.removeBoldText(cell)
-    tools.removeCenterText(cell)
-    tools.removeCellAsHeader(cell)
-    tools.removeCellAsData(cell)
-    tools.removeBlackBorder(cell)
-    $(cell).text('')
+export function addTableNameToCell(cell, tableName) {
+    $(cell).addClass(tableName)
+}
+
+export function getAllCellsFromTableCellIsIn(cell) {
+    let tableName = getTableName(cell)
+
+    if (tableName === null) return null
+    else return $('.' + tableName)
+}
+
+export function getTableRange(cell) {
+    let tableCells = getAllCellsFromTableCellIsIn(cell)
+    let startCell = null
+    let endCell = null
+
+    if (tableCells !== null) {
+        tableCells.each((i, cell) => {
+            if (startCell === null && endCell === null) {
+                startCell = cell
+                endCell = cell
+            }
+
+            let startCellIndexes = getCellIndexes(startCell)
+            let endCellIndexes = getCellIndexes(endCell)
+            let cellIndexes = getCellIndexes(cell)
+
+            if (cellIndexes[0] <= startCellIndexes[0] && cellIndexes[1] <= startCellIndexes[1]) startCell = cell
+            if (cellIndexes[0] >= endCellIndexes[0] && cellIndexes[1] >= endCellIndexes[1]) endCell = cell
+        })
+
+        let startCellIndexes = getCellIndexes(startCell)
+        let endCellIndexes = getCellIndexes(endCell)
+
+        return [startCellIndexes[0], startCellIndexes[1], endCellIndexes[0], endCellIndexes[1]]
+    }
+    else return null
+}
+
+export function getMergedCells(cell) {
+    let classNames = $(cell).attr('class')
+
+    if (classNames !== undefined) {
+        let classNamesArray = classNames.split(/\s+/)
+        let mergedCellClassName = null
+
+        classNamesArray.forEach((className) => {
+            if (className.startsWith('merged-cell-')) mergedCellClassName = className
+        })
+
+        if (mergedCellClassName === null) return null
+        else return $('.' + mergedCellClassName)
+    }
+    else return null
+}
+
+export function getCellsInNewTableRow(cell) {
+    let tableRange = getTableRange(cell)
+
+    if (tableRange === null) return null
+    else {
+        let newRowStartCell = getCellFromID(tableRange[0], tableRange[3] + 1)
+        let newRowEndCell = getCellFromID(tableRange[2], tableRange[3] + 1)
+
+        return getCellsInRange(newRowStartCell, newRowEndCell)
+    }
 }

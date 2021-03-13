@@ -15,6 +15,8 @@ export function setupKeys() {
 export function setupSDSL() {
     $('.sglClass').css('display', 'none')
     $('.sdslClass').css('display', '')
+
+    setupAddRow()
 }
 
 export function setupSGL() {
@@ -32,46 +34,17 @@ export function setupInputBar() {
 export function setupSpreadsheetTypeRadioButtons() {
     $('input[name="spreadsheetType"]')
         .on('change', () => events.onSpreadsheetTypeRadioButtonsChange())
+        .on('mousedown', (e) => e.preventDefault())
 }
-
-// export function setupMergeButton() {
-//     $('#mergeButton')
-//         .on('click', () => events.onMergeButtonClick())
-//         .on('mousedown', (e) => e.preventDefault())
-// }
-
-// export function setupBoldTextButton() {
-//     $('#boldText')
-//         .on('click', () => events.onBoldTextButtonClick())
-//         .on('mousedown', (e) => e.preventDefault())
-// }
-
-// export function setupCenterTextButton() {
-//     $('#centerText')
-//         .on('click', () => events.onCenterTextButtonClick())
-//         .on('mousedown', (e) => e.preventDefault())
-// }
-
-// export function setupCellAsHeaderButton() {
-//     $('#setCellAsHeader')
-//         .on('click', () => events.onCellAsHeaderButtonClick())
-//         .on('mousedown', (e) => e.preventDefault())
-// }
-
-// export function setupCellAsDataButton() {
-//     $('#setCellAsData')
-//         .on('click', () => events.onCellAsDataButtonClick())
-//         .on('mousedown', (e) => e.preventDefault())
-// }
-//
-// export function setupBlackBorderButton() {
-//     $('#setBlackBorder')
-//         .on('click', () => events.onBlackBorderButtonClick())
-//         .on('mousedown', (e) => e.preventDefault())
-// }
 
 export function setupCreateTableButton() {
     $('#createTable')
         .on('click', () => events.onCreateTableButtonClick())
+        .on('mousedown', (e) => e.preventDefault())
+}
+
+function setupAddRow() {
+    $('#addRow')
+        .on('click', () => events.onAddRowButtonClick())
         .on('mousedown', (e) => e.preventDefault())
 }

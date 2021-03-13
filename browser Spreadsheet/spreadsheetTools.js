@@ -1,38 +1,19 @@
 import * as spreadsheet from './spreadsheet.js';
 import * as globals from './spreadsheetGlobalVariables.js'
+import * as client from "./ssclient.js";
 
 export function mergeCells(cells) {
     let leftmostCellIndexes = spreadsheet.getCellIndexes(cells[0])
     let leftmostCellID = spreadsheet.createCellID(leftmostCellIndexes[0], leftmostCellIndexes[1])
+    let className = 'merged-' + leftmostCellID
 
     $(cells[0]).attr('colspan', cells.length)
-
-    cells.forEach((cell) => {
-        let className = 'merged-' + leftmostCellID
-        $(cell).addClass(className)
-    })
+    cells.forEach((cell) => $(cell).addClass(className))
 
     cells.splice(1).forEach((cell) => {
         $(cell).css('display', 'none')
         $(cell).text('')
     })
-}
-
-export function getMergedCells(cell) {
-    let classNames = $(cell).attr('class')
-
-    if (classNames !== undefined) {
-        let classNamesArray = classNames.split(/\s+/)
-        let mergedCellClassName = undefined
-
-        classNamesArray.forEach((className) => {
-            if (className.startsWith('merged-cell-')) mergedCellClassName = className
-        })
-
-        if (mergedCellClassName === undefined) return null
-        else return $('.' + mergedCellClassName)
-    }
-    else return null
 }
 
 export function demergeCell(cell) {
@@ -120,4 +101,110 @@ export function createErrorMessage(cell, errorMessage) {
 export function removeErrorMessage(cell) {
     let errorMessage = $('div.errorMessage', cell)
     errorMessage.remove()
+}
+
+export function setText(cell, text) {
+    //TODO: Change this based on errorMessage and hiddenText? Not sure.
+    $(cell).text(text)
+}
+
+export function markCells() {
+    globals.setCellsMarked(true)
+
+    //TODO: Update for data cells as well.
+    globals.selectedCells.forEach((cell) => {
+        if ($(cell).hasClass('header')) $(cell).addClass('selectedHeader')
+        else $(cell).addClass('selected')
+    })
+}
+
+export function clearMarkedCells() {
+    globals.setCellsMarked(false)
+
+    //TODO: Update for data cells as well.
+    $('.selected').each((i, element) => $(element).removeClass('selected'))
+    $('.selectedHeader').each((i, element) => $(element).removeClass('selectedHeader'))
+}
+
+export function clearCell(cell) {
+    let mergedCells = spreadsheet.getMergedCells(cell)
+
+    if (mergedCells !== null) {
+        mergedCells.each((i, mergedCell) => {
+            demergeCell(mergedCell)
+            clearCellHelper(mergedCell)
+        })
+    }
+    else clearCellHelper(cell)
+}
+
+function clearCellHelper(cell) {
+    removeBoldText(cell)
+    removeCenterText(cell)
+    removeCellAsHeader(cell)
+    removeCellAsData(cell)
+    removeBlackBorder(cell)
+    $(cell).text('')
+}
+
+export function createTable(cell) {
+    //TODO: Connect to server. Remove the following when it's working. Maybe not done correctly.
+    let cellIndexes = spreadsheet.getCellIndexes(cell)
+    let tableRangeCells = client.testSendToServer('getTableRange', [globals.editingCell])
+    let tableName = spreadsheet.createTableName(cell)
+    let allTableCellsAreEmpty = tableRangeCells.every((cellInRange) => {
+        return spreadsheet.checkCellIsEmpty(cellInRange)
+    })
+
+    if (allTableCellsAreEmpty) {
+        tableRangeCells.forEach((cellInRange) => spreadsheet.addTableNameToCell(cellInRange, tableName))
+        client.testSendToServer('createTable', cellIndexes)
+    }
+    else {
+        let warning = confirm('Some cells are not empty. Their data will be overwritten. Do you still wish to create a table?')
+
+        if (warning) {
+            tableRangeCells.forEach((cellInRange) => {
+                clearCell(cellInRange)
+                spreadsheet.addTableNameToCell(cellInRange, tableName)
+            })
+
+            client.testSendToServer('createTable', cellIndexes)
+        }
+    }
+}
+
+export function addRow(cell) {
+    let cellsInNewRow = spreadsheet.getCellsInNewTableRow(cell)
+
+    if (cellsInNewRow === null) alert('Cannot add row as current cell is not in a table!')
+    else {
+        let allCellsInNewRowAreEmpty = cellsInNewRow.every((cellInNewRow) => {
+            return spreadsheet.checkCellIsEmpty(cellInNewRow)
+        })
+
+        if (!allCellsInNewRowAreEmpty) {
+            let warning = confirm('Some cells are not empty. Their data will be overwritten. Do you still wish to add a row?')
+
+            if (warning) {
+                let tableName = spreadsheet.getTableName(cell)
+
+                cellsInNewRow.forEach((cellInNewRow) => {
+                    clearCell(cellInNewRow)
+                    createDataCellInNewRow(cellInNewRow, tableName)
+                })
+            }
+        }
+        else {
+            let tableName = spreadsheet.getTableName(cell)
+
+            cellsInNewRow.forEach((cellInNewRow) => createDataCellInNewRow(cellInNewRow, tableName))
+        }
+    }
+}
+
+function createDataCellInNewRow(cell, tableName) {
+    spreadsheet.addTableNameToCell(cell, tableName)
+    setCellAsData(cell)
+    setBlackBorder(cell)
 }

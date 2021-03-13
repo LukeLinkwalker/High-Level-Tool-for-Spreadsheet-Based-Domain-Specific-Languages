@@ -47,8 +47,8 @@ export function onCellMouseEnter(cell) {
         let endCellIndexes = spreadsheet.getCellIndexes(globals.selectedEndCell)
 
         spreadsheet.findSelectedCells(startCellIndexes, endCellIndexes)
-        spreadsheet.clearMarkedCells()
-        spreadsheet.markCells()
+        tools.clearMarkedCells()
+        tools.markCells()
     }
 
     if ($(cell).data('hasError')) tools.showErrorMessage(cell, globals.errorMessage)
@@ -59,7 +59,7 @@ export function onCellMouseLeave(cell) {
 }
 
 export function onCellFocus(cell) {
-    if (globals.cellsMarked) spreadsheet.clearMarkedCells()
+    if (globals.cellsMarked) tools.clearMarkedCells()
 
     globals.setEditingCell(cell)
     globals.setSelectedStartCell(cell)
@@ -110,109 +110,14 @@ export function onCellInput(cell) {
     client.sendChange(cell)
 }
 
-// // TODO: Focus and editing is not set to the leftmost.
-// export function onMergeButtonClick() {
-//     let mergedCells = []
-//     let numberOfRowsSelected = new Set()
-//     let allCellsAreEmpty = globals.selectedCells.every((cell) => { return spreadsheet.checkCellIsEmpty(cell) })
-//
-//     globals.selectedCells.forEach((cell) => {
-//         if ($(cell).attr('colspan') > 1) mergedCells.push(cell)
-//     })
-//
-//     if ((mergedCells.length > 1) || (mergedCells.length === 1 && globals.selectedCells.length > 1)) {
-//         if (!allCellsAreEmpty) {
-//             let warning = confirm('Only the left most value will be kept, if the cells are merged. Do you want to merge anyway?')
-//
-//             if (warning) {
-//                 mergedCells.forEach((cell) => tools.demergeCell(cell))
-//                 tools.mergeCells(globals.selectedCells)
-//             }
-//         }
-//         else {
-//             mergedCells.forEach((cell) => tools.demergeCell(cell))
-//             tools.mergeCells(globals.selectedCells)
-//             }
-//         }
-//     else if (mergedCells.length === 1) tools.demergeCell(mergedCells)
-//     else if (globals.selectedCells.length > 1) {
-//         if (numberOfRowsSelected > 1)alert('Cannot merge rows!')
-//         else {
-//             if (!allCellsAreEmpty) {
-//                 let warning = confirm('Only the left most value will be kept, if the cells are merged. Do you want to merge anyway?')
-//
-//                 if (warning) tools.mergeCells(globals.selectedCells)
-//             }
-//             else tools.mergeCells(globals.selectedCells)
-//         }
-//     }
-//         //TODO: Maybe remove alert and grey out button instead, if we even need the button or alert.
-//     else alert('Select at least two cells!')
-//
-//     globals.setEditingCell(globals.selectedCells[0])
-//     globals.editingCell.focus()
-//     spreadsheet.clearMarkedCells()
-// }
-
-// export function onBoldTextButtonClick() {
-//     let allCellsAreBold = globals.selectedCells.every((cell) => {
-//         return $(cell).hasClass('bold')
-//     })
-//
-//     if (allCellsAreBold) globals.selectedCells.forEach((cell) => tools.removeBoldText(cell))
-//     else globals.selectedCells.forEach((cell) => tools.setBoldText(cell))
-// }
-//
-// export function onCenterTextButtonClick() {
-//     let allCellsAreCentered = globals.selectedCells.every((cell) => {
-//         return $(cell).hasClass('center')
-//     })
-//
-//     if (allCellsAreCentered) globals.selectedCells.forEach((cell) => tools.removeCenterText(cell))
-//     else globals.selectedCells.forEach((cell) => tools.setCenterText(cell))
-// }
-//
-// export function onCellAsHeaderButtonClick() {
-//     let allCellsAreHeaders = globals.selectedCells.every((cell) => {
-//         return $(cell).hasClass('header')
-//     })
-//
-//     if (allCellsAreHeaders) globals.selectedCells.forEach((cell) => tools.removeCellAsHeader(cell))
-//     else globals.selectedCells.forEach((cell) => tools.setCellAsHeader(cell))
-// }
-//
-// export function onCellAsDataButtonClick() {
-//     let allCellsAreData = globals.selectedCells.every((cell) => {
-//         return $(cell).hasClass('data')
-//     })
-//
-//     if (allCellsAreData) globals.selectedCells.forEach((cell) => tools.removeCellAsData(cell))
-//     else globals.selectedCells.forEach((cell) => tools.setCellAsData(cell))
-// }
-//
-// export function onBlackBorderButtonClick() {
-//     let allCellsHaveBlackBorders = globals.selectedCells.every((cell) => {
-//         return $(cell).hasClass('blackBorder')
-//     })
-//
-//     if (allCellsHaveBlackBorders) globals.selectedCells.forEach((cell) => tools.removeBlackBorder(cell))
-//     else globals.selectedCells.forEach((cell) => tools.setBlackBorder(cell))
-// }
-
 export function onDocumentReady() {
     setup.setupKeys()
     setup.setupSpreadsheetTypeRadioButtons()
-    // setup.setupMergeButton()
-    // setup.setupBoldTextButton()
-    // setup.setupCenterTextButton()
-    // setup.setupCellAsHeaderButton()
-    // setup.setupCellAsDataButton()
-    // setup.setupBlackBorderButton()
     setup.setupCreateTableButton()
     setup.setupInputBar()
     setup.setupSDSL()
 
-    spreadsheet.createTable()
+    spreadsheet.createSpreadsheet()
     spreadsheet.setInitialEditingCell()
 
     $('#sdslRadioButton').prop('checked', true)
@@ -222,17 +127,42 @@ export function onDocumentReady() {
 }
 
 export function onDocumentKeypressTab(event) {
-    let editingCellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
+    let cell = globals.editingCell
+    let cellIndexes = spreadsheet.getCellIndexes(cell)
+    let tableRange = spreadsheet.getTableRange(cell)
+
+    if (tableRange !== null && cellIndexes[0] === tableRange[2]) {
+        if (cellIndexes[1] !== tableRange[3]) changeNextCellToStartOfNewRowInTable(cell, tableRange, event)
+        else {
+            tools.addRow(cell)
+            changeNextCellToStartOfNewRowInTable(cell, tableRange, event)
+        }
+    }
+    else changeNextCellHorizontally(globals.editingCell, event)
+}
+
+export function changeNextCellHorizontally(cell, event) {
+    let cellIndexes = spreadsheet.getCellIndexes(cell)
 
     event.preventDefault()
     $(globals.editingCell).css('outline', '')
 
-    if (editingCellIndexes[0] < globals.columnSize - 1) {
-        let newEditingCell = spreadsheet.getCellFromID(editingCellIndexes[0] + 1, editingCellIndexes[1])
+    if (cellIndexes[0] < globals.columnSize - 1) {
+        let newEditingCell = spreadsheet.getCellFromID(cellIndexes[0] + 1, cellIndexes[1])
 
         globals.setEditingCell(newEditingCell)
         newEditingCell.focus()
     }
+}
+
+export function changeNextCellToStartOfNewRowInTable(cell, tableRange, event) {
+    let cellIndexes = spreadsheet.getCellIndexes(cell)
+    let newEditingCell = spreadsheet.getCellFromID(tableRange[0], cellIndexes[1] + 1)
+
+    event.preventDefault()
+    $(globals.editingCell).css('outline', '')
+    globals.setEditingCell(newEditingCell)
+    newEditingCell.focus()
 }
 
 export function onDocumentKeypressEnter(event) {
@@ -250,23 +180,7 @@ export function onDocumentKeypressEnter(event) {
 }
 
 export function onCreateTableButtonClick() {
-    //TODO: Connect to server. Remove the following when it's working. Maybe not done correctly.
-    let tableRangeCells = client.testSendToServer('getTableRange')
-    let allTableCellsAreEmpty = tableRangeCells.every((cell) => {
-        return spreadsheet.checkCellIsEmpty(cell)
-    })
-
-    //TODO: Change positions based on the current cell.
-    if (allTableCellsAreEmpty) client.testSendToServer('createTable')
-    else {
-        let warning = confirm('Some cells are not empty. Their data will be overwritten. Do you still wish to create a table?')
-
-        if (warning) {
-            tableRangeCells.forEach((cell) => spreadsheet.clearCell(cell))
-
-            client.testCreateTable()
-        }
-    }
+    tools.createTable(globals.editingCell)
 }
 
 export function onSpreadsheetTypeRadioButtonsChange() {
@@ -276,4 +190,8 @@ export function onSpreadsheetTypeRadioButtonsChange() {
     else if (spreadsheetType === 'sgl') setup.setupSGL()
 
     globals.setSpreadsheetType(spreadsheetType)
+}
+
+export function onAddRowButtonClick() {
+    tools.addRow(globals.editingCell)
 }
