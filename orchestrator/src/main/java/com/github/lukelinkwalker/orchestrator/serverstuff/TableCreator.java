@@ -71,6 +71,7 @@ public class TableCreator {
 
             if (name.equals(objectName)) return jsonElement.getAsJsonObject();
         }
+
         return null;
     }
 
@@ -232,10 +233,6 @@ public class TableCreator {
         }
     }
 
-    private static void sendErrorMessage(String errorMessage) {
-        sendToSpreadsheet("errorMessage", new Object[] {errorMessage});
-    }
-
     private static void receiveFromSpreadsheet(String command, Object[] parameters) {
         //TODO: Setup with JSON-RPC
         switch (command) {
@@ -263,25 +260,25 @@ public class TableCreator {
                 System.out.println("testCommand('tableRange', [" + parameters[0] + ", " + parameters[1] + ", " + parameters[2] + ", " + parameters[3] + "])");
                 break;
             case "setText":
-                System.out.println("testCommand('setText', [" + parameters[0] + ", " + parameters[1] + ", '" + parameters[2] + "'])");
+                System.out.println("testCommand('setText', [" + parameters[0] + " + parseInt(column), " + parameters[1] + " + parseInt(row), '" + parameters[2] + "'])");
                 break;
             case "merge":
-                System.out.println("testCommand('merge', [" + parameters[0] + ", " + parameters[1] + ", " + parameters[2] + ", " + parameters[3] + "])");
+                System.out.println("testCommand('merge', [" + parameters[0] + " + parseInt(column), " + parameters[1] + " + parseInt(row), " + parameters[2] + " + parseInt(column), " + parameters[3] + " + parseInt(row)])");
                 break;
             case "boldText":
-                System.out.println("testCommand('boldText', [" + parameters[0] + ", " + parameters[1] + "])");
+                System.out.println("testCommand('boldText', [" + parameters[0] + " + parseInt(column), " + parameters[1] + " + parseInt(row)])");
                 break;
             case "centerText":
-                System.out.println("testCommand('centerText', [" + parameters[0] + ", " + parameters[1] + "])");
+                System.out.println("testCommand('centerText', [" + parameters[0] + " + parseInt(column), " + parameters[1] + " + parseInt(row)])");
                 break;
             case "blackBorder":
-                System.out.println("testCommand('blackBorder', [" + parameters[0] + ", " + parameters[1] + "])");
+                System.out.println("testCommand('blackBorder', [" + parameters[0] + " + parseInt(column), " + parameters[1] + " + parseInt(row)])");
                 break;
             case "setAsHeader":
-                System.out.println("testCommand('setAsHeader', [" + parameters[0] + ", " + parameters[1] + "])");
+                System.out.println("testCommand('setAsHeader', [" + parameters[0] + " + parseInt(column), " + parameters[1] + " + parseInt(row)])");
                 break;
             case "setAsData":
-                System.out.println("testCommand('setAsData', [" + parameters[0] + ", " + parameters[1] + "])");
+                System.out.println("testCommand('setAsData', [" + parameters[0] + " + parseInt(column), " + parameters[1] + " + parseInt(row)])");
                 break;
         }
     }
