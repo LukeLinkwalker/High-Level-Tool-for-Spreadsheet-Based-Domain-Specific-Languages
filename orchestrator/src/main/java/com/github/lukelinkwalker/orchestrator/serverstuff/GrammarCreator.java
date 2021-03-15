@@ -157,7 +157,10 @@ public class GrammarCreator {
     private static StringBuilder printAttribute(JsonObject jsonObject) {
         StringBuilder stringBuilder = new StringBuilder();
         String name = jsonObject.get("name").getAsString();
-        String dataType = jsonObject.get("dataType").getAsString().toUpperCase();
+        JsonArray dataTypeArray = jsonObject.get("dataTypes").getAsJsonArray();
+        JsonObject dataTypeObject = dataTypeArray.get(0).getAsJsonObject();
+        String dataType = dataTypeObject.get("value").getAsString().toUpperCase();
+
         boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
 
         stringBuilder.append("'\"").append(name).append("\"' ':' ").append(name.toLowerCase()).append(" = ").
@@ -186,7 +189,9 @@ public class GrammarCreator {
 
             for (JsonElement jsonElementInMethod : parameters) {
                 String parameterName = jsonElementInMethod.getAsJsonObject().get("name").getAsString();
-                String dataType = jsonElementInMethod.getAsJsonObject().get("dataType").getAsString().toUpperCase();
+                JsonArray dataTypeArray = jsonElementInMethod.getAsJsonObject().get("dataTypes").getAsJsonArray();
+                JsonObject dataTypeObject = dataTypeArray.get(0).getAsJsonObject();
+                String dataType = dataTypeObject.get("value").getAsString().toUpperCase();
 
                 stringJoiner.add("'\"" + parameterName + "\"' ':' " + parameterName + " = " + dataType);
             }
