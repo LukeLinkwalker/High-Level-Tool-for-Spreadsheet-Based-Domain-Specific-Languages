@@ -1,13 +1,13 @@
 package com.github.lukelinkwalker.orchestrator.ssserver.messages;
 
 public class SSOpen {
-	private String name;
+	private String sheetName;
 
 	public String getName() {
-		return name;
+		return sheetName;
 	}
 
 	public void setName(String name) {
-		this.name = name;
+		this.sheetName = name;
 	}
 }
