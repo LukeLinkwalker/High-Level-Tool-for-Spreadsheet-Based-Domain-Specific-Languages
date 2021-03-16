@@ -62,7 +62,7 @@ export function removeBlackBorder(cell) {
 }
 
 export function showError(errorCellIndexes, errorLineIndexes) {
-    let cell = $(spreadsheet.getCellFromID(errorCellIndexes[0], errorCellIndexes[1]))
+    let cell = $(spreadsheet.getCellFromIndexes(errorCellIndexes[0], errorCellIndexes[1]))
     let errorText = cell.text().substring(errorLineIndexes[0], errorLineIndexes[1])
 
     cell.data('hasError', true)
@@ -147,18 +147,19 @@ function clearCellHelper(cell) {
     $(cell).text('')
 }
 
-export function createTable(cell) {
-    //TODO: Connect to server. Remove the following when it's working. Maybe not done correctly.
-    let cellIndexes = spreadsheet.getCellIndexes(cell)
-    let tableRangeCells = client.testSendToServer('getTableRange', [globals.editingCell])
-    let tableName = spreadsheet.createTableName(cell)
-    let allTableCellsAreEmpty = tableRangeCells.every((cellInRange) => {
+//TODO: Refactor this?
+export function createTable(tableName, column, row, tableRange) {
+    let startCell = spreadsheet.getCellFromIndexes(tableRange[0], tableRange[1])
+    let endCell = spreadsheet.getCellFromIndexes(tableRange[2], tableRange[3])
+    let tableRangeCells = spreadsheet.getCellsInRange(startCell, endCell)
+    let tableNameForCells = spreadsheet.createTableNameForCells(startCell)
+    let allTableCellsAreEmpty = tableRangeCells.splice(1).every((cellInRange) => {
         return spreadsheet.checkCellIsEmpty(cellInRange)
     })
 
     if (allTableCellsAreEmpty) {
-        tableRangeCells.forEach((cellInRange) => spreadsheet.addTableNameToCell(cellInRange, tableName))
-        client.testSendToServer('createTable', cellIndexes)
+        tableRangeCells.forEach((cellInRange) => spreadsheet.addTableNameToCell(cellInRange, tableNameForCells))
+        client.requestCreateTable(tableName, tableRange[0], tableRange[1])
     }
     else {
         let warning = confirm('Some cells are not empty. Their data will be overwritten. Do you still wish to create a table?')
@@ -166,10 +167,10 @@ export function createTable(cell) {
         if (warning) {
             tableRangeCells.forEach((cellInRange) => {
                 clearCell(cellInRange)
-                spreadsheet.addTableNameToCell(cellInRange, tableName)
+                spreadsheet.addTableNameToCell(cellInRange, tableNameForCells)
             })
 
-            client.testSendToServer('createTable', cellIndexes)
+            client.requestCreateTable(tableName, tableRange[0], tableRange[1])
         }
     }
 }
@@ -207,4 +208,10 @@ function createDataCellInNewRow(cell, tableName) {
     spreadsheet.addTableNameToCell(cell, tableName)
     setCellAsData(cell)
     setBlackBorder(cell)
+}
+
+//TODO: Fix name and everything about this method!
+export function suggestion(cellText, column, row) {
+    console.log(cellText + 'is a table. WANNA CREATE TABLE? Indexes: ' + column + " " + row)
+
 }

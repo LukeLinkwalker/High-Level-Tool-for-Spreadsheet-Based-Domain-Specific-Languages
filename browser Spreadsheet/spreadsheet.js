@@ -77,7 +77,7 @@ export function createCellID(column, row) {
     return 'cell-' + column + '-' + row
 }
 
-export function getCellFromID(column, row) {
+export function getCellFromIndexes(column, row) {
     return $('#' + createCellID(column, row))[0]
 }
 
@@ -89,7 +89,7 @@ export function getCellIndexes(cell) {
 }
 
 export function setInitialEditingCell() {
-    let cell = getCellFromID(0, 0)
+    let cell = getCellFromIndexes(0, 0)
 
     globals.setEditingCell(cell)
     cell.focus()
@@ -116,7 +116,7 @@ export function findSelectedCells(selectedStartIndexes, selectedEndIndexes) {
 
     for (let column = 0; column < globals.columnSize; column++) {
         for (let row = 0; row < globals.rowSize; row++) {
-            let cell = getCellFromID(column, row)
+            let cell = getCellFromIndexes(column, row)
 
             if (column >= column1 && column <= column2 && row >= row1 && row <= row2) {
                 globals.selectedCells.push(cell)
@@ -132,7 +132,7 @@ export function getCellsInRange(startCell, endCell) {
 
     for (let i = startCellIndexes[0]; i <= endCellIndexes[0] ; i++) {
         for (let j = startCellIndexes[1]; j <= endCellIndexes[1]; j++) {
-            cellsInRange.push(getCellFromID(i, j))
+            cellsInRange.push(getCellFromIndexes(i, j))
         }
     }
 
@@ -143,7 +143,7 @@ export function checkCellIsEmpty(cell) {
     return $(cell).text() === ''
 }
 
-export function createTableName(cell) {
+export function createTableNameForCells(cell) {
     let cellIndexes = getCellIndexes(cell)
     let cellID = createCellID(cellIndexes[0], cellIndexes[1])
     return 'table-' + cellID
@@ -227,8 +227,8 @@ export function getCellsInNewTableRow(cell) {
 
     if (tableRange === null) return null
     else {
-        let newRowStartCell = getCellFromID(tableRange[0], tableRange[3] + 1)
-        let newRowEndCell = getCellFromID(tableRange[2], tableRange[3] + 1)
+        let newRowStartCell = getCellFromIndexes(tableRange[0], tableRange[3] + 1)
+        let newRowEndCell = getCellFromIndexes(tableRange[2], tableRange[3] + 1)
 
         return getCellsInRange(newRowStartCell, newRowEndCell)
     }

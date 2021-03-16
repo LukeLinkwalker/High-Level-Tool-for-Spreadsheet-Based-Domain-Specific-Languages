@@ -1,21 +1,119 @@
 import * as spreadsheet from './spreadsheet.js'
 import * as tools from './spreadsheetTools.js'
+import * as globals from './spreadsheetGlobalVariables.js'
+
+let id = 1
 
 const socket = new WebSocket('ws://localhost:20895');
 const debug = true;
 
-socket.addEventListener('open', function(event) {
-    //socket.send('Hello world');
+socket.addEventListener('message', (event) => {
+    let jsonObject = JSON.parse(event.data)
+
+    switch (jsonObject.method) {
+        case 'check-if-text-is-a-table-name':
+            handleCheckIfTextIsATableName(jsonObject.params)
+            break
+        case 'get-initial-table-range':
+            handleGetInitialTableRange(jsonObject.params)
+            break
+        case 'set-text':
+            handleSetText(jsonObject.params)
+            break
+        case 'merge':
+            handleMerge(jsonObject.params)
+            break
+        case 'bold-text':
+            handleBoldText(jsonObject.params)
+            break
+        case 'center-text':
+            handleCenterText(jsonObject.params)
+            break
+        case 'black-border':
+            handleBlackBorder(jsonObject.params)
+            break
+        case 'set-as-header-cell':
+            handleSetAsHeaderCell(jsonObject.params)
+            break
+        case 'set-as-data-cell':
+            handleSetAsDataCell(jsonObject.params)
+            break
+    }
 })
 
-socket.addEventListener('message', function(event) {
-    console.log('Message from server ', event.data);
-})
+function handleCheckIfTextIsATableName(params) {
+    let tableNameExists = params[3]
 
+    if (tableNameExists) {
+        let cellText = params[0]
+        let column = params[1]
+        let row = params[2]
+
+        tools.suggestion(cellText, column, row)
+    }
+}
+
+function handleGetInitialTableRange(params) {
+    if (params[3] === null) alert('A table with this name does not exist!')
+    else {
+        let tableName = params[0]
+        let column = params[1]
+        let row = params[2]
+
+        tools.createTable(tableName, column, row, params[3])
+    }
+}
+
+function handleSetText(params) {
+    let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
+    let text = params[2]
+
+    tools.setText(cell, text)
+    sendChange(cell)
+}
+
+function handleMerge(params) {
+    let startCell = spreadsheet.getCellFromIndexes(params[0], params[1])
+    let endCell = spreadsheet.getCellFromIndexes(params[2], params[3])
+
+    tools.mergeCells(spreadsheet.getCellsInRange(startCell, endCell))
+}
+
+function handleBoldText(params) {
+    let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
+
+    tools.setBoldText(cell)
+}
+
+function handleCenterText(params) {
+    let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
+
+    tools.setCenterText(cell)
+}
+
+function handleBlackBorder(params) {
+    let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
+
+    tools.setBlackBorder(cell)
+}
+
+function handleSetAsHeaderCell(params) {
+    let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
+
+    tools.setCellAsHeader(cell)
+}
+
+function handleSetAsDataCell(params) {
+    let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
+
+    tools.setCellAsData(cell)
+}
+
+//TODO: Fix this. Should only take text
 export function sendChange(cell) {
     let cellIndexes = spreadsheet.getCellIndexes(cell)
     let colspan = $(cell).attr('colspan')
-    let width = (colspan === undefined) ? 1 : colspan
+    let width = (colspan === undefined) ? 1 : colspan + 1
     let hiddenText = $(cell).data('hiddenText')
     let cellClone = $(cell).clone()
     let divs = $('.errorMessage', cellClone)
@@ -35,131 +133,30 @@ export function sendChange(cell) {
 
     if (debug) console.log("Send change: " + JSON.stringify(object));
 
-    socket.send(JSON.stringify(object));
+    //TODO: This caused an error on the server
+    // socket.send(JSON.stringify(object));
 }
 
-//TODO: Remove after testing.
-export function testCreateTable(column, row) {
-    testCommand('setText', [0 + parseInt(column), 0 + parseInt(row), 'Config'])
-    testCommand('setText', [0 + parseInt(column), 1 + parseInt(row), 'Name'])
-    testCommand('setText', [1 + parseInt(column), 1 + parseInt(row), 'Sensors'])
-    testCommand('setText', [1 + parseInt(column), 2 + parseInt(row), 'Name'])
-    testCommand('setText', [2 + parseInt(column), 2 + parseInt(row), 'Outputs'])
-    testCommand('setText', [2 + parseInt(column), 3 + parseInt(row), 'Type'])
-    testCommand('setText', [3 + parseInt(column), 3 + parseInt(row), 'Rate'])
-    testCommand('setText', [4 + parseInt(column), 1 + parseInt(row), 'Functions'])
-    testCommand('merge', [0 + parseInt(column), 0 + parseInt(row), 4 + parseInt(column), 0 + parseInt(row)])
-    testCommand('merge', [1 + parseInt(column), 1 + parseInt(row), 3 + parseInt(column), 1 + parseInt(row)])
-    testCommand('merge', [2 + parseInt(column), 2 + parseInt(row), 3 + parseInt(column), 2 + parseInt(row)])
-    testCommand('boldText', [0 + parseInt(column), 0 + parseInt(row)])
-    testCommand('boldText', [1 + parseInt(column), 1 + parseInt(row)])
-    testCommand('boldText', [2 + parseInt(column), 2 + parseInt(row)])
-    testCommand('boldText', [4 + parseInt(column), 1 + parseInt(row)])
-    testCommand('centerText', [0 + parseInt(column), 0 + parseInt(row)])
-    testCommand('centerText', [0 + parseInt(column), 1 + parseInt(row)])
-    testCommand('centerText', [0 + parseInt(column), 2 + parseInt(row)])
-    testCommand('centerText', [0 + parseInt(column), 3 + parseInt(row)])
-    testCommand('centerText', [1 + parseInt(column), 0 + parseInt(row)])
-    testCommand('centerText', [1 + parseInt(column), 1 + parseInt(row)])
-    testCommand('centerText', [1 + parseInt(column), 2 + parseInt(row)])
-    testCommand('centerText', [1 + parseInt(column), 3 + parseInt(row)])
-    testCommand('centerText', [2 + parseInt(column), 0 + parseInt(row)])
-    testCommand('centerText', [2 + parseInt(column), 1 + parseInt(row)])
-    testCommand('centerText', [2 + parseInt(column), 2 + parseInt(row)])
-    testCommand('centerText', [2 + parseInt(column), 3 + parseInt(row)])
-    testCommand('centerText', [3 + parseInt(column), 0 + parseInt(row)])
-    testCommand('centerText', [3 + parseInt(column), 1 + parseInt(row)])
-    testCommand('centerText', [3 + parseInt(column), 2 + parseInt(row)])
-    testCommand('centerText', [3 + parseInt(column), 3 + parseInt(row)])
-    testCommand('centerText', [4 + parseInt(column), 0 + parseInt(row)])
-    testCommand('centerText', [4 + parseInt(column), 1 + parseInt(row)])
-    testCommand('centerText', [4 + parseInt(column), 2 + parseInt(row)])
-    testCommand('centerText', [4 + parseInt(column), 3 + parseInt(row)])
-    testCommand('centerText', [0 + parseInt(column), 4 + parseInt(row)])
-    testCommand('centerText', [1 + parseInt(column), 4 + parseInt(row)])
-    testCommand('centerText', [2 + parseInt(column), 4 + parseInt(row)])
-    testCommand('centerText', [3 + parseInt(column), 4 + parseInt(row)])
-    testCommand('centerText', [4 + parseInt(column), 4 + parseInt(row)])
-    testCommand('blackBorder', [0 + parseInt(column), 0 + parseInt(row)])
-    testCommand('blackBorder', [0 + parseInt(column), 1 + parseInt(row)])
-    testCommand('blackBorder', [0 + parseInt(column), 2 + parseInt(row)])
-    testCommand('blackBorder', [0 + parseInt(column), 3 + parseInt(row)])
-    testCommand('blackBorder', [1 + parseInt(column), 0 + parseInt(row)])
-    testCommand('blackBorder', [1 + parseInt(column), 1 + parseInt(row)])
-    testCommand('blackBorder', [1 + parseInt(column), 2 + parseInt(row)])
-    testCommand('blackBorder', [1 + parseInt(column), 3 + parseInt(row)])
-    testCommand('blackBorder', [2 + parseInt(column), 0 + parseInt(row)])
-    testCommand('blackBorder', [2 + parseInt(column), 1 + parseInt(row)])
-    testCommand('blackBorder', [2 + parseInt(column), 2 + parseInt(row)])
-    testCommand('blackBorder', [2 + parseInt(column), 3 + parseInt(row)])
-    testCommand('blackBorder', [3 + parseInt(column), 0 + parseInt(row)])
-    testCommand('blackBorder', [3 + parseInt(column), 1 + parseInt(row)])
-    testCommand('blackBorder', [3 + parseInt(column), 2 + parseInt(row)])
-    testCommand('blackBorder', [3 + parseInt(column), 3 + parseInt(row)])
-    testCommand('blackBorder', [4 + parseInt(column), 0 + parseInt(row)])
-    testCommand('blackBorder', [4 + parseInt(column), 1 + parseInt(row)])
-    testCommand('blackBorder', [4 + parseInt(column), 2 + parseInt(row)])
-    testCommand('blackBorder', [4 + parseInt(column), 3 + parseInt(row)])
-    testCommand('blackBorder', [0 + parseInt(column), 4 + parseInt(row)])
-    testCommand('blackBorder', [1 + parseInt(column), 4 + parseInt(row)])
-    testCommand('blackBorder', [2 + parseInt(column), 4 + parseInt(row)])
-    testCommand('blackBorder', [3 + parseInt(column), 4 + parseInt(row)])
-    testCommand('blackBorder', [4 + parseInt(column), 4 + parseInt(row)])
-    testCommand('setAsHeader', [0 + parseInt(column), 0 + parseInt(row)])
-    testCommand('setAsHeader', [0 + parseInt(column), 1 + parseInt(row)])
-    testCommand('setAsHeader', [0 + parseInt(column), 2 + parseInt(row)])
-    testCommand('setAsHeader', [0 + parseInt(column), 3 + parseInt(row)])
-    testCommand('setAsHeader', [1 + parseInt(column), 0 + parseInt(row)])
-    testCommand('setAsHeader', [1 + parseInt(column), 1 + parseInt(row)])
-    testCommand('setAsHeader', [1 + parseInt(column), 2 + parseInt(row)])
-    testCommand('setAsHeader', [1 + parseInt(column), 3 + parseInt(row)])
-    testCommand('setAsHeader', [2 + parseInt(column), 0 + parseInt(row)])
-    testCommand('setAsHeader', [2 + parseInt(column), 1 + parseInt(row)])
-    testCommand('setAsHeader', [2 + parseInt(column), 2 + parseInt(row)])
-    testCommand('setAsHeader', [2 + parseInt(column), 3 + parseInt(row)])
-    testCommand('setAsHeader', [3 + parseInt(column), 0 + parseInt(row)])
-    testCommand('setAsHeader', [3 + parseInt(column), 1 + parseInt(row)])
-    testCommand('setAsHeader', [3 + parseInt(column), 2 + parseInt(row)])
-    testCommand('setAsHeader', [3 + parseInt(column), 3 + parseInt(row)])
-    testCommand('setAsHeader', [4 + parseInt(column), 0 + parseInt(row)])
-    testCommand('setAsHeader', [4 + parseInt(column), 1 + parseInt(row)])
-    testCommand('setAsHeader', [4 + parseInt(column), 2 + parseInt(row)])
-    testCommand('setAsHeader', [4 + parseInt(column), 3 + parseInt(row)])
-    testCommand('setAsData', [0 + parseInt(column), 4 + parseInt(row)])
-    testCommand('setAsData', [1 + parseInt(column), 4 + parseInt(row)])
-    testCommand('setAsData', [2 + parseInt(column), 4 + parseInt(row)])
-    testCommand('setAsData', [3 + parseInt(column), 4 + parseInt(row)])
-    testCommand('setAsData', [4 + parseInt(column), 4 + parseInt(row)])
+export function requestCheckIfTextIsATableName(cellText, column, row) {
+    let data = { sheetName: globals.spreadsheetName, cellText: cellText, column: column, row: row }
+    let message = { method: 'check-if-text-is-a-table-name', id: id, data: JSON.stringify(data) }
+
+    socket.send(JSON.stringify(message))
+    id++
 }
 
-function testCommand(command, parameters) {
-    if (command === 'tableNames') return ['Config']
-    else if (command === 'tableRange') {
-        let startCell = spreadsheet.getCellFromID(parameters[0], parameters[1])
-        let endCell = spreadsheet.getCellFromID(parameters[2], parameters[3])
-        return spreadsheet.getCellsInRange(startCell, endCell)
-    }
-    else if (command === 'setText') tools.setText(spreadsheet.getCellFromID(parameters[0], parameters[1]), parameters[2])
-    else if (command === 'merge') {
-        let startCell = spreadsheet.getCellFromID(parameters[0], parameters[1])
-        let endCell = spreadsheet.getCellFromID(parameters[2], parameters[3])
-        tools.mergeCells(spreadsheet.getCellsInRange(startCell, endCell))
-    }
-    else if (command === 'boldText') tools.setBoldText(spreadsheet.getCellFromID(parameters[0], parameters[1]))
-    else if (command === 'centerText') tools.setCenterText(spreadsheet.getCellFromID(parameters[0], parameters[1]))
-    else if (command === 'blackBorder') tools.setBlackBorder(spreadsheet.getCellFromID(parameters[0], parameters[1]))
-    else if (command === 'setAsHeader') tools.setCellAsHeader(spreadsheet.getCellFromID(parameters[0], parameters[1]))
-    else if (command === 'setAsData') tools.setCellAsData(spreadsheet.getCellFromID(parameters[0], parameters[1]))
+export function requestGetInitialTableRange(tableName, column, row) {
+    let data = { sheetName: globals.spreadsheetName, tableName: tableName, column: column, row: row }
+    let message = { method: 'get-initial-table-range', id: id, data: JSON.stringify(data) }
+
+    socket.send(JSON.stringify(message))
+    id++
 }
 
-export function testSendToServer(command, parameters) {
-    if (command === 'getTableNames') return testCommand('tableNames')
-    //TODO: getTableRange only made for testing. Fix it later.
-    else if (command === 'getTableRange') {
-        let cellIndexes = spreadsheet.getCellIndexes(parameters[0])
-        let column = cellIndexes[0]
-        let row = cellIndexes[1]
-        return testCommand('tableRange', [0 + column, 0 + row, 4 + column, 4 + row])
-    }
-    else if (command === 'createTable') testCreateTable(parameters[0], parameters[1])
+export function requestCreateTable(tableName, column, row) {
+    let data = { sheetName: globals.spreadsheetName, tableName: tableName, column: column, row: row}
+    let message = { method: 'create-table', id: id, data: JSON.stringify(data) }
+
+    socket.send(JSON.stringify(message))
+    id++
 }

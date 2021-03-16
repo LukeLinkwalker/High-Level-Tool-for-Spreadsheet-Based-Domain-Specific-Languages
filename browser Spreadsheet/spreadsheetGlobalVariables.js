@@ -8,6 +8,9 @@ export let rowSize
 export let mouseDown
 export let spreadsheetType
 
+//TODO: Should sheetName be here?
+export let spreadsheetName
+
 //TODO: Remove after testing
 export let errorMessage = 'ERROR! LOOOOOOOOOOOOOOOOOOOOOOOONG ERROR'
 export let errorCellIndexes = [0, 0]
@@ -47,4 +50,8 @@ export function setMouseDown(value) {
 
 export function setSpreadsheetType(value) {
     spreadsheetType = value
+}
+
+export function setSpreadsheetName(value) {
+    spreadsheetName = value
 }

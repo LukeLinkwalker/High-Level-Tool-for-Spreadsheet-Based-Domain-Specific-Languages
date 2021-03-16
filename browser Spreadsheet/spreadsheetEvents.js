@@ -51,7 +51,7 @@ export function onCellMouseEnter(cell) {
         tools.markCells()
     }
 
-    if ($(cell).data('hasError')) tools.showErrorMessage(cell, globals.errorMessage)
+    if ($(cell).data('hasError')) tools.showErrorMessage(cell)
 }
 
 export function onCellMouseLeave(cell) {
@@ -97,6 +97,7 @@ export function onCellInput(cell) {
     let hiddenText = $cell.data('hiddenText')
     let cellClone = $(cell).clone()
     let divs = $('.errorMessage', cellClone)
+    let cellIndexes = spreadsheet.getCellIndexes(cell)
 
     divs.each((i, element) => {
         element.remove()
@@ -108,6 +109,7 @@ export function onCellInput(cell) {
     else inputBar.val(cellClone.text())
 
     client.sendChange(cell)
+    client.requestCheckIfTextIsATableName(cellClone.text(), cellIndexes[0], cellIndexes[1])
 }
 
 export function onDocumentReady() {
@@ -148,7 +150,7 @@ export function changeNextCellHorizontally(cell, event) {
     $(globals.editingCell).css('outline', '')
 
     if (cellIndexes[0] < globals.columnSize - 1) {
-        let newEditingCell = spreadsheet.getCellFromID(cellIndexes[0] + 1, cellIndexes[1])
+        let newEditingCell = spreadsheet.getCellFromIndexes(cellIndexes[0] + 1, cellIndexes[1])
 
         globals.setEditingCell(newEditingCell)
         newEditingCell.focus()
@@ -157,7 +159,7 @@ export function changeNextCellHorizontally(cell, event) {
 
 export function changeNextCellToStartOfNewRowInTable(cell, tableRange, event) {
     let cellIndexes = spreadsheet.getCellIndexes(cell)
-    let newEditingCell = spreadsheet.getCellFromID(tableRange[0], cellIndexes[1] + 1)
+    let newEditingCell = spreadsheet.getCellFromIndexes(tableRange[0], cellIndexes[1] + 1)
 
     event.preventDefault()
     $(globals.editingCell).css('outline', '')
@@ -172,7 +174,7 @@ export function onDocumentKeypressEnter(event) {
     $(globals.editingCell).css('outline', '')
 
     if (editingCellIndexes[1] < globals.rowSize - 1) {
-        let newEditingCell = spreadsheet.getCellFromID(editingCellIndexes[0], editingCellIndexes[1] + 1)
+        let newEditingCell = spreadsheet.getCellFromIndexes(editingCellIndexes[0], editingCellIndexes[1] + 1)
 
         globals.setEditingCell(newEditingCell)
         newEditingCell.focus()
@@ -180,7 +182,10 @@ export function onDocumentKeypressEnter(event) {
 }
 
 export function onCreateTableButtonClick() {
-    tools.createTable(globals.editingCell)
+    let cellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
+    let tableName = $(globals.editingCell).text();
+
+    client.requestGetInitialTableRange(tableName, cellIndexes[0], cellIndexes[1])
 }
 
 export function onSpreadsheetTypeRadioButtonsChange() {
