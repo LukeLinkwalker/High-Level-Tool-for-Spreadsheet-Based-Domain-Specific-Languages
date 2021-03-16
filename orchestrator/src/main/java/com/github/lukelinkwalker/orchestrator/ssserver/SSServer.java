@@ -2,19 +2,13 @@ package com.github.lukelinkwalker.orchestrator.ssserver;
 
 import java.net.InetSocketAddress;
 
-import org.apache.commons.text.StringEscapeUtils;
+import com.github.lukelinkwalker.orchestrator.ssserver.messages.*;
+import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSCheckIfTextIsATableName;
+import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSResponse;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
-import com.github.lukelinkwalker.orchestrator.App;
-import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSBuild;
-import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSClose;
-import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSDiagnostic;
-import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSMessage;
-import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSOpen;
-import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSResponse;
-import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSUpdate;
 import com.github.lukelinkwalker.orchestrator.transformer.Sheet;
 import com.github.lukelinkwalker.orchestrator.transformer.SheetStore;
 import com.github.lukelinkwalker.orchestrator.transformer.SheetTransformer;
@@ -63,6 +57,15 @@ public class SSServer extends WebSocketServer {
 				break;
 			case "header":
 				handleHeaderLookup(msg);
+				break;
+			case "check-if-text-is-a-table-name":
+				handleCheckIfTextIsATableName(msg);
+				break;
+			case "get-initial-table-range":
+				handleGetInitialTableRange(msg);
+				break;
+			case "create-table":
+				handleCreateTable(msg);
 				break;
 		}
 	}
@@ -156,8 +159,11 @@ public class SSServer extends WebSocketServer {
 			
 			if(ssb.isSGL()) {
 				// handle SGL generator
-				String SGL_JSON = SheetTransformer.parseSGL(sheet);
-				System.out.println(SGL_JSON);
+				//
+				String sglJson = SheetTransformer.parseSGL(sheet);
+				String sglGrammar = GrammarCreator.createGrammar(sglJson);
+				System.out.println(sglJson);
+				System.out.println(sglGrammar);
 			} else {
 				// handle SDSL generator
 			}
@@ -172,5 +178,57 @@ public class SSServer extends WebSocketServer {
 	
 	private void handleHeaderLookup(SSMessage msg) {
 		// Send response with broadcast()
+	}
+
+	private void handleCheckIfTextIsATableName(SSMessage msg) {
+		SSCheckIfTextIsATableName ssCheckIfTextIsATableName = gson.fromJson(msg.getData(), SSCheckIfTextIsATableName.class);
+		String cellText = ssCheckIfTextIsATableName.getCellText();
+		int column = ssCheckIfTextIsATableName.getColumn();
+		int row = ssCheckIfTextIsATableName.getRow();
+		boolean tableNameExists = TableCreator.checkIfTextIsATableName(cellText);
+
+		SSResponse response = new SSResponse(msg);
+		response.setCode(200);
+		response.setParams(new Object[] {cellText, column, row, tableNameExists});
+
+		broadcast(gson.toJson(response));
+		System.out.println("Getting table names");
+	}
+
+	private void handleGetInitialTableRange(SSMessage msg) {
+		SSGetInitialTableRange ssGetInitialTableRange = gson.fromJson(msg.getData(), SSGetInitialTableRange.class);
+		String tableName = ssGetInitialTableRange.getTableName();
+		int column = ssGetInitialTableRange.getColumn();
+		int row = ssGetInitialTableRange.getRow();
+		int[] tableRange = TableCreator.getInitialTableRangeResponse(tableName, column, row);
+
+		SSResponse response = new SSResponse(msg);
+		response.setCode(200);
+		response.setParams(new Object[] {tableName, column, row, tableRange});
+		broadcast(gson.toJson(response));
+
+		System.out.println("Getting initial table range");
+	}
+
+	private void handleCreateTable(SSMessage msg) {
+		SSCreateTable ssCreateTable = gson.fromJson(msg.getData(), SSCreateTable.class);
+		String tableName = ssCreateTable.getTableName();
+		int column = ssCreateTable.getColumn();
+		int row = ssCreateTable.getRow();
+		boolean success = TableCreator.initializeCreateTable(tableName, column, row);
+
+		SSResponse response = new SSResponse(msg);
+		if (success) response.setCode(200);
+		else response.setCode(400);
+		broadcast(gson.toJson(response));
+
+		System.out.println("Creating table");
+	}
+
+	public void sendNotification(String method, Object[] parameters) {
+		SSNotification notification = new SSNotification(method, parameters);
+		broadcast(gson.toJson(notification));
+
+		System.out.println("Sending notification for method " + method);
 	}
 }

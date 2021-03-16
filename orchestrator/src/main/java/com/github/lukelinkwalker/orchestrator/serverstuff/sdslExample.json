@@ -1,1 +1,0 @@
-[{"column":0,"row":0,"name":"Config","type":"object","isOptional":false,"children":[{"column":0,"row":1,"name":"Name","type":"attribute","isOptional":false,"children":[],"dataTypes":[{"column":0,"row":2,"value":"String"}]},{"column":1,"row":1,"name":"Cost","type":"attribute","isOptional":false,"children":[],"dataTypes":[{"column":1,"row":2,"value":"Int"}]}],"dataTypes":[]}]

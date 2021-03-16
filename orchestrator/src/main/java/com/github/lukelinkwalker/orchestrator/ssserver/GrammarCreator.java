@@ -1,9 +1,6 @@
-package com.github.lukelinkwalker.orchestrator.serverstuff;
+package com.github.lukelinkwalker.orchestrator.ssserver;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -20,18 +17,11 @@ public class GrammarCreator {
     private static final StringBuilder tables = new StringBuilder();
     private static final List<String> terminalsList = new ArrayList<>(Arrays.asList("String", "int", "float", "boolean", "null"));
 
-    public static void main(String[] args) throws IOException {
-        setup();
-        System.out.println(model);
-    }
-
-    private static void setup() throws IOException {
+    public static String createGrammar(String json) {
         model.append("Model:\n'[' tables += Table (',' tables += Table)* ']';\n");
         tables.append("\nTable:;\n");
 
-        Gson gson = new Gson();
-        Reader reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/serverstuff/sdslExample.json"));
-        JsonArray root = gson.fromJson(reader, JsonArray.class);
+        JsonArray root = JsonParser.parseString(json).getAsJsonArray();
         rootIterator(root);
 
         terminals.append("\nterminal STRING: '\"' \"'\" ( '\\\\' . /* 'b'|'t'|'n'|'f'|'r'|'u'|'\"'|\"'\"|'\\\\' " +
@@ -48,7 +38,7 @@ public class GrammarCreator {
         model.insert(55, tables);
         model.append(terminals);
 
-        reader.close();
+        return model.toString();
     }
 
     private static void rootIterator(JsonArray jsonArray) {
@@ -209,5 +199,10 @@ public class GrammarCreator {
             terminalsList.add(name);
             terminals.append("\nterminal ").append(name).append(": ").append(rule).append(";\n");
         }
+    }
+
+    //TODO: Delete after confirming this works dynamically.
+    private static String getString() {
+        return "[{\"column\":0,\"row\":0,\"name\":\"Config\",\"type\":\"object\",\"isOptional\":false,\"children\":[{\"column\":0,\"row\":1,\"name\":\"Name\",\"type\":\"attribute\",\"isOptional\":false,\"children\":[],\"dataTypes\":[{\"column\":0,\"row\":2,\"value\":\"String\"}]},{\"column\":1,\"row\":1,\"name\":\"Cost\",\"type\":\"attribute\",\"isOptional\":false,\"children\":[],\"dataTypes\":[{\"column\":1,\"row\":2,\"value\":\"Int\"}]}],\"dataTypes\":[]}]";
     }
 }
