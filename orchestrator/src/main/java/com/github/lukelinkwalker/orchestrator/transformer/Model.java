@@ -145,7 +145,7 @@ public class Model {
 			return -1;
 		}
 		
-		return getDepth(headerMap.get(header), 0);
+		return getDepth(headerMap.get(header), 1);
 	}
 	
 	private int getDepth(JsonObj obj, int depth) {

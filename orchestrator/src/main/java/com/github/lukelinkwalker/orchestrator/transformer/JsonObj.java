@@ -53,6 +53,15 @@ public class JsonObj {
 	public void setDataTypes(JsonType[] dataTypes) {
 		this.dataTypes = dataTypes;
 	}
+	
+	public String getDataType() {
+		if(type.toLowerCase().equals("alternative")) {
+			return "alternative";
+		}
+		
+		return dataTypes[0].getValue();
+	}
+	
 	@Override
 	public String toString() {
 		return "JsonObj [column=" + column + ", row=" + row + ", name=" + name + ", type=" + type + ", isOptional="

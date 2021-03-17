@@ -30,8 +30,28 @@ public class CellData {
 		}
 	}
 
+	public int getColumn() {
+		return column;
+	}
+
+	public void setColumn(int column) {
+		this.column = column;
+	}
+
+	public int getRow() {
+		return row;
+	}
+
+	public void setRow(int row) {
+		this.row = row;
+	}
+
 	public String getName() {
 		return name;
+	}
+	
+	public void setType(String type) {
+		this.type = type;
 	}
 	
 	public String getType() {
