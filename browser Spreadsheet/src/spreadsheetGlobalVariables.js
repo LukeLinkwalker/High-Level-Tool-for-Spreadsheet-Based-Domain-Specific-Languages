@@ -17,9 +17,9 @@ export let errorCellIndexes = [0, 0]
 export let errorLineIndexes = [1, 3]
 
 //Remove after testing
-export function setError(errorMessage, column, row) {
-    this.errorMessage = errorMessage
-    this.errorCellIndexes = [column, row]
+export function setError(_errorMessage, column, row) {
+    errorMessage = _errorMessage
+    errorCellIndexes = [column, row]
 }
 
 export function setEditingCell(value) {

@@ -54,8 +54,31 @@ socket.addEventListener('message', (event) => {
         case 'set-as-data-cell':
             handleSetAsDataCell(jsonObject.params)
             break
+        case 'diagnostic':
+            handleErrors(jsonObject.content)
+            break;
     }
 })
+
+function handleErrors(errors) {
+    removeErrors();
+
+    console.log("Diagnostic - Number of errors : " + errors.length);
+    for(let i = 0; i < errors.length; i += 1) {
+        globals.setError(errors[i].message, errors[i].column, errors[i].row);
+        showError(errors[i].column, errors[i].row);
+    }
+}
+
+function removeErrors() {
+    $("td").each(function() {
+        $(this).removeClass("errorHighlight");
+    });
+}
+
+function showError(column, row) {
+    $(spreadsheet.getCellFromIndexes(column, row)).addClass("errorHighlight");
+}
 
 function handleCheckIfTextIsATableName(params) {
     let tableNameExists = params[3]

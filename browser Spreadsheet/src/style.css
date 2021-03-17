@@ -102,3 +102,6 @@ td {
     margin: 5px 10px;
 }
 
+.errorHighlight {
+    background-color: #EF4836;
+}
