@@ -10,7 +10,7 @@ export function mergeCells(cells) {
     $(cells[0]).attr('colspan', cells.length)
     cells.forEach((cell) => $(cell).addClass(className))
 
-    cells.splice(1).forEach((cell) => {
+    cells.slice(1).forEach((cell) => {
         $(cell).css('display', 'none')
         $(cell).text('')
     })
@@ -153,7 +153,8 @@ export function createTable(tableName, column, row, tableRange) {
     let endCell = spreadsheet.getCellFromIndexes(tableRange[2], tableRange[3])
     let tableRangeCells = spreadsheet.getCellsInRange(startCell, endCell)
     let tableNameForCells = spreadsheet.createTableNameForCells(startCell)
-    let allTableCellsAreEmpty = tableRangeCells.splice(0).splice(1).every((cellInRange) => {
+
+    let allTableCellsAreEmpty = tableRangeCells.slice(1).every((cellInRange) => {
         return spreadsheet.checkCellIsEmpty(cellInRange)
     })
 
