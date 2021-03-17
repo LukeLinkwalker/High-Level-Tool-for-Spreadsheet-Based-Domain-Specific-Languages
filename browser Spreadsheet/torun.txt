@@ -1,0 +1,2 @@
+npm install finalhandler serve-static
+npm main.js
