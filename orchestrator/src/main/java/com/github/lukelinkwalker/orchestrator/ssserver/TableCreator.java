@@ -22,7 +22,7 @@ public class TableCreator {
     //TODO: Remove setup after functionality to setup ssmodel is added
     private static void setup() throws IOException {
         Gson gson = new Gson();
-        Reader reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
+        Reader reader = Files.newBufferedReader(Paths.get("src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
         ssmodel = gson.fromJson(reader, JsonArray.class);
     }
 
@@ -43,7 +43,6 @@ public class TableCreator {
             int[] tableHeaderAreaIndexes = getTableHeaderAreaIndexes(tableObject, column, row);
             int[] tableDataAreaIndexes = getTableDataAreaIndexes(tableHeaderAreaIndexes);
 
-            sendTextCommandForAppropriateCells(tableObject, column, row);
             sendMergeCommandForAppropriateCells(tableObject, tableName, tableHeaderAreaIndexes[2], column, row);
             sendBoldTextCommandForAppropriateCells(tableObject, column, row);
             sendCenterTextCommandForAppropriateCells(tableHeaderAreaIndexes);
@@ -52,6 +51,7 @@ public class TableCreator {
             sendBlackBorderCommandForRangeOfCells(tableDataAreaIndexes);
             sendSetAsHeaderCommandForAppropriateCells(tableHeaderAreaIndexes);
             sendSetAsDataCommandForAppropriateCells(tableDataAreaIndexes);
+            sendTextCommandForAppropriateCells(tableObject, column, row);
 
             success = true;
         }

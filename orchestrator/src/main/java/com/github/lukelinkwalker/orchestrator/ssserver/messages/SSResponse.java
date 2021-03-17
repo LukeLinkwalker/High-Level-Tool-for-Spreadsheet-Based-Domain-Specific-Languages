@@ -17,18 +17,23 @@ public class SSResponse {
 	public String getMethod() {
 		return method;
 	}
+	
 	public void setMethod(String method) {
 		this.method = method;
 	}
+	
 	public int getId() {
 		return id;
 	}
+	
 	public void setId(int id) {
 		this.id = id;
 	}
+	
 	public int getCode() {
 		return code;
 	}
+	
 	public void setCode(int code) {
 		this.code = code;
 	}
