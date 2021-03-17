@@ -7,6 +7,22 @@ let id = 1
 const socket = new WebSocket('ws://localhost:20895');
 const debug = true;
 
+socket.addEventListener('open', function(event) {
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    //  Dummy opening a sheet on the server .. only for demo purposes before functionality is added  //
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    let close = { sheetName:"Hello" }
+    let cmsg = { method:"close-sheet", id:"0", data:JSON.stringify(close) };
+    socket.send(JSON.stringify(cmsg));
+
+    let open = { sheetName:"Hello" }
+    let omsg = { method:"open-sheet", id:"1", data:JSON.stringify(open) };
+    socket.send(JSON.stringify(omsg));
+    //////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+})
+
 socket.addEventListener('message', (event) => {
     let jsonObject = JSON.parse(event.data)
 
@@ -110,6 +126,7 @@ function handleSetAsDataCell(params) {
 }
 
 //TODO: Fix this. Should only take text
+var updateCounter = 10_000_000;
 export function sendChange(cell) {
     let cellIndexes = spreadsheet.getCellIndexes(cell)
     let colspan = $(cell).prop("colspan")
@@ -122,14 +139,21 @@ export function sendChange(cell) {
         element.remove()
     })
 
-    let data = hiddenText + cellClone.text()
+    let content = hiddenText + cellClone.text()
 
     let object = {
         column: cellIndexes[0],
         row: cellIndexes[1],
         width: colspan,
-        character: data
+        character: content
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                     Sending cell data to server                               //
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+    let update = { sheetName:"Hello", column:cellIndexes[0], row:cellIndexes[1], width:colspan, data: content};
+    let update_msg = { method:"update-sheet", id:updateCounter++, data:JSON.stringify(update) };
+    socket.send(JSON.stringify(update_msg));
 
     if (debug) console.log("Send change: " + JSON.stringify(object));
 
