@@ -2,6 +2,7 @@ package com.github.lukelinkwalker.orchestrator.ssserver;
 
 import java.net.InetSocketAddress;
 
+import com.github.lukelinkwalker.orchestrator.App;
 import com.github.lukelinkwalker.orchestrator.ssserver.messages.*;
 import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSCheckIfTextIsATableName;
 import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSResponse;
@@ -13,6 +14,8 @@ import com.github.lukelinkwalker.orchestrator.transformer.Sheet;
 import com.github.lukelinkwalker.orchestrator.transformer.SheetStore;
 import com.github.lukelinkwalker.orchestrator.transformer.SheetTransformer;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 public class SSServer extends WebSocketServer {
 
@@ -86,6 +89,11 @@ public class SSServer extends WebSocketServer {
 		broadcast(gson.toJson(diagnostic));
 	}
 	
+	public void sendErrors(JsonObject errors) {
+		System.out.println("Sending errors to client!");
+		broadcast(gson.toJson(errors));
+	}
+	
 	private void handleOpenSheet(SSMessage msg) {
 		SSOpen sso = gson.fromJson(msg.getData(), SSOpen.class);
 		System.out.println("Opening sheet: " + sso.getName());
@@ -128,6 +136,7 @@ public class SSServer extends WebSocketServer {
 		
 		if(sheet != null) {
 			sheet.addData(ssu.getColumn(), ssu.getRow(), ssu.getWidth(), ssu.getData());
+			
 		}
 		
 		SSResponse response = new SSResponse(msg);
@@ -139,10 +148,25 @@ public class SSServer extends WebSocketServer {
 		}
 		
 		broadcast(gson.toJson(response));
+		
+		// Initiate evaluation of sheet
+		SSEvaluate sse = new SSEvaluate(ssu);
+		handleEvaluate(sse);
 	}
 
 	private void handleEvaluate(SSMessage msg) {
+		SSEvaluate sse = gson.fromJson(msg.getData(), SSEvaluate.class);
+	}
+	
+	private void handleEvaluate(SSEvaluate sse) {
+		Sheet sheet = SheetStore.getSheet(sse.getSheetName());
+		String SDSL_JSON = SheetTransformer.parseSDSL(sheet);
+		System.out.println("Evaluating: " + SDSL_JSON);
+		//App.DC.setContent(SDSL_JSON);
+		App.Txt = SDSL_JSON;
+		App.DC.openFileWithContent(SDSL_JSON);
 		
+		//System.out.println("Evaluated: " + SDSL_JSON);
 	}
 	
 	private void handleBuild(SSMessage msg) {

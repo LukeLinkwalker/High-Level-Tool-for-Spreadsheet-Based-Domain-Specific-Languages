@@ -66,10 +66,10 @@ public class SheetTransformer {
 		
 		for(int i = 0; i < 1; i += 1) {
 			BoundingBox table1 = tables.get(i);
-			System.out.println("Processing: " + table1.toString());
+			//System.out.println("Processing: " + table1.toString());
 			
 			String tableName = sheet.getCell(table1.getX(), table1.getY()).getData();
-			System.out.println("Table name: " + tableName);
+			//System.out.println("Table name: " + tableName);
 			
 			int depth = App.M.getDepth(tableName);
 			
@@ -121,10 +121,10 @@ public class SheetTransformer {
 				rowEntries.add(new Tuple<>(currentDepth, currentEntry));
 				rows.add(rowEntries);
 				
-				System.out.println("Row entries: " + rowEntries.size());
-				for(int k = 0; k < rowEntries.size(); k += 1) {
-					System.out.println("Entry " + k + " : " + rowEntries.get(k).getA() + " - " + rowEntries.get(k).getB().size());
-				}
+				//System.out.println("Row entries: " + rowEntries.size());
+				//for(int k = 0; k < rowEntries.size(); k += 1) {
+					//System.out.println("Entry " + k + " : " + rowEntries.get(k).getA() + " - " + rowEntries.get(k).getB().size());
+				//}
 			}
 			
 			// Convert to JSON objects
@@ -142,7 +142,7 @@ public class SheetTransformer {
 					for(int cell = 0; cell < object.getB().size(); cell += 1) {
 						// Needs to be dynamic "Config" -> tableName
 						JsonObj attr = App.M.getAttribute(tableName, object.getB().get(cell).getCellName());
-						System.out.println(attr.getName() + " -> " + attr.getDataType());
+						//System.out.println(attr.getName() + " -> " + attr.getDataType());
 						
 						JsonObject tmp = new JsonObject();
 						tmp.addProperty("column", object.getB().get(cell).getColumn());
@@ -176,13 +176,13 @@ public class SheetTransformer {
 			// Merge JSON objects
 			for(int row = 0; row < objectRows.size(); row += 1) {
 				ArrayList<Tuple<Integer, JsonObject>> objects = objectRows.get(row);
-				System.out.println("Row: " + row + "  (" + objects.size() + ")");
+				//System.out.println("Row: " + row + "  (" + objects.size() + ")");
 				
 				for(int object = 0; object < objects.size(); object += 1) {
 					Tuple<Integer, JsonObject> jsonEntry = objects.get(object);
 					// Store to handle objects at same level ?
 					JsonObject parent = findJsonParent(objectRows, objects, row, object, objects.get(object).getA());
-					System.out.println(jsonEntry.getA() + " : " + jsonEntry.getB().toString().toString() + " with " + parent);
+					//System.out.println(jsonEntry.getA() + " : " + jsonEntry.getB().toString().toString() + " with " + parent);
 					
 					
 					if(parent != null) {

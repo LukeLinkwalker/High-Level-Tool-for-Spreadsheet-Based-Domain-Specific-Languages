@@ -4,6 +4,15 @@ public class SSEvaluate {
 	private String sheetName;
 	private boolean isSGL;
 	
+	public SSEvaluate() {
+		
+	}
+	
+	public SSEvaluate(SSUpdate msg) {
+		this.isSGL = false;
+		this.sheetName = msg.getSheetName();
+	}
+	
 	public String getSheetName() {
 		return sheetName;
 	}

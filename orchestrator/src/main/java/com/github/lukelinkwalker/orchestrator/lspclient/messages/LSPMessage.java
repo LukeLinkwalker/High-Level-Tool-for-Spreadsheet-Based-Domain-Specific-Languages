@@ -4,7 +4,7 @@ public class LSPMessage {
 	private String jsonrpc;
 	private String id;
 	private String method;
-	private String params;
+	private Object params;
 	
 	public String getJsonrpc() {
 		return jsonrpc;
@@ -24,10 +24,10 @@ public class LSPMessage {
 	public void setMethod(String method) {
 		this.method = method;
 	}
-	public String getParams() {
+	public Object getParams() {
 		return params;
 	}
-	public void setParams(String params) {
+	public void setParams(Object params) {
 		this.params = params;
 	}
 }

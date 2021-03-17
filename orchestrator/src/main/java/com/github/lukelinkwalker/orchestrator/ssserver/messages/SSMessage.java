@@ -28,7 +28,7 @@ public class SSMessage {
 	public void setData(String data) {
 		this.data = data;
 	}
-
+	
 	@Override
 	public String toString() {
 		return "SSMessage [method=" + method + ", id=" + id + ", data=" + data + "]";

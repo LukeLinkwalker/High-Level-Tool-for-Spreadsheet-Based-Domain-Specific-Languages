@@ -36,6 +36,7 @@ public class App
 	public static DumbLSPClient DC;
 	public static SSServer SSS;
 	public static Model M;
+	public static String Txt;
 	
     public static void main( String[] args ) throws URISyntaxException, InterruptedException, ParserConfigurationException, IOException, SAXException
     {
@@ -45,5 +46,9 @@ public class App
     	// Hosting server for client to connect to
     	SSS = new SSServer(20895);
     	SSS.start();
+    	
+    	// Connecting to LSP
+    	DC = new DumbLSPClient(new URI("ws://localhost:4389"));
+    	DC.connect();
     }
 }
