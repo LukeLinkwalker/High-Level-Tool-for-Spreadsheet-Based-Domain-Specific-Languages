@@ -153,7 +153,7 @@ export function createTable(tableName, column, row, tableRange) {
     let endCell = spreadsheet.getCellFromIndexes(tableRange[2], tableRange[3])
     let tableRangeCells = spreadsheet.getCellsInRange(startCell, endCell)
     let tableNameForCells = spreadsheet.createTableNameForCells(startCell)
-    let allTableCellsAreEmpty = tableRangeCells.splice(1).every((cellInRange) => {
+    let allTableCellsAreEmpty = tableRangeCells.splice(0).splice(1).every((cellInRange) => {
         return spreadsheet.checkCellIsEmpty(cellInRange)
     })
 
@@ -213,5 +213,4 @@ function createDataCellInNewRow(cell, tableName) {
 //TODO: Fix name and everything about this method!
 export function suggestion(cellText, column, row) {
     console.log(cellText + 'is a table. WANNA CREATE TABLE? Indexes: ' + column + " " + row)
-
 }

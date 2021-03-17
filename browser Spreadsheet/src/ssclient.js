@@ -112,7 +112,7 @@ function handleSetAsDataCell(params) {
 //TODO: Fix this. Should only take text
 export function sendChange(cell) {
     let cellIndexes = spreadsheet.getCellIndexes(cell)
-    let colspan = $(cell).prop("colspan")
+    let colspan = $(cell).prop('colspan')
     //let width = (colspan === undefined) ? 1 : colspan + 1
     let hiddenText = $(cell).data('hiddenText')
     let cellClone = $(cell).clone()
