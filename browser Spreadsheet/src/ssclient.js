@@ -64,8 +64,15 @@ function handleCheckIfTextIsATableName(params) {
         let cellText = params[0]
         let column = params[1]
         let row = params[2]
+        let cell = spreadsheet.getCellFromIndexes(column, row)
 
-        tools.suggestion(cellText, column, row)
+        //TODO: Refactor this
+        $(cell).on('keydown',(e) => {
+            if (e.which === 13) {
+                tools.suggestion(cellText, column, row)
+                $(cell).off('keydown')
+            }
+        })
     }
 }
 

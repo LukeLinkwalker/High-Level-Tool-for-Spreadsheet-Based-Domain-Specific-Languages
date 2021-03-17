@@ -213,5 +213,8 @@ function createDataCellInNewRow(cell, tableName) {
 
 //TODO: Fix name and everything about this method!
 export function suggestion(cellText, column, row) {
-    console.log(cellText + 'is a table. WANNA CREATE TABLE? Indexes: ' + column + " " + row)
+
+    client.requestGetInitialTableRange(cellText, column, row)
+
+    // console.log(cellText + 'is a table. WANNA CREATE TABLE? Indexes: ' + column + " " + row)
 }
