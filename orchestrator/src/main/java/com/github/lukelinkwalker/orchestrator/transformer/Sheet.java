@@ -1,5 +1,7 @@
 package com.github.lukelinkwalker.orchestrator.transformer;
 
+import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 import com.github.lukelinkwalker.orchestrator.Util.Tuple;
@@ -29,52 +31,46 @@ public class Sheet {
 	}
 	
 	public ArrayList<BoundingBox> getTableRanges() {
-		ArrayList<BoundingBox> resultingBoxes = new ArrayList<>();
-		ArrayList<BoundingBox> workingBoxes = new ArrayList<>();
-		ArrayList<BoundingBox> toRemove = new ArrayList<>();
+		ArrayList<BoundingBox> boxes = new ArrayList<>();
 		
-		// Limits possible size of documents could be made dynamic
-		for(int x = 0; x < 1000; x += 1) { 
-			for(int y = 0; y < 1000; y += 1) {
-				if(cells[x][y] != null) {			
-					workingBoxes.add(new BoundingBox(x, y));
+		for(int row = 0; row < 1000; row += 1) {
+			for(int column = 0; column < 1000; column += 1) {
+				if(cells[column][row] != null) {
+					BoundingBox bb = new BoundingBox(column, row);
+					BoundingBox container = null;
+					
+					for(int i = 0; i < boxes.size(); i += 1) {
+						BoundingBox tmp = boxes.get(i);
+						
+						if(tmp.getX() + tmp.getWidth() - bb.getX() == 0) {
+							tmp.setWidth(tmp.getWidth() + 1);
+							container = tmp;
+							break;
+						}
+						
+						if(tmp.getY() + tmp.getHeight() - bb.getY() == 0) {
+							tmp.setHeight(tmp.getHeight() + 1);
+							container = tmp;
+							break;
+						}
+						
+						if(bb.getY() < tmp.getY() + tmp.getHeight() &&
+						   bb.getX() < tmp.getX() + tmp.getWidth() &&
+						   bb.getX() > tmp.getX() &&
+						   bb.getY() > tmp.getY()) 
+						{
+							container = tmp;
+							break;
+						}
+					}
+					
+					if(container == null) {
+						boxes.add(bb);
+					}
 				}
 			}
 		}
 		
-		while(true) {
-			if(workingBoxes.size() == 0) {
-				break;
-			}
-			
-			int mergeCount = 0;
-			toRemove.clear();
-			
-			BoundingBox tmpBB = workingBoxes.get(0);
-			for(int i = 1; i < workingBoxes.size(); i += 1) {
-				if(BoundingBox.mergeCheck(tmpBB, workingBoxes.get(i)).size() == 1) {
-					toRemove.add(workingBoxes.get(i));
-					tmpBB = BoundingBox.merge(tmpBB, workingBoxes.get(i));
-					mergeCount += 1;
-				}
-			}
-			
-			if(mergeCount > 0) {
-				workingBoxes.remove(0);
-				resultingBoxes.add(tmpBB);
-			}
-			
-			for(BoundingBox bb : toRemove) {
-				workingBoxes.remove(bb);
-			}
-			
-			if(mergeCount == 0) {
-				break;
-			}
-		}
-		
-		resultingBoxes.addAll(workingBoxes);
-		
-		return resultingBoxes;
+		return boxes;
 	}
 }

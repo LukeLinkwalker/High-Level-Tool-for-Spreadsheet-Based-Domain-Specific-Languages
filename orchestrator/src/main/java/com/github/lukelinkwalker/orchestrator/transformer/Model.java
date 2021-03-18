@@ -60,6 +60,10 @@ public class Model {
 		}
 	}
 	
+	public boolean checkIfExists(String headerIdentifier) {
+		return headerMap.containsKey(headerIdentifier);
+	}
+	
 	public JsonObj getAttribute(String headerIdentifier, int index) {
 		List<JsonObj> attributes = getAttributes(headerIdentifier);
 		

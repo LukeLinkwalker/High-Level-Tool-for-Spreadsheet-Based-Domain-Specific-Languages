@@ -16,8 +16,7 @@ public class SheetTransformer {
 		JsonArray root = new JsonArray();
 		ArrayList<BoundingBox> tables = sheet.getTableRanges();
 		
-		// Limited to 1 -> tables.size()
-		for(int i = 0; i < 1; i += 1) {
+		for(int i = 0; i < tables.size(); i += 1) {
 			JsonArray entry = new JsonArray();
 			
 			BoundingBox table = tables.get(i);
@@ -64,12 +63,16 @@ public class SheetTransformer {
 		JsonArray root = new JsonArray();
 		ArrayList<BoundingBox> tables = sheet.getTableRanges();
 		
-		for(int i = 0; i < 1; i += 1) {
+		for(int i = 0; i < tables.size(); i += 1) {
 			BoundingBox table1 = tables.get(i);
-			//System.out.println("Processing: " + table1.toString());
-			
 			String tableName = sheet.getCell(table1.getX(), table1.getY()).getData();
+			//System.out.println("Processing: " + table1.toString());
 			//System.out.println("Table name: " + tableName);
+			
+			// Put out error due to skip?
+			if(App.M.checkIfExists(tableName) == false) {
+				continue;
+			}
 			
 			int depth = App.M.getDepth(tableName);
 			
