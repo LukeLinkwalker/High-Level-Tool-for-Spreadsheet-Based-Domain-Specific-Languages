@@ -98,7 +98,7 @@ public class SSServer extends WebSocketServer {
 		SSOpen sso = gson.fromJson(msg.getData(), SSOpen.class);
 		System.out.println("Opening sheet: " + sso.getName());
 		
-		boolean sheetOpened = SheetStore.openSheet(sso.getName());
+		boolean sheetOpened = SheetStore.openSheet(sso.getName(), sso.isSGL());
 
 		SSResponse response = new SSResponse(msg);
 		
