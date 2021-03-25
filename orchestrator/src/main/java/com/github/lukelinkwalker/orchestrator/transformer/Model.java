@@ -14,49 +14,9 @@ public class Model {
 	public Model(String path) {
 		String input = FileReader.readTextFile(path);
 
-		// Remove first '['
-		for(int i = 0; i < input.length(); i += 1) {
-			if(input.charAt(i) == '[') {
-				input = input.substring(i + 1);
-				break;
-			}
-		}
-		
-		// Remove last ']'
-		for(int i = input.length() - 1; i > 0; i -= 1) {
-			if(input.charAt(i) == ']') {
-				input = input.substring(0, i);
-				break;
-			}
-		}
-		
-		// Split headers
-		ArrayList<String> parts = new ArrayList<>();
-		int prev = 0;
-		int curr = 0;
-		int count = 0;
-		for(int i = 0; i < input.length(); i += 1) {
-			curr = i;
-			
-			if(input.charAt(i) == '[') {
-				count += 1;
-			}
-			
-			if(input.charAt(i) == ']') {
-				count -= 1;
-			}
-			
-			if(input.charAt(i) == ',' && count == 0) {
-				parts.add(input.substring(prev, curr));
-				prev = i + 1;
-			}
-		}
-		parts.add(input.substring(prev, curr + 1));
-		
-		// Store headers
-		for(int i = 0; i < parts.size(); i += 1) {
-			JsonObj[] header = new Gson().fromJson(parts.get(i), JsonObj[].class);
-			headerMap.put(header[0].getName(), header[0]);
+		JsonObj[] headers = new Gson().fromJson(input, JsonObj[].class);
+		for(JsonObj header : headers) {
+			headerMap.put(header.getName(), header);
 		}
 	}
 	
@@ -100,7 +60,7 @@ public class Model {
 		return Collections.unmodifiableList(attributes);
 	}
 	
-	private ArrayList<JsonObj> getAttributes(JsonObj root) {
+	public ArrayList<JsonObj> getAttributes(JsonObj root) {
 		ArrayList<JsonObj> result = new ArrayList<>();
 		
 		if(root.getType().equals("attribute") || root.getType().equals("alternative")) {
@@ -116,14 +76,71 @@ public class Model {
 		return result;
 	}
 	
-	private ArrayList<ArrayList<String>> getArrayLayout(JsonObj root) {
+	public ArrayList<ArrayList<String>> getArrayLayout(String headerIdentifier) {
+		ArrayList<ArrayList<String>> attributes = new ArrayList<>();
+		
+		if(headerMap.containsKey(headerIdentifier) == false) {
+			return null;
+		}
+		
+		ArrayList<String> arrays = new ArrayList<>();
+		arrays.add(headerIdentifier);
+		
+		JsonObj root = headerMap.get(headerIdentifier);
+		
+		attributes = getArrayLayout(root, copyList(arrays));
+		
+		return attributes;
+	}
+	
+	private ArrayList<ArrayList<String>> getArrayLayout(JsonObj root, ArrayList<String> arrays) {
 		ArrayList<ArrayList<String>> result = new ArrayList<>();
 		
-		for(int i = 0; i < root.getChildren().length; i += 1) {
-			
+		if(root.getType().equals("array")) {
+			arrays.add(root.getName());
+		}
+		
+		if(root.getType().equals("attribute") || root.getType().equals("alternative")) {
+			result.add(arrays);
+		}
+		
+		if(root.getChildren() != null && root.getChildren().length > 0) {
+			for(JsonObj header : root.getChildren()) {
+				result.addAll(getArrayLayout(header, copyList(arrays)));
+			}
 		}
 		
 		return result;
+	}
+	
+	public JsonObj getArray(String headerIdentifier, String arrayIdentifier) {
+		JsonObj root = headerMap.get(headerIdentifier);
+		
+		for(JsonObj obj : root.getChildren()) {
+			JsonObj tmp = getArray(obj, arrayIdentifier);
+			
+			if(tmp != null) {
+				return tmp;
+			}
+		}
+		
+		return null;
+	}
+	
+	private JsonObj getArray(JsonObj root, String arrayIdentifier) {
+		if(root.getType().equals("array") && root.getName().equals(arrayIdentifier)) {
+			return root;
+		}
+		
+		for(JsonObj obj : root.getChildren()) {
+			JsonObj tmp = getArray(obj, arrayIdentifier);
+			
+			if(tmp != null) {
+				return tmp;
+			}
+		}
+		
+		return null;
 	}
 	
 	private static int getLeafCount(JsonObj obj) {
@@ -141,8 +158,18 @@ public class Model {
 		
 		return count;
 	}
-	
+
 	public int getDepth(String header) {
+		JsonObj tmp = headerMap.get(header);
+		
+		if(tmp == null) {
+			return -1;
+		}
+		
+		return getDepth(headerMap.get(header), 1);
+	}
+	
+	public int getDepthWithTypes(String header) {
 		JsonObj tmp = headerMap.get(header);
 		
 		if(tmp == null) {
@@ -167,5 +194,15 @@ public class Model {
 		}
 		
 		return maxDepth;
+	}
+	
+	private ArrayList<String> copyList(ArrayList<String> list) {
+		ArrayList<String> copy = new ArrayList<>();
+		
+		for(String str : list) {
+			copy.add(str);
+		}
+		
+		return copy;
 	}
 }
