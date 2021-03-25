@@ -7,10 +7,14 @@ let id = 1
 const socket = new WebSocket('ws://localhost:20895');
 const debug = true;
 
+//TODO do properly.
+globals.setSpreadsheetName('Hello')
+
 socket.addEventListener('open', function(event) {
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     //  Dummy opening a sheet on the server .. only for demo purposes before functionality is added  //
     ///////////////////////////////////////////////////////////////////////////////////////////////////
+
     let close = { sheetName:"Hello" }
     let cmsg = { method:"close-sheet", id:"0", data:JSON.stringify(close) };
     socket.send(JSON.stringify(cmsg));
@@ -220,4 +224,5 @@ export function requestBuild() {
     let message = { method: 'build', id: id, data: JSON.stringify(data) }
 
     socket.send(JSON.stringify(message))
+    id++
 }
