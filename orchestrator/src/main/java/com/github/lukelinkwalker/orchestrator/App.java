@@ -41,7 +41,7 @@ public class App
     public static void main( String[] args ) throws URISyntaxException, InterruptedException, ParserConfigurationException, IOException, SAXException
     {
     	// Loading model
-    	M = new Model("GrammarExamples.ssmodel");
+    	M = new Model("orchestrator/GrammarExamples.ssmodel");
     	
     	// Hosting server for client to connect to
     	SSS = new SSServer(20895);

@@ -14,7 +14,6 @@ import com.github.lukelinkwalker.orchestrator.transformer.Sheet;
 import com.github.lukelinkwalker.orchestrator.transformer.SheetStore;
 import com.github.lukelinkwalker.orchestrator.transformer.SheetTransformer;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class SSServer extends WebSocketServer {

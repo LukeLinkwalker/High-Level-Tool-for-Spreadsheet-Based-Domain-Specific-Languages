@@ -22,7 +22,7 @@ public class TableCreator {
     //TODO: Remove setup after functionality to setup ssmodel is added
     private static void setup() throws IOException {
         Gson gson = new Gson();
-        Reader reader = Files.newBufferedReader(Paths.get("src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
+        Reader reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
         ssmodel = gson.fromJson(reader, JsonArray.class);
     }
 
