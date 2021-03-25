@@ -1,7 +1,262 @@
 [
-    [{"column":0,"row":0,"name":"Config","type":"object","isOptional":false,"children":[{"column":0,"row":1,"name":"Name","type":"attribute","isOptional":false,"children":[],"dataTypes":[{"column":0,"row":4,"value":"String"}]},{"column":1,"row":1,"name":"Sensors","type":"array","isOptional":false,"children":[{"column":1,"row":2,"name":"Name","type":"attribute","isOptional":false,"children":[],"dataTypes":[{"column":1,"row":4,"value":"String"}]},{"column":2,"row":2,"name":"Outputs","type":"array","isOptional":false,"children":[{"column":2,"row":3,"name":"Type","type":"attribute","isOptional":false,"children":[],"dataTypes":[{"column":2,"row":4,"value":"String"}]},{"column":3,"row":3,"name":"Rate","type":"attribute","isOptional":false,"children":[],"dataTypes":[{"column":3,"row":4,"value":"Int"}]}],"dataTypes":[]}],"dataTypes":[]},{"column":4,"row":1,"name":"Functions","type":"alternative","isOptional":false,"children":[],"dataTypes":[{"column":4,"row":4,"value":"Get"},{"column":4,"row":5,"value":"Set"}]}],"dataTypes":[]}]
-    ,
-    [{"column":0,"row":0,"name":"Loco","type":"object","isOptional":false,"children":[{"column":0,"row":1,"name":"Name","type":"attribute","isOptional":false,"children":[],"dataTypes":[{"column":0,"row":4,"value":"String"}]},{"column":1,"row":1,"name":"Sensors","type":"array","isOptional":false,"children":[{"column":1,"row":2,"name":"Name","type":"attribute","isOptional":false,"children":[],"dataTypes":[{"column":1,"row":4,"value":"String"}]},{"column":2,"row":2,"name":"Outputs","type":"array","isOptional":false,"children":[{"column":2,"row":3,"name":"Type","type":"attribute","isOptional":false,"children":[],"dataTypes":[{"column":2,"row":4,"value":"String"}]},{"column":3,"row":3,"name":"Rate","type":"attribute","isOptional":false,"children":[],"dataTypes":[{"column":3,"row":4,"value":"Int"}]}],"dataTypes":[]}],"dataTypes":[]},{"column":4,"row":1,"name":"Functions","type":"alternative","isOptional":false,"children":[],"dataTypes":[{"column":4,"row":4,"value":"Get"},{"column":4,"row":5,"value":"Set"}]}],"dataTypes":[]}]
-    ,
-    [{"column":0,"row":0,"name":"Lala","type":"object","isOptional":false,"children":[{"column":0,"row":1,"name":"Name","type":"attribute","isOptional":false,"children":[],"dataTypes":[{"column":0,"row":4,"value":"String"}]},{"column":1,"row":1,"name":"Sensors","type":"array","isOptional":false,"children":[{"column":1,"row":2,"name":"Name","type":"attribute","isOptional":false,"children":[],"dataTypes":[{"column":1,"row":4,"value":"String"}]},{"column":2,"row":2,"name":"Outputs","type":"array","isOptional":false,"children":[{"column":2,"row":3,"name":"Type","type":"attribute","isOptional":false,"children":[],"dataTypes":[{"column":2,"row":4,"value":"String"}]},{"column":3,"row":3,"name":"Rate","type":"attribute","isOptional":false,"children":[],"dataTypes":[{"column":3,"row":4,"value":"Int"}]}],"dataTypes":[]}],"dataTypes":[]},{"column":4,"row":1,"name":"Functions","type":"alternative","isOptional":false,"children":[],"dataTypes":[{"column":4,"row":4,"value":"Get"},{"column":4,"row":5,"value":"Set"}]}],"dataTypes":[]}]
+  {
+    "column": 0,
+    "row": 0,
+    "name": "Config",
+    "type": "object",
+    "isOptional": false,
+    "children": [
+      {
+        "column": 0,
+        "row": 1,
+        "name": "Name",
+        "type": "attribute",
+        "isOptional": false,
+        "children": [],
+        "dataTypes": [
+          {
+            "column": 0,
+            "row": 4,
+            "value": "String"
+          }
+        ]
+      },
+      {
+        "column": 1,
+        "row": 1,
+        "name": "Sensors",
+        "type": "array",
+        "isOptional": false,
+        "children": [
+          {
+            "column": 1,
+            "row": 2,
+            "name": "Name",
+            "type": "attribute",
+            "isOptional": false,
+            "children": [],
+            "dataTypes": [
+              {
+                "column": 1,
+                "row": 4,
+                "value": "String"
+              }
+            ]
+          },
+          {
+            "column": 2,
+            "row": 2,
+            "name": "Inputs",
+            "type": "array",
+            "isOptional": false,
+            "children": [
+              {
+                "column": 2,
+                "row": 3,
+                "name": "Source",
+                "type": "attribute",
+                "isOptional": false,
+                "children": [],
+                "dataTypes": [
+                  {
+                    "column": 2,
+                    "row": 4,
+                    "value": "String"
+                  }
+                ]
+              },
+              {
+                "column": 3,
+                "row": 3,
+                "name": "Rate",
+                "type": "attribute",
+                "isOptional": false,
+                "children": [],
+                "dataTypes": [
+                  {
+                    "column": 3,
+                    "row": 4,
+                    "value": "Int"
+                  }
+                ]
+              }
+            ],
+            "dataTypes": []
+          },
+          {
+            "column": 4,
+            "row": 2,
+            "name": "Outputs",
+            "type": "array",
+            "isOptional": false,
+            "children": [
+              {
+                "column": 4,
+                "row": 3,
+                "name": "Type",
+                "type": "attribute",
+                "isOptional": false,
+                "children": [],
+                "dataTypes": [
+                  {
+                    "column": 4,
+                    "row": 4,
+                    "value": "String"
+                  }
+                ]
+              },
+              {
+                "column": 5,
+                "row": 3,
+                "name": "Rate",
+                "type": "attribute",
+                "isOptional": false,
+                "children": [],
+                "dataTypes": [
+                  {
+                    "column": 5,
+                    "row": 4,
+                    "value": "Int"
+                  }
+                ]
+              }
+            ],
+            "dataTypes": []
+          }
+        ],
+        "dataTypes": []
+      },
+      {
+        "column": 6,
+        "row": 1,
+        "name": "Functions",
+        "type": "alternative",
+        "isOptional": false,
+        "children": [],
+        "dataTypes": [
+          {
+            "column": 6,
+            "row": 4,
+            "value": "Get"
+          },
+          {
+            "column": 6,
+            "row": 5,
+            "value": "Set"
+          }
+        ]
+      }
+    ],
+    "dataTypes": []
+  },
+  {
+    "column": 0,
+    "row": 7,
+    "name": "OldConfig",
+    "type": "object",
+    "isOptional": false,
+    "children": [
+      {
+        "column": 0,
+        "row": 8,
+        "name": "Name",
+        "type": "attribute",
+        "isOptional": false,
+        "children": [],
+        "dataTypes": [
+          {
+            "column": 0,
+            "row": 11,
+            "value": "String"
+          }
+        ]
+      },
+      {
+        "column": 1,
+        "row": 8,
+        "name": "Sensors",
+        "type": "array",
+        "isOptional": false,
+        "children": [
+          {
+            "column": 1,
+            "row": 9,
+            "name": "Name",
+            "type": "attribute",
+            "isOptional": false,
+            "children": [],
+            "dataTypes": [
+              {
+                "column": 1,
+                "row": 11,
+                "value": "String"
+              }
+            ]
+          },
+          {
+            "column": 2,
+            "row": 9,
+            "name": "Outputs",
+            "type": "array",
+            "isOptional": false,
+            "children": [
+              {
+                "column": 2,
+                "row": 10,
+                "name": "Type",
+                "type": "attribute",
+                "isOptional": false,
+                "children": [],
+                "dataTypes": [
+                  {
+                    "column": 2,
+                    "row": 11,
+                    "value": "String"
+                  }
+                ]
+              },
+              {
+                "column": 3,
+                "row": 10,
+                "name": "Rate",
+                "type": "attribute",
+                "isOptional": false,
+                "children": [],
+                "dataTypes": [
+                  {
+                    "column": 3,
+                    "row": 11,
+                    "value": "Int"
+                  }
+                ]
+              }
+            ],
+            "dataTypes": []
+          }
+        ],
+        "dataTypes": []
+      },
+      {
+        "column": 4,
+        "row": 8,
+        "name": "Functions",
+        "type": "alternative",
+        "isOptional": false,
+        "children": [],
+        "dataTypes": [
+          {
+            "column": 4,
+            "row": 11,
+            "value": "Get"
+          },
+          {
+            "column": 4,
+            "row": 12,
+            "value": "Set"
+          }
+        ]
+      }
+    ],
+    "dataTypes": []
+  }
 ]

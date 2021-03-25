@@ -97,7 +97,7 @@ public class SSServer extends WebSocketServer {
 		SSOpen sso = gson.fromJson(msg.getData(), SSOpen.class);
 		System.out.println("Opening sheet: " + sso.getName());
 		
-		boolean sheetOpened = SheetStore.openSheet(sso.getName());
+		boolean sheetOpened = SheetStore.openSheet(sso.getName(), sso.isSGL());
 
 		SSResponse response = new SSResponse(msg);
 		
@@ -129,9 +129,9 @@ public class SSServer extends WebSocketServer {
 	
 	private void handleUpdateSheet(SSMessage msg) {
 		SSUpdate ssu = gson.fromJson(msg.getData(), SSUpdate.class);
-		System.out.println("Updating sheet: " + ssu.getSheetName());
-		
 		Sheet sheet = SheetStore.getSheet(ssu.getSheetName());
+		
+		System.out.println("Updating sheet: " + ssu.getSheetName());
 		
 		if(sheet != null) {
 			sheet.addData(ssu.getColumn(), ssu.getRow(), ssu.getWidth(), ssu.getData());
@@ -159,11 +159,19 @@ public class SSServer extends WebSocketServer {
 	
 	private void handleEvaluate(SSEvaluate sse) {
 		Sheet sheet = SheetStore.getSheet(sse.getSheetName());
-		String SDSL_JSON = SheetTransformer.parseSDSL(sheet);
-		System.out.println("Evaluating: " + SDSL_JSON);
+		
+		String JSON = "";
+		
+		if(sheet.isSGL() == true) {
+			JSON = SheetTransformer.parseSGL(sheet);
+		} else {
+			JSON = SheetTransformer.parseSDSL(sheet);
+		}
+		
+		System.out.println("Evaluating : " + JSON);
 		//App.DC.setContent(SDSL_JSON);
-		App.Txt = SDSL_JSON;
-		App.DC.openFileWithContent(SDSL_JSON);
+		App.Txt = JSON;
+		App.DC.openFileWithContent(JSON);
 		
 		//System.out.println("Evaluated: " + SDSL_JSON);
 	}
@@ -180,13 +188,12 @@ public class SSServer extends WebSocketServer {
 		if(sheet != null) {
 			response.setCode(200);
 			
-			if(ssb.isSGL()) {
+			if(sheet.isSGL() == true) {
 				// handle SGL generator
-				//
 				String sglJson = SheetTransformer.parseSGL(sheet);
 				String sglGrammar = GrammarCreator.createGrammar(sglJson);
-				System.out.println(sglJson);
-				System.out.println(sglGrammar);
+				System.out.println("SS Model : " + sglJson);
+				System.out.println("XText Grammar : " + sglGrammar);
 			} else {
 				// handle SDSL generator
 			}

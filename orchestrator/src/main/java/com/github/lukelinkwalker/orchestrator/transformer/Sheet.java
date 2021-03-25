@@ -9,10 +9,16 @@ import com.github.lukelinkwalker.orchestrator.Util.Tuple;
 public class Sheet {
 	private Cell[][] cells;
 	private ArrayList<BoundingBox> tables;
+	private boolean isSGL;
 	
-	public Sheet() {
+	public Sheet(boolean isSGL) {
 		cells = new Cell[1000][1000];
 		tables = new ArrayList<>();
+		this.isSGL = isSGL;
+	}
+	
+	public boolean isSGL() {
+		return isSGL;
 	}
 	
 	public void addData(int column, int row, int width, String data) {
@@ -73,4 +79,6 @@ public class Sheet {
 		
 		return boxes;
 	}
+	
+	
 }

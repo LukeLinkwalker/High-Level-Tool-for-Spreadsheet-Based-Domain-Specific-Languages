@@ -23,6 +23,9 @@ public class JsonObj {
 	public void setRow(int row) {
 		this.row = row;
 	}
+	public String getNameOnly() {
+		return name.substring(1, name.length() - 1);
+	}
 	public String getName() {
 		return name;
 	}

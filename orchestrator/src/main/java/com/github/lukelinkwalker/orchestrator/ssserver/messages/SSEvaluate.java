@@ -2,14 +2,12 @@ package com.github.lukelinkwalker.orchestrator.ssserver.messages;
 
 public class SSEvaluate {
 	private String sheetName;
-	private boolean isSGL;
 	
 	public SSEvaluate() {
 		
 	}
 	
 	public SSEvaluate(SSUpdate msg) {
-		this.isSGL = false;
 		this.sheetName = msg.getSheetName();
 	}
 	
@@ -18,11 +16,5 @@ public class SSEvaluate {
 	}
 	public void setSheetName(String sheetName) {
 		this.sheetName = sheetName;
-	}
-	public boolean isSGL() {
-		return isSGL;
-	}
-	public void setSGL(boolean isSGL) {
-		this.isSGL = isSGL;
 	}
 }
