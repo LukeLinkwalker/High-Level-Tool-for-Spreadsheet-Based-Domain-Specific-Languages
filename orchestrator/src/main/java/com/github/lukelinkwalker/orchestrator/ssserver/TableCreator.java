@@ -20,15 +20,18 @@ public class TableCreator {
     private static JsonArray ssmodel;
 
     //TODO: Remove setup after functionality to setup ssmodel is added
-    private static void setup() throws IOException {
+    private static void setup(String string) throws IOException {
         Gson gson = new Gson();
-        Reader reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
-        ssmodel = gson.fromJson(reader, JsonArray.class);
+//        Reader reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
+//        ssmodel = gson.fromJson(reader, JsonArray.class);
+        ssmodel = gson.fromJson(string, JsonArray.class);
+
     }
 
-    public static boolean initializeCreateTable(String tableName, int column, int row) {
+    //TODO Update with setup
+    public static boolean initializeCreateTable(String tableName, int column, int row, String string) {
         try {
-            setup();
+            setup(string);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -101,9 +104,9 @@ public class TableCreator {
         return biggestEndCellIndexes;
     }
 
-    public static boolean checkIfTextIsATableName(String cellText) {
+    public static boolean checkIfTextIsATableName(String cellText, String string) {
         try {
-            setup();
+            setup(string);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -111,9 +114,9 @@ public class TableCreator {
         return findTableJsonObject(cellText) != null;
     }
 
-    public static int[] getInitialTableRangeResponse(String name, int column, int row) {
+    public static int[] getInitialTableRangeResponse(String name, int column, int row, String string) {
         try {
-            setup();
+            setup(string);
         } catch (IOException e) {
             e.printStackTrace();
         }

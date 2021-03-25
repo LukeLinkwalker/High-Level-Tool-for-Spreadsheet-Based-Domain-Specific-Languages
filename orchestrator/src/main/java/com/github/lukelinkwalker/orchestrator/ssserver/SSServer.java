@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 public class SSServer extends WebSocketServer {
 
 	private Gson gson;
+	private String sglGrammar;
 	
 	public SSServer(int port)  {
 		super(new InetSocketAddress(port));
@@ -191,7 +192,7 @@ public class SSServer extends WebSocketServer {
 			if(sheet.isSGL() == true) {
 				// handle SGL generator
 				String sglJson = SheetTransformer.parseSGL(sheet);
-				String sglGrammar = GrammarCreator.createGrammar(sglJson);
+				sglGrammar = GrammarCreator.createGrammar(sglJson);
 				System.out.println("SS Model : " + sglJson);
 				System.out.println("XText Grammar : " + sglGrammar);
 			} else {
@@ -215,7 +216,7 @@ public class SSServer extends WebSocketServer {
 		String cellText = ssCheckIfTextIsATableName.getCellText();
 		int column = ssCheckIfTextIsATableName.getColumn();
 		int row = ssCheckIfTextIsATableName.getRow();
-		boolean tableNameExists = TableCreator.checkIfTextIsATableName(cellText);
+		boolean tableNameExists = TableCreator.checkIfTextIsATableName(cellText, sglGrammar);
 
 		SSResponse response = new SSResponse(msg);
 		response.setCode(200);
@@ -230,7 +231,7 @@ public class SSServer extends WebSocketServer {
 		String tableName = ssGetInitialTableRange.getTableName();
 		int column = ssGetInitialTableRange.getColumn();
 		int row = ssGetInitialTableRange.getRow();
-		int[] tableRange = TableCreator.getInitialTableRangeResponse(tableName, column, row);
+		int[] tableRange = TableCreator.getInitialTableRangeResponse(tableName, column, row, sglGrammar);
 
 		SSResponse response = new SSResponse(msg);
 		response.setCode(200);
@@ -245,7 +246,7 @@ public class SSServer extends WebSocketServer {
 		String tableName = ssCreateTable.getTableName();
 		int column = ssCreateTable.getColumn();
 		int row = ssCreateTable.getRow();
-		boolean success = TableCreator.initializeCreateTable(tableName, column, row);
+		boolean success = TableCreator.initializeCreateTable(tableName, column, row, sglGrammar);
 
 		SSResponse response = new SSResponse(msg);
 		if (success) response.setCode(200);
