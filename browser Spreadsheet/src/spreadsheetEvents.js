@@ -201,3 +201,30 @@ export function onSpreadsheetTypeRadioButtonsChange() {
 export function onAddRowButtonClick() {
     tools.addRow(globals.editingCell)
 }
+
+export function onBuildButtonClick() {
+    client.requestBuild()
+}
+
+//TODO Update. Done quickly for demo
+export function onMergeButtonClick() {
+    let mergedCells = []
+    let numberOfRowsSelected = new Set()
+
+    globals.selectedCells.forEach((cell) => {
+        if ($(cell).attr('colspan') > 1) mergedCells.push(cell)
+    })
+
+    if ($(globals.editingCell).attr('colspan') > 1) mergedCells.push(globals.editingCell)
+
+    globals.selectedCells.forEach((cell) => {
+        let cellIndexes = spreadsheet.getCellIndexes(cell)
+        numberOfRowsSelected.add(cellIndexes[1])
+    })
+
+    if (numberOfRowsSelected.size > 1) alert("Cannot merge rows!")
+    else {
+        if (mergedCells.length > 0) mergedCells.forEach((cell) => tools.demergeCell(cell))
+        else tools.mergeCells(globals.selectedCells)
+    }
+}

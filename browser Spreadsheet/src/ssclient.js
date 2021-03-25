@@ -214,3 +214,10 @@ export function requestCreateTable(tableName, column, row) {
     socket.send(JSON.stringify(message))
     id++
 }
+
+export function requestBuild() {
+    let data = { sheetName: globals.spreadsheetName }
+    let message = { method: 'build', id: id, data: JSON.stringify(data) }
+
+    socket.send(JSON.stringify(message))
+}

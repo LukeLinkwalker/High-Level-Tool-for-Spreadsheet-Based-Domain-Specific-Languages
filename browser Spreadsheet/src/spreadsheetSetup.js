@@ -1,4 +1,4 @@
-import * as events from './spreadsheetEvents.js';
+import * as events from './spreadsheetEvents.js'
 
 $(() => {
     events.onDocumentReady()
@@ -16,12 +16,15 @@ export function setupSDSL() {
     $('.sglClass').css('display', 'none')
     $('.sdslClass').css('display', '')
 
-    setupAddRow()
+    setupAddRowButton()
 }
 
 export function setupSGL() {
     $('.sdslClass').css('display', 'none')
     $('.sglClass').css('display', '')
+
+    setupBuildButton()
+    setupMergeButton()
 }
 
 export function setupInputBar() {
@@ -43,8 +46,20 @@ export function setupCreateTableButton() {
         .on('mousedown', (e) => e.preventDefault())
 }
 
-function setupAddRow() {
+function setupAddRowButton() {
     $('#addRow')
         .on('click', () => events.onAddRowButtonClick())
         .on('mousedown', (e) => e.preventDefault())
+}
+
+function setupBuildButton() {
+    $('#convertToTable')
+        .on('click', () => events.onBuildButtonClick())
+        .on('mousedown', (e) => e.preventDefault())
+}
+
+function setupMergeButton() {
+    $('#merge')
+        .on('click', () => events.onMergeButtonClick())
+        .on('mousedown',(e) => e.preventDefault())
 }
