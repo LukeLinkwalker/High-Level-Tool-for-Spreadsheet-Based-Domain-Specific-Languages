@@ -11,9 +11,9 @@ import java.util.StringJoiner;
 public class GrammarCreator {
 
     //TODO: Delete after testing
-    public static void main(String[] args) {
-        System.out.println(createGrammar(""));
-    }
+//    public static void main(String[] args) {
+//        System.out.println(createGrammar(""));
+//    }
     //////////////////////////////
 
     private static final StringBuilder model = new StringBuilder();
@@ -32,16 +32,16 @@ public class GrammarCreator {
         tables.append("\nTable:\n\n;\n");
         tablesInitialLength = tables.length();
 
-//        JsonArray root = JsonParser.parseString(json).getAsJsonArray();
+        JsonArray root = JsonParser.parseString(json).getAsJsonArray();
         //TODO: Delete after testing
-        Gson gson = new Gson();
-        Reader reader = null;
-        try {
-            reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        JsonArray root = gson.fromJson(reader, JsonArray.class);
+//        Gson gson = new Gson();
+//        Reader reader = null;
+//        try {
+//            reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        JsonArray root = gson.fromJson(reader, JsonArray.class);
         ///////////////////////////////
 
         rootIterator(root);
@@ -50,11 +50,11 @@ public class GrammarCreator {
         model.append(terminals);
 
         //TODO: Delete after testing
-        try {
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            reader.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         //////////////////////////
 
         return model.toString();

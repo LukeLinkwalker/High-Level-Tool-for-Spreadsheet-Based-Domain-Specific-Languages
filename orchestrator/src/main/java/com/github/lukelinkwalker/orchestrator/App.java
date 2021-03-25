@@ -42,40 +42,40 @@ public class App
 	
     public static void main( String[] args ) throws URISyntaxException, InterruptedException, ParserConfigurationException, IOException, SAXException
     {
-    	LanguageLoader LL = new LanguageLoader();
-    	
-    	// Loading model
-    	M = new Model("orchestrator/GrammarExamples.ssmodel");
-    	
-    	for(JsonObj header : attributes) {
-    		System.out.println(header.getName() + " is " + header.getType() + " requiring type " + header.getDataTypes()[0].getValue()); // " and " + ((header.isOptional() == true ? "is optional" : "is not optional")));
-    	}
-    	
-    	ArrayList<ArrayList<String>> arrLayout = M.getArrayLayout("Config");
-    	System.out.println("Arrays : " + arrLayout.size());
-    	for(int i = 0; i < arrLayout.size(); i += 1) {
-    		System.out.print(i + " : ");
-    		
-    		for(int k = 0; k < arrLayout.get(i).size(); k += 1) {
-    			System.out.print(arrLayout.get(i).get(k) + " ");
-    		}
-    		
-    		System.out.print("\n");
-    	}
-    	
-    	JsonTerminal terminal = new JsonTerminal();
-    	terminal.setName("Test");
-    	terminal.addType("Loco");
-    	terminal.addType("Gali");
-    	System.out.println(new Gson().toJson(terminal));
+//    	LanguageLoader LL = new LanguageLoader();
+//
+//    	// Loading model
+//    	M = new Model("orchestrator/GrammarExamples.ssmodel");
+//
+//    	for(JsonObj header : attributes) {
+//    		System.out.println(header.getName() + " is " + header.getType() + " requiring type " + header.getDataTypes()[0].getValue()); // " and " + ((header.isOptional() == true ? "is optional" : "is not optional")));
+//    	}
+//
+//    	ArrayList<ArrayList<String>> arrLayout = M.getArrayLayout("Config");
+//    	System.out.println("Arrays : " + arrLayout.size());
+//    	for(int i = 0; i < arrLayout.size(); i += 1) {
+//    		System.out.print(i + " : ");
+//
+//    		for(int k = 0; k < arrLayout.get(i).size(); k += 1) {
+//    			System.out.print(arrLayout.get(i).get(k) + " ");
+//    		}
+//
+//    		System.out.print("\n");
+//    	}
+//
+//    	JsonTerminal terminal = new JsonTerminal();
+//    	terminal.setName("Test");
+//    	terminal.addType("Loco");
+//    	terminal.addType("Gali");
+//    	System.out.println(new Gson().toJson(terminal));
     	
     	// Hosting server for client to connect to
-    	//SSS = new SSServer(20895);
-    	//SSS.start();
+    	SSS = new SSServer(20895);
+    	SSS.start();
     	
     	// Connecting to LSP
-    	//DC = new DumbLSPClient(new URI("ws://localhost:4389"));
-    	//DC.connect();
+    	DC = new DumbLSPClient(new URI("ws://localhost:4389"));
+    	DC.connect();
     	
     	
     	
@@ -158,82 +158,82 @@ public class App
     	//
     	//System.out.println("Test: " + SheetTransformer.parseSGL(test));
     	
-    	Sheet test = new Sheet(false);
-    	
-    	// Header
-    	test.addData(0, 0, 7, "Config");
-    	
-    	test.addData(0, 1, 1, "Name");
-    	test.addData(1, 1, 5, "Sensors");
-    	test.addData(4, 1, 1, "Functions");
-    	
-    	test.addData(1, 2, 1, "Name");
-    	test.addData(2, 2, 2, "Inputs");
-    	test.addData(4, 2, 2, "Outputs");
-        
-    	test.addData(2, 3, 1, "Source");
-    	test.addData(3, 3, 1, "Rate");
-    	test.addData(4, 3, 1, "Type");
-    	test.addData(5, 3, 1, "Rate");
-    	
-    	// Content
-    	test.addData(0, 4, 1, "EUConfig");
-        test.addData(1, 4, 1, "Temperature");
-        test.addData(2, 4, 1, "Environment");
-        test.addData(3, 4, 1, "50");
-        test.addData(4, 4, 1, "Celsius");
-        test.addData(5, 4, 1, "1000");
-        test.addData(6, 4, 1, "Get");
-        
-        test.addData(4, 5, 1, "Fahrenheit");
-        test.addData(5, 5, 1, "1000");
-        
-        test.addData(1, 6, 1, "Position");
-        test.addData(2, 6, 1, "Satellite");
-        test.addData(3, 6, 1, "50");
-        test.addData(4, 6, 1, "Relative");
-        test.addData(5, 6, 1, "1000");
-        
-        test.addData(2, 7, 1, "Map");
-        test.addData(3, 7, 1, "10000");
-        test.addData(4, 7, 1, "Absolute");
-        test.addData(5, 7, 1, "1000");
-        
-        // ---------------------------------------
-        
-    	test.addData(0, 8, 1, "USConfig");
-        test.addData(1, 8, 1, "Temperature");
-        test.addData(2, 8, 1, "Environment");
-        test.addData(3, 8, 1, "20");
-        test.addData(4, 8, 1, "Celsius");
-        test.addData(5, 8, 1, "2000");
-        test.addData(6, 8, 1, "Get");
-        
-        test.addData(4, 9, 1, "Fahrenheit");
-        test.addData(5, 9, 1, "2000");
-        
-        test.addData(1, 10, 1, "Position");
-        test.addData(2, 10, 1, "Satellite");
-        test.addData(3, 10, 1, "20");
-        test.addData(4, 10, 1, "Relative");
-        test.addData(5, 10, 1, "2000");
-        
-        test.addData(4, 11, 1, "Absolute");
-        test.addData(5, 11, 1, "2000");
-        
-        
-        
-        //test.addData(20, 20, 2, "Speedometer");
-        //test.addData(20, 21, 1, "kmh");
-        //test.addData(21, 21, 1, "mph");
-        
-        ArrayList<BoundingBox> tables = test.getTableRanges();
-        System.out.println("Size: " + tables.size());
-    	for(BoundingBox bb : tables) {
-    		System.out.println("Test: " + bb.toString());
-    	}
-    	
-    	String SDSL_JSON = SheetTransformer.parseSDSL(test);
-    	System.out.println("SDSL : " + SDSL_JSON);
+//    	Sheet test = new Sheet(false);
+//
+//    	// Header
+//    	test.addData(0, 0, 7, "Config");
+//
+//    	test.addData(0, 1, 1, "Name");
+//    	test.addData(1, 1, 5, "Sensors");
+//    	test.addData(4, 1, 1, "Functions");
+//
+//    	test.addData(1, 2, 1, "Name");
+//    	test.addData(2, 2, 2, "Inputs");
+//    	test.addData(4, 2, 2, "Outputs");
+//
+//    	test.addData(2, 3, 1, "Source");
+//    	test.addData(3, 3, 1, "Rate");
+//    	test.addData(4, 3, 1, "Type");
+//    	test.addData(5, 3, 1, "Rate");
+//
+//    	// Content
+//    	test.addData(0, 4, 1, "EUConfig");
+//        test.addData(1, 4, 1, "Temperature");
+//        test.addData(2, 4, 1, "Environment");
+//        test.addData(3, 4, 1, "50");
+//        test.addData(4, 4, 1, "Celsius");
+//        test.addData(5, 4, 1, "1000");
+//        test.addData(6, 4, 1, "Get");
+//
+//        test.addData(4, 5, 1, "Fahrenheit");
+//        test.addData(5, 5, 1, "1000");
+//
+//        test.addData(1, 6, 1, "Position");
+//        test.addData(2, 6, 1, "Satellite");
+//        test.addData(3, 6, 1, "50");
+//        test.addData(4, 6, 1, "Relative");
+//        test.addData(5, 6, 1, "1000");
+//
+//        test.addData(2, 7, 1, "Map");
+//        test.addData(3, 7, 1, "10000");
+//        test.addData(4, 7, 1, "Absolute");
+//        test.addData(5, 7, 1, "1000");
+//
+//        // ---------------------------------------
+//
+//    	test.addData(0, 8, 1, "USConfig");
+//        test.addData(1, 8, 1, "Temperature");
+//        test.addData(2, 8, 1, "Environment");
+//        test.addData(3, 8, 1, "20");
+//        test.addData(4, 8, 1, "Celsius");
+//        test.addData(5, 8, 1, "2000");
+//        test.addData(6, 8, 1, "Get");
+//
+//        test.addData(4, 9, 1, "Fahrenheit");
+//        test.addData(5, 9, 1, "2000");
+//
+//        test.addData(1, 10, 1, "Position");
+//        test.addData(2, 10, 1, "Satellite");
+//        test.addData(3, 10, 1, "20");
+//        test.addData(4, 10, 1, "Relative");
+//        test.addData(5, 10, 1, "2000");
+//
+//        test.addData(4, 11, 1, "Absolute");
+//        test.addData(5, 11, 1, "2000");
+//
+//
+//
+//        //test.addData(20, 20, 2, "Speedometer");
+//        //test.addData(20, 21, 1, "kmh");
+//        //test.addData(21, 21, 1, "mph");
+//
+//        ArrayList<BoundingBox> tables = test.getTableRanges();
+//        System.out.println("Size: " + tables.size());
+//    	for(BoundingBox bb : tables) {
+//    		System.out.println("Test: " + bb.toString());
+//    	}
+//
+//    	String SDSL_JSON = SheetTransformer.parseSDSL(test);
+//    	System.out.println("SDSL : " + SDSL_JSON);
     }
 }
