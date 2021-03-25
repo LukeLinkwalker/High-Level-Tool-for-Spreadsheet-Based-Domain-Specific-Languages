@@ -203,7 +203,7 @@ public class SheetTransformer {
 					JsonObject container = new JsonObject();
 					container.add(App.M.getAttribute(tableName, CD.getA()).getName(), value);
 					
-					System.out.println(value);
+					//System.out.println(value);
 					
 					Objects.add(value);
 					allObjects.add(value);
@@ -236,6 +236,7 @@ public class SheetTransformer {
 			// Create Final Objects
 			for(int index = 0; index < allObjects.size(); index += 1) {
 				JsonObject obj = allObjects.get(index);
+				System.out.println(obj);
 				
 				int normalizedColumn = obj.get("column").getAsInt() - table1.getX();
 				
@@ -243,16 +244,28 @@ public class SheetTransformer {
 					System.out.println("New object!");
 					
 					JsonObject objectRoot = new JsonObject();
+					objectRoot.add("Name", obj);
+					table.add(objectRoot);
 					
-					for(int headerColumn = 0; headerColumn < arrLayout.size(); headerColumn += 1) {
-						ArrayList<String> arrays = arrLayout.get(headerColumn);
-						
-						JsonArray arr = null;
-						for(int headerRow = 0; headerRow < arrays.size(); headerRow += 1) {
-							boolean exists = objectRoot.has(arrays.get(headerRow));
-							arr = objectRoot.get(arrays.get(headerRow)).getAsJsonArray();
-						}
-					}
+					//table.add(objectRoot);
+					//
+					//for(int headerColumn = 0; headerColumn < arrLayout.size(); headerColumn += 1) {
+					//	ArrayList<String> arrays = arrLayout.get(headerColumn);
+					//	
+					//	JsonArray arr = null;
+					//	for(int headerRow = 0; headerRow < arrays.size(); headerRow += 1) {
+					//		boolean exists = objectRoot.has(arrays.get(headerRow));
+					//		
+					//		if(exists == false) {
+					//			objectRoot
+					//		}
+					//		
+					//		JsonElement ele = objectRoot.get(arrays.get(headerRow));
+					//		arr = objectRoot.get(arrays.get(headerRow)).getAsJsonArray();
+					//	}
+					//}
+				} else {
+					
 				}
 			}
 			
