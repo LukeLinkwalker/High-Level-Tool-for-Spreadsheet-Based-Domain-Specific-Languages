@@ -186,6 +186,7 @@ export function onCreateTableButtonClick() {
     let tableName = $(globals.editingCell).text();
 
     client.requestGetInitialTableRange(tableName, cellIndexes[0], cellIndexes[1])
+    // globals.setError('Hej', 0, 0)
 }
 
 export function onSpreadsheetTypeRadioButtonsChange() {
