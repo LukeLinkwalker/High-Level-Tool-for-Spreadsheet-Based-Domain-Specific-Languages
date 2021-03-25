@@ -11,11 +11,11 @@ socket.addEventListener('open', function(event) {
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     //  Dummy opening a sheet on the server .. only for demo purposes before functionality is added  //
     ///////////////////////////////////////////////////////////////////////////////////////////////////
-    let close = { sheetName:"Hello", isSGL:true }
+    let close = { sheetName:"Hello" }
     let cmsg = { method:"close-sheet", id:"0", data:JSON.stringify(close) };
     socket.send(JSON.stringify(cmsg));
 
-    let open = { sheetName:"Hello" }
+    let open = { sheetName:"Hello", isSGL:true }
     let omsg = { method:"open-sheet", id:"1", data:JSON.stringify(open) };
     socket.send(JSON.stringify(omsg));
     //////////////////////////////////////////////////////////////////////////////////////////////////
