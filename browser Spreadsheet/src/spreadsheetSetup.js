@@ -53,7 +53,7 @@ function setupAddRowButton() {
 }
 
 function setupBuildButton() {
-    $('#convertToTable')
+    $('#build')
         .on('click', () => events.onBuildButtonClick())
         .on('mousedown', (e) => e.preventDefault())
 }
