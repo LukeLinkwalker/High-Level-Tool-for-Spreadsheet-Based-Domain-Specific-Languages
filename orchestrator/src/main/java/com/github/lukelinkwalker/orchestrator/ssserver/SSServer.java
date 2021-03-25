@@ -189,7 +189,7 @@ public class SSServer extends WebSocketServer {
 		if(sheet != null) {
 			response.setCode(200);
 			
-			if(ssb.isSGL() == true) {
+			if(sheet.isSGL() == true) {
 				// handle SGL generator
 				String sglJson = SheetTransformer.parseSGL(sheet);
 				String sglGrammar = GrammarCreator.createGrammar(sglJson);
