@@ -60,7 +60,7 @@ socket.addEventListener('message', (event) => {
             break
         case 'diagnostic':
             handleErrors(jsonObject.content)
-            break;
+            break
     }
 })
 
@@ -164,14 +164,11 @@ var updateCounter = 10_000_000;
 export function sendChange(cell) {
     let cellIndexes = spreadsheet.getCellIndexes(cell)
     let colspan = $(cell).prop('colspan')
-    //let width = (colspan === undefined) ? 1 : colspan + 1
     let hiddenText = $(cell).data('hiddenText')
     let cellClone = $(cell).clone()
     let divs = $('.errorMessage', cellClone)
 
-    divs.each((i, element) => {
-        element.remove()
-    })
+    divs.each((i, element) => element.remove())
 
     let content = hiddenText + cellClone.text()
 

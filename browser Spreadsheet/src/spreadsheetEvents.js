@@ -4,6 +4,7 @@ import * as spreadsheet from './spreadsheet.js'
 import * as client from './ssclient.js'
 import * as setup from './spreadsheetSetup.js'
 
+//TODO Update to only use hidden text in SGL mode
 export function onInputBarInput(inputBar) {
     let inputBarText = String($(inputBar).val())
     let regex = new RegExp('^[a-zA-Z0-9_]+ : [a-zA-Z0-9_]+')
@@ -109,7 +110,9 @@ export function onCellInput(cell) {
     else inputBar.val(cellClone.text())
 
     client.sendChange(cell)
-    client.requestCheckIfTextIsATableName(cellClone.text(), cellIndexes[0], cellIndexes[1])
+
+    if (globals.spreadsheetType === 'SDSL') client.requestCheckIfTextIsATableName(cellClone.text(), cellIndexes[0],
+        cellIndexes[1])
 }
 
 export function onDocumentReady() {
@@ -186,6 +189,7 @@ export function onCreateTableButtonClick() {
     let tableName = $(globals.editingCell).text();
 
     client.requestGetInitialTableRange(tableName, cellIndexes[0], cellIndexes[1])
+    //TODO remove after testing
     // globals.setError('Hej', 0, 0)
 }
 
