@@ -14,6 +14,8 @@ export function mergeCells(cells) {
         $(cell).css('display', 'none')
         $(cell).text('')
     })
+
+    client.sendChange(spreadsheet.getCellFromIndexes(leftmostCellIndexes[0], leftmostCellIndexes[1]));
 }
 
 export function demergeCell(cell) {

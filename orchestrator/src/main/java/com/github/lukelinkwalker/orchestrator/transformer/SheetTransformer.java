@@ -234,6 +234,7 @@ public class SheetTransformer {
 			
 			
 			// Create Final Objects
+			JsonObject currRoot = null;
 			for(int index = 0; index < allObjects.size(); index += 1) {
 				JsonObject obj = allObjects.get(index);
 				System.out.println(obj);
@@ -246,6 +247,7 @@ public class SheetTransformer {
 					JsonObject objectRoot = new JsonObject();
 					objectRoot.add("Name", obj);
 					table.add(objectRoot);
+					currRoot = objectRoot;
 					
 					//table.add(objectRoot);
 					//
@@ -479,7 +481,9 @@ public class SheetTransformer {
 		JsonObject parent = root.getAsJsonObject();
 		
 		ArrayList<Cell> parents = getCellParents(sheet, table, childColumn, childRow);
-		parents.remove(0);
+		if(parents.size() > 0) {
+			parents.remove(0);			
+		}
 		
 		for(int i = 0; i < parents.size(); i += 1) {
 			CellData CD = parseCellData(parents.get(i).getData(), parents.get(i).getColumn(), parents.get(i).getRow());
