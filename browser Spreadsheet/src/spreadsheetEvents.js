@@ -111,7 +111,7 @@ export function onCellInput(cell) {
 
     client.sendChange(cell)
 
-    if (globals.spreadsheetType === 'SDSL') client.requestCheckIfTextIsATableName(cellClone.text(), cellIndexes[0],
+    if (globals.spreadsheetType === 'sdsl') client.requestCheckIfTextIsATableName(cellClone.text(), cellIndexes[0],
         cellIndexes[1])
 }
 
