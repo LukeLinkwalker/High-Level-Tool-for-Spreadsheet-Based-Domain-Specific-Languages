@@ -17,24 +17,28 @@ import java.util.Arrays;
 import java.util.List;
 
 public class TableCreator {
-    private static JsonArray ssmodel;
+    private static JsonArray ssModelAsJson;
 
-    //TODO: Remove setup after functionality to setup ssmodel is added
-    private static void setup(String string) throws IOException {
-        Gson gson = new Gson();
+//    //TODO: Remove setup after functionality to setup ssmodel is added
+//    private static void setup(String string) throws IOException {
+//        Gson gson = new Gson();
 //        Reader reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
 //        ssmodel = gson.fromJson(reader, JsonArray.class);
-        ssmodel = gson.fromJson(string, JsonArray.class);
-
-    }
+////        ssmodel = gson.fromJson(string, JsonArray.class);
+//    }
+//
+//    public static void loadSSModel() {
+//        Gson gson = new Gson();
+//        ssModelAsJson = gson.fromJson(App.SSS.getSsModel(), JsonArray.class);
+//    }
 
     //TODO Update with setup
     public static boolean initializeCreateTable(String tableName, int column, int row, String string) {
-        try {
-            setup(string);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            setup(string);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         JsonObject tableObject = findTableJsonObject(tableName);
         boolean success;
@@ -80,7 +84,8 @@ public class TableCreator {
     }
 
     private static JsonObject findTableJsonObject(String name) {
-        for (JsonElement jsonElement : ssmodel) {
+        JsonArray ssModel = App.SSS.getSsModel();
+        for (JsonElement jsonElement : ssModel) {
             String objectName = jsonElement.getAsJsonObject().get("name").getAsString();
 
             if (name.equals(objectName)) return jsonElement.getAsJsonObject();
@@ -105,21 +110,21 @@ public class TableCreator {
     }
 
     public static boolean checkIfTextIsATableName(String cellText, String string) {
-        try {
-            setup(string);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            setup(string);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         return findTableJsonObject(cellText) != null;
     }
 
     public static int[] getInitialTableRangeResponse(String name, int column, int row, String string) {
-        try {
-            setup(string);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            setup(string);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         JsonObject tableObject = findTableJsonObject(name);
 

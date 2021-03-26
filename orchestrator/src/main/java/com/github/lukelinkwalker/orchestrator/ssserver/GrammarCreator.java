@@ -1,11 +1,8 @@
 package com.github.lukelinkwalker.orchestrator.ssserver;
 
+import com.github.lukelinkwalker.orchestrator.App;
 import com.google.gson.*;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.StringJoiner;
 
 public class GrammarCreator {
@@ -21,7 +18,9 @@ public class GrammarCreator {
     private static final StringBuilder tables = new StringBuilder();
     private static int tablesInitialLength;
 
-    public static String createGrammar(String json) {
+    public static String createGrammar() {
+        JsonArray ssModel = App.SSS.getSsModel();
+
         model.append("Model:\n")
                 .append("   {Model}\n")
                 .append("   '[' tables += Table? (',' tables += Table)* ']'\n")
@@ -32,7 +31,7 @@ public class GrammarCreator {
         tables.append("\nTable:\n\n;\n");
         tablesInitialLength = tables.length();
 
-        JsonArray root = JsonParser.parseString(json).getAsJsonArray();
+//        JsonArray root = JsonParser.parseString(App.SSS.getSsModel()).getAsJsonArray();
         //TODO: Delete after testing
 //        Gson gson = new Gson();
 //        Reader reader = null;
@@ -44,7 +43,7 @@ public class GrammarCreator {
 //        JsonArray root = gson.fromJson(reader, JsonArray.class);
         ///////////////////////////////
 
-        rootIterator(root);
+        ssModelOuterArrayIterator(ssModel);
         model.insert(modelLengthBeforeIteratingRoot, tables);
         terminals.append(insertDefaultTerminalRules());
         model.append(terminals);
@@ -60,7 +59,7 @@ public class GrammarCreator {
         return model.toString();
     }
 
-    private static void rootIterator(JsonArray jsonArray) {
+    private static void ssModelOuterArrayIterator(JsonArray jsonArray) {
         for (JsonElement jsonElement : jsonArray) print(jsonElement.getAsJsonObject(), "");
     }
 

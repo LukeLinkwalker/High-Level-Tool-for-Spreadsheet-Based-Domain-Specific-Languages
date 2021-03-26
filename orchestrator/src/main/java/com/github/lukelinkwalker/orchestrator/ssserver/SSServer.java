@@ -6,6 +6,7 @@ import com.github.lukelinkwalker.orchestrator.App;
 import com.github.lukelinkwalker.orchestrator.ssserver.messages.*;
 import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSCheckIfTextIsATableName;
 import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSResponse;
+import com.google.gson.JsonArray;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -20,6 +21,7 @@ public class SSServer extends WebSocketServer {
 
 	private Gson gson;
 	private String sglGrammar;
+	private JsonArray ssModel;
 	
 	public SSServer(int port)  {
 		super(new InetSocketAddress(port));
@@ -161,9 +163,9 @@ public class SSServer extends WebSocketServer {
 	private void handleEvaluate(SSEvaluate sse) {
 		Sheet sheet = SheetStore.getSheet(sse.getSheetName());
 		
-		String JSON = "";
+		String JSON;
 		
-		if(sheet.isSGL() == true) {
+		if(sheet.isSGL()) {
 			JSON = SheetTransformer.parseSGL(sheet);
 		} else {
 			JSON = SheetTransformer.parseSDSL(sheet);
@@ -189,11 +191,12 @@ public class SSServer extends WebSocketServer {
 		if(sheet != null) {
 			response.setCode(200);
 			
-			if(sheet.isSGL() == true) {
+			if(sheet.isSGL()) {
 				// handle SGL generator
-				String sglJson = SheetTransformer.parseSGL(sheet);
-				sglGrammar = GrammarCreator.createGrammar(sglJson);
-				System.out.println("SS Model : " + sglJson);
+				String ssModelString = SheetTransformer.parseSGL(sheet);
+				loadSSModel(ssModelString);
+				sglGrammar = GrammarCreator.createGrammar();
+				System.out.println("SS Model : " + ssModel);
 				System.out.println("XText Grammar : " + sglGrammar);
 			} else {
 				// handle SDSL generator
@@ -261,5 +264,14 @@ public class SSServer extends WebSocketServer {
 		broadcast(gson.toJson(notification));
 
 		System.out.println("Sending notification for method " + method);
+	}
+
+	private void loadSSModel(String ssModelString) {
+		Gson gson = new Gson();
+		ssModel = gson.fromJson(ssModelString, JsonArray.class);
+	}
+
+	public JsonArray getSsModel() {
+		return ssModel;
 	}
 }
