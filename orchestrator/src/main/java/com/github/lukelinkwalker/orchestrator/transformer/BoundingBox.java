@@ -18,6 +18,22 @@ public class BoundingBox {
 		height = 1;
 	}
 	
+	public int getRowStart() {
+		return y;
+	}
+	
+	public int getRowEnd() {
+		return (y + height);
+	}
+	
+	public int getColumnStart() {
+		return x;
+	}
+	
+	public int getColumnEnd() {
+		return (x + width);
+	}
+	
 	public int getX() {
 		return x;
 	}

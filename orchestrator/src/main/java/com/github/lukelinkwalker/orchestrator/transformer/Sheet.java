@@ -32,6 +32,10 @@ public class Sheet {
 		}
 	}
 	
+	public Cell getHead(BoundingBox bb) {
+		return cells[bb.getX()][bb.getY()];
+	}
+	
 	public Cell getCell(int column, int row) {
 		return cells[column][row];
 	}

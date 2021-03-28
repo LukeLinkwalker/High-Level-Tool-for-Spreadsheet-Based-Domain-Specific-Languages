@@ -18,87 +18,48 @@ public class SheetTransformer {
 		ArrayList<BoundingBox> tables = sheet.getTableRanges();
 		
 		for(int i = 0; i < tables.size(); i += 1) {
-			JsonObject entry = new JsonObject();
+			JsonObject entry = null;
 			
 			BoundingBox table = tables.get(i);
 		
-			int rowStart = table.getY();
-			int rowEnd = table.getY() + table.getHeight();
-			int columnStart = table.getX();
-			int columnEnd = table.getX() + table.getWidth();
+			int rowStart = table.getRowStart();
+			int rowEnd = table.getRowEnd();
+			int columnStart = table.getColumnStart();
+			int columnEnd = table.getColumnEnd();
 			
-			Cell firstCell = sheet.getCell(table.getX(), table.getY());
-			CellData firstCellData = parseCellData(firstCell.getData(), firstCell.getColumn(), firstCell.getRow());
-			String tableName = firstCellData.getName();
-			
-			if(tableName.toLowerCase().equals("customrule") || tableName.toLowerCase().equals("customtype")) {
-				entry.addProperty("column", columnStart);
-				entry.addProperty("row", rowStart);
-				entry.addProperty("type", tableName);
-				entry.add("children", new JsonArray());
-			}
-			
-			if(tableName.toLowerCase().equals("customrule")) {
+			String tableName = sheet.getHead(table).getData();
+			if(tableName.toLowerCase().equals("rules")) {
+				entry = JsonUtil.get(root, "type", "rules");
+				
+				if(entry == null) {
+					entry = new JsonObject();
+					entry.addProperty("column", columnStart);
+					entry.addProperty("row", rowStart);
+					entry.addProperty("type", "rules");
+					entry.add("children", new JsonArray());
+				}
+				
 				for(int row = rowStart + 2; row < rowEnd; row += 1) {
 					Cell name = sheet.getCell(columnStart, row);
 					Cell rule = sheet.getCell(columnStart + 1, row);
 					
 					if(name != null && rule != null) {
-						JsonObject customrule = new JsonObject();
+						JsonObject ruleObj = new JsonObject();
 						
 						JsonObject nameObj = new JsonObject();
 						nameObj.addProperty("column", columnStart);
 						nameObj.addProperty("row", row);
 						nameObj.addProperty("value", "'" + name.getData() + "'");
 
-						JsonObject ruleObj = new JsonObject();
-						ruleObj.addProperty("column", columnStart + 1);
-						ruleObj.addProperty("row", row);
-						ruleObj.addProperty("value", "'" + rule.getData() + "'");
+						JsonObject valueObj = new JsonObject();
+						valueObj.addProperty("column", columnStart + 1);
+						valueObj.addProperty("row", row);
+						valueObj.addProperty("value", "'" + rule.getData() + "'");
 						
-						customrule.add("name", nameObj);
-						customrule.add("rule", ruleObj);
+						ruleObj.add("name", nameObj);
+						ruleObj.add("rule", valueObj);
 						
-						entry.get("children").getAsJsonArray().add(customrule);
-					}
-				}
-			} else if (tableName.toLowerCase().equals("customtype")) {
-				JsonObject customtype = null;
-				for(int row = rowStart + 2; row < rowEnd; row += 1) {
-					Cell name = sheet.getCell(columnStart, row);
-					Cell type = sheet.getCell(columnStart + 1, row);
-					
-					if(name == null) {
-						if(type != null) {
-							JsonObject subtype = new JsonObject();
-							subtype.addProperty("column", columnStart + 1);
-							subtype.addProperty("row", row);
-							subtype.addProperty("value", "'" + type.getData() + "'");
-							customtype.get("subtypes").getAsJsonArray().add(subtype);
-						}
-					} else {
-						if(customtype != null) {
-							if(customtype.get("subtypes").getAsJsonArray().size() > 0) {
-								entry.get("children").getAsJsonArray().add(customtype);
-							}
-						}
-						
-						customtype = new JsonObject();
-						customtype.addProperty("column", columnStart);
-						customtype.addProperty("row", row);
-						customtype.addProperty("name", "'" + name.getData() + "'");
-						customtype.add("subtypes", new JsonArray());
-						
-						JsonObject subtype = new JsonObject();
-						subtype.addProperty("column", columnStart + 1);
-						subtype.addProperty("row", row);
-						subtype.addProperty("value", "'" + type.getData() + "'");
-						
-						customtype.get("subtypes").getAsJsonArray().add(subtype);
-					}
-					
-					if(row == (rowEnd - 1)) {
-						entry.get("children").getAsJsonArray().add(customtype);
+						entry.get("children").getAsJsonArray().add(ruleObj);
 					}
 				}
 			} else {
@@ -129,7 +90,9 @@ public class SheetTransformer {
 				}
 			}
 
-			root.add(entry);
+			if(root.contains(entry) == false) {
+				root.add(entry);
+			}
 		}
 		
 		return root.toString().toString();
