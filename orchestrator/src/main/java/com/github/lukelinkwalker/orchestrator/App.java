@@ -70,93 +70,85 @@ public class App
 //    	System.out.println(new Gson().toJson(terminal));
     	
     	// Hosting server for client to connect to
-    	SSS = new SSServer(20895);
-    	SSS.start();
+    	//SSS = new SSServer(20895);
+    	//SSS.start();
+    	//
+    	//// Connecting to LSP
+    	//DC = new DumbLSPClient(new URI("ws://localhost:4389"));
+    	//DC.connect();
     	
-    	// Connecting to LSP
-    	DC = new DumbLSPClient(new URI("ws://localhost:4389"));
-    	DC.connect();
     	
     	
+    	Sheet test = new Sheet(true);
     	
-    	//Sheet test = new Sheet(true);
-    	//
-    	//test.addData(0, 0, 2, "CustomRule");
-    	//test.addData(0, 1, 1, "Name");
-    	//test.addData(1, 1, 1, "Rule");
-    	//
-    	//test.addData(0, 2, 1, "Galimatias");
-    	//test.addData(1, 2, 1, "10 > 5");
-    	//
-    	//test.addData(0, 3, 1, "Kagearm");
-    	//test.addData(1, 3, 1, "55 < 10 AND 1 > 10");
-    	//
-    	//// ------------------------------------------------------------
-    	//
-    	//test.addData(0, 7, 2, "CustomType");
-    	//test.addData(0, 8, 1, "Name");
-    	//test.addData(1, 8, 1, "Subtype");
-    	//
-    	//test.addData(0, 9, 1, "SensorType");
-    	//test.addData(1, 9, 1, "Thermostat");
-    	//test.addData(1, 10, 1, "Ambient Light");
-    	//
-    	//test.addData(0, 11, 1, "Temperature Unit");
-    	//test.addData(1, 11, 1, "Celsius");
-    	//test.addData(1, 12, 1, "Fahrenheit");
-        //
-    	//// ------------------------------------------------------------
-    	//
-    	//test.addData(0, 14, 7, "Array : Config");
-    	//
-    	//test.addData(0, 15, 1, "Attribute : Name");
-    	//test.addData(1, 15, 5, "Array : Sensors");
-    	//test.addData(6, 15, 1, "Alternative : Functions");
-        //
-    	//test.addData(1, 16, 1, "Attribute : Name");
-    	//test.addData(2, 16, 2, "Array : Inputs");
-    	//test.addData(4, 16, 2, "Array : Outputs");
-        //
-    	//test.addData(2, 17, 1, "Attribute : Source");
-    	//test.addData(3, 17, 1, "Attribute : Rate");
-    	//test.addData(4, 17, 1, "Attribute : Type");
-    	//test.addData(5, 17, 1, "Attribute : Rate");
-        //
-    	//test.addData(0, 18, 1, "Type : String");
-    	//test.addData(1, 18, 1, "Type : String");
-    	//test.addData(2, 18, 1, "Type : String");
-    	//test.addData(3, 18, 1, "Type : Int");
-    	//test.addData(4, 18, 1, "Type : String");
-    	//test.addData(5, 18, 1, "Type : Float");
-    	//test.addData(6, 18, 1, "Type : Get");
-    	//test.addData(6, 19, 1, "Type : Set");
-    	//
-    	//// ------------------------------------------------------------
-    	//
-    	//test.addData(0, 21, 5, "Object : OldConfig");
-    	//test.addData(0, 22, 1, "Attribute : Name");
-    	//test.addData(1, 22, 3, "Array : Sensors");
-    	//test.addData(4, 22, 1, "Alternative : Functions");
-        //
-    	//test.addData(1, 23, 1, "Attribute : Name");
-    	//test.addData(2, 23, 2, "Array : Outputs");
-        //
-    	//test.addData(2, 24, 1, "Attribute : Type");
-    	//test.addData(3, 24, 1, "Attribute : Rate");
-        //
-    	//test.addData(0, 25, 1, "Type : String");
-    	//test.addData(1, 25, 1, "Type : String");
-    	//test.addData(2, 25, 1, "Type : String");
-    	//test.addData(3, 25, 1, "Type : Int");
-    	//test.addData(4, 25, 1, "Type : Get");
-    	//test.addData(4, 26, 1, "Type : Set");
-    	//
-    	//ArrayList<BoundingBox> tables = test.getTableRanges();
-    	//for(BoundingBox bb : tables) {
-    	//	System.out.println("Test: " + bb.toString());
-    	//}
-    	//
-    	//System.out.println("Test: " + SheetTransformer.parseSGL(test));
+    	test.addData(0, 0, 2, "Rules");
+    	test.addData(0, 1, 1, "Name");
+    	test.addData(1, 1, 1, "Rule");
+    	
+    	test.addData(0, 2, 1, "SensorType");
+    	test.addData(1, 2, 1, "External | Internal");
+    	
+    	// ------------------------------------------------------------
+    	
+    	test.addData(0, 7, 2, "Rules");
+    	test.addData(0, 8, 1, "Name");
+    	test.addData(1, 8, 1, "Rule");
+    	
+    	test.addData(0, 9, 1, "Temperature Unit");
+    	test.addData(1, 9, 1, "Celsius | Fahrenheit");
+        
+    	// ------------------------------------------------------------
+    	
+    	test.addData(0, 14, 7, "Array : Config");
+    	
+    	test.addData(0, 15, 1, "Attribute : Name");
+    	test.addData(1, 15, 5, "Array : Sensors");
+    	test.addData(6, 15, 1, "Alternative : Functions");
+        
+    	test.addData(1, 16, 1, "Attribute : Name");
+    	test.addData(2, 16, 2, "Array : Inputs");
+    	test.addData(4, 16, 2, "Array : Outputs");
+        
+    	test.addData(2, 17, 1, "Attribute : Source");
+    	test.addData(3, 17, 1, "Attribute : Rate");
+    	test.addData(4, 17, 1, "Attribute : Type");
+    	test.addData(5, 17, 1, "Attribute : Rate");
+        
+    	test.addData(0, 18, 1, "Type : String");
+    	test.addData(1, 18, 1, "Type : String");
+    	test.addData(2, 18, 1, "Type : String");
+    	test.addData(3, 18, 1, "Type : Int");
+    	test.addData(4, 18, 1, "Type : String");
+    	test.addData(5, 18, 1, "Type : Float");
+    	test.addData(6, 18, 1, "Type : Get");
+    	test.addData(6, 19, 1, "Type : Set");
+    	
+    	// ------------------------------------------------------------
+    	
+    	test.addData(0, 21, 5, "Object : OldConfig");
+    	test.addData(0, 22, 1, "Attribute : Name");
+    	test.addData(1, 22, 3, "Array : Sensors");
+    	test.addData(4, 22, 1, "Alternative : Functions");
+        
+    	test.addData(1, 23, 1, "Attribute : Name");
+    	test.addData(2, 23, 2, "Array : Outputs");
+        
+    	test.addData(2, 24, 1, "Attribute : Type");
+    	test.addData(3, 24, 1, "Attribute : Rate");
+        
+    	test.addData(0, 25, 1, "Type : String");
+    	test.addData(1, 25, 1, "Type : String");
+    	test.addData(2, 25, 1, "Type : String");
+    	test.addData(3, 25, 1, "Type : Int");
+    	test.addData(4, 25, 1, "Type : Get");
+    	test.addData(4, 26, 1, "Type : Set");
+    	
+    	ArrayList<BoundingBox> tables = test.getTableRanges();
+    	for(BoundingBox bb : tables) {
+    		System.out.println("Test: " + bb.toString());
+    	}
+    	
+    	System.out.println("Test: " + SheetTransformer.parseSGL(test));
     	
 //    	Sheet test = new Sheet(false);
 //
