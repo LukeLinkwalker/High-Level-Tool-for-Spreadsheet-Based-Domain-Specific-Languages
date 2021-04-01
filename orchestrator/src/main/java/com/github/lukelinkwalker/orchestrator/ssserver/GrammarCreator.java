@@ -1,48 +1,31 @@
 package com.github.lukelinkwalker.orchestrator.ssserver;
 
+import com.github.lukelinkwalker.orchestrator.App;
+import com.github.lukelinkwalker.orchestrator.Util.StringUtilities;
 import com.google.gson.*;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.StringJoiner;
 
 public class GrammarCreator {
-    //TODO: Delete after testing
-    public static void main(String[] args) {
-        System.out.println(createGrammar());
-    }
-    //////////////////////////////
-
-    private static final StringBuilder model = new StringBuilder();
-    private static final StringBuilder terminals = new StringBuilder();
-    private static final StringBuilder tables = new StringBuilder();
+    private static StringBuilder model;
+    private static StringBuilder tables;
     private static int tablesInitialLength;
 
     public static String createGrammar() {
-//        JsonArray ssModel = App.SSS.getSsModel();
+        JsonArray ssModel = App.SSS.getSsModel();
+        StringBuilder terminals = new StringBuilder();
+        model = new StringBuilder();
+        tables = new StringBuilder();
 
         model.append("Model:\n")
                 .append("   {Model}\n")
                 .append("   '[' tables += Table? (',' tables += Table)* ']'\n")
                 .append(";\n");
+        tables.append("\nTable:\n\n;\n");
 
         int modelLengthBeforeIteratingRoot = model.length();
-
-        tables.append("\nTable:\n\n;\n");
         tablesInitialLength = tables.length();
 
-        //TODO: Delete after testing
-        Gson gson = new Gson();
-        Reader reader = null;
-        try {
-            reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        JsonArray ssModel = gson.fromJson(reader, JsonArray.class);
-        ///////////////////////////////
         ssModelOuterArrayIterator(ssModel);
         model.insert(modelLengthBeforeIteratingRoot, tables);
         terminals.append(insertDefaultTerminalRules());
@@ -61,12 +44,12 @@ public class GrammarCreator {
         switch (type) {
             case "object":
                 return printObject(jsonObject, parentName);
-            case "attribute":
-                return printAttribute(jsonObject);
             case "array":
                 return printArray(jsonObject, parentName);
             case "alternative":
                 return printAlternative(jsonObject, parentName);
+            case "attribute":
+                return printAttribute(jsonObject);
             case "rules":
                 printRuleTable(jsonObject);
                 break;
@@ -78,7 +61,7 @@ public class GrammarCreator {
     }
 
     private static StringBuilder printObject(JsonObject jsonObject, String parentName) {
-        String name = removeSingleQuotes(jsonObject.get("name").getAsString());
+        String name = StringUtilities.removeSingleQuotes(jsonObject.get("name").getAsString());
         boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
         JsonArray children = jsonObject.getAsJsonArray("children");
         String prefix = "\n" + parentName + name + ":\n   '{'";
@@ -106,7 +89,7 @@ public class GrammarCreator {
     }
 
     private static StringBuilder printArray(JsonObject jsonObject, String parentName) {
-        String name = removeSingleQuotes(jsonObject.get("name").getAsString());
+        String name = StringUtilities.removeSingleQuotes(jsonObject.get("name").getAsString());
         boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
         JsonArray children = jsonObject.getAsJsonArray("children");
         String prefix = "\n" + parentName + name + ":\n   '{'";
@@ -146,7 +129,7 @@ public class GrammarCreator {
     }
 
     private static StringBuilder printAlternative(JsonObject jsonObject, String parentName) {
-        String name = removeSingleQuotes(jsonObject.get("name").getAsString());
+        String name = StringUtilities.removeSingleQuotes(jsonObject.get("name").getAsString());
         boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
         JsonArray dataTypes = jsonObject.get("dataTypes").getAsJsonArray();
 
@@ -156,15 +139,15 @@ public class GrammarCreator {
         for (JsonElement jsonElement : dataTypes) {
             String dataType = jsonElement.getAsJsonObject().get("value").getAsString();
             dataType = replaceWhiteSpaceWithUnderscore(dataType);
-            dataType = removeSingleQuotes(dataType);
-            sj.add(dataType);
+            dataType = StringUtilities.removeSingleQuotes(dataType);
+            sj.add("value" + dataType + " = " + dataType);
         }
 
         sb.append("\n").append(parentName).append(name).append(":\n")
                 .append("   '{'\n")
                 .append("      '\"column\"' ':' column = INT ','\n")
                 .append("      '\"row\"' ':' row = INT ','\n")
-                .append("      '\"value\"' ':' value = (").append(sj).append(")\n")
+                .append("      '\"value\"' ':' (").append(sj).append(")\n")
                 .append("   '}'\n")
                 .append(";\n");
 
@@ -183,7 +166,7 @@ public class GrammarCreator {
 
     private static StringBuilder printAttribute(JsonObject jsonObject) {
         StringBuilder sb = new StringBuilder();
-        String name = removeSingleQuotes(jsonObject.get("name").getAsString());
+        String name = StringUtilities.removeSingleQuotes(jsonObject.get("name").getAsString());
         boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
 
         JsonObject dataTypeObject = jsonObject.get("dataTypes").getAsJsonArray().get(0).getAsJsonObject();
@@ -272,9 +255,6 @@ public class GrammarCreator {
         sb.append(")?");
     }
 
-    private static String removeSingleQuotes(String string) {
-        return string.substring(1, string.length() - 1);
-    }
 
     private static String wrapInDoubleQuotesBasedOnDataType(String dataType, String string) {
         if (dataType.equals("INT") || dataType.equals("FLOAT") || dataType.equals("BOOLEAN")) return string;

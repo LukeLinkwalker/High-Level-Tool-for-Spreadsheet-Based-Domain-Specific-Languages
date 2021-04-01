@@ -1,19 +1,12 @@
 package com.github.lukelinkwalker.orchestrator.ssserver;
 
 import com.github.lukelinkwalker.orchestrator.App;
-import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSMessage;
-import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSNotification;
-import com.google.gson.Gson;
+import com.github.lukelinkwalker.orchestrator.Util.StringUtilities;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class TableCreator {
@@ -65,13 +58,16 @@ public class TableCreator {
     private static JsonObject findTableJsonObject(String name) {
         JsonArray ssModel = App.SSS.getSsModel();
 
-        for (JsonElement jsonElement : ssModel) {
-            String type = jsonElement.getAsJsonObject().get("type").getAsString();
+        if (ssModel != null) {
+            for (JsonElement jsonElement : ssModel) {
+                String type = jsonElement.getAsJsonObject().get("type").getAsString();
 
-            if (!type.equals("rules")) {
-                String objectName = jsonElement.getAsJsonObject().get("name").getAsString();
+                if (!type.equals("rules")) {
+                    String objectName = StringUtilities.removeSingleQuotes(jsonElement.getAsJsonObject().get("name")
+                            .getAsString());
 
-                if (name.equals(objectName)) return jsonElement.getAsJsonObject();
+                    if (name.equals(objectName)) return jsonElement.getAsJsonObject();
+                }
             }
         }
 
@@ -111,7 +107,7 @@ public class TableCreator {
     }
 
     private static void sendTextCommandForAppropriateCells(JsonObject jsonObject, int startColumn, int startRow) {
-        String name = jsonObject.get("name").getAsString();
+        String name = StringUtilities.removeSingleQuotes(jsonObject.get("name").getAsString());
         int column = jsonObject.get("column").getAsInt() + startColumn;
         int row = jsonObject.get("row").getAsInt() + startRow;
         JsonArray children = jsonObject.get("children").getAsJsonArray();
