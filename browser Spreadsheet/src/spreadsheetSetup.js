@@ -4,25 +4,16 @@ $(() => {
     events.onDocumentReady()
 })
 
-export function setupKeys() {
-    $(document)
-        .on('keydown', (e) => {
-            if (e.which === 9) events.onDocumentKeypressTab(e)
-            else if (e.which === 13) events.onDocumentKeypressEnter(e)
-        })
+export function setupActionBar() {
+    $('#action-container')
+        .on('mousedown', (e) => e.preventDefault())
 }
 
 export function setupSDSL() {
-    $('.sglClass').css('display', 'none')
-    $('.sdslClass').css('display', '')
-
     setupAddRowButton()
 }
 
 export function setupSGL() {
-    $('.sdslClass').css('display', 'none')
-    $('.sglClass').css('display', '')
-
     setupBuildButton()
     setupMergeButton()
 }
@@ -37,29 +28,41 @@ export function setupInputBar() {
 export function setupSpreadsheetTypeRadioButtons() {
     $('input[name="spreadsheetType"]')
         .on('change', () => events.onSpreadsheetTypeRadioButtonsChange())
-        .on('mousedown', (e) => e.preventDefault())
 }
 
 export function setupCreateTableButton() {
     $('#createTable')
         .on('click', () => events.onCreateTableButtonClick())
-        .on('mousedown', (e) => e.preventDefault())
 }
 
 function setupAddRowButton() {
     $('#addRow')
         .on('click', () => events.onAddRowButtonClick())
-        .on('mousedown', (e) => e.preventDefault())
 }
 
 function setupBuildButton() {
     $('#build')
         .on('click', () => events.onBuildButtonClick())
-        .on('mousedown', (e) => e.preventDefault())
 }
 
 function setupMergeButton() {
     $('#merge')
         .on('click', () => events.onMergeButtonClick())
-        .on('mousedown',(e) => e.preventDefault())
+}
+
+export function setupCell(cell) {
+    cell.on('mousedown', () => events.onCellMouseDown())
+    cell.on('mouseup', () => events.onCellMouseUp())
+    cell.on('mouseenter', (e) => events.onCellMouseEnter(e.target))
+    cell.on('mouseleave', (e) => events.onCellMouseLeave(e.target))
+    cell.on('focus', (e) => events.onCellFocus(e.target))
+    cell.on('input', (e) => events.onCellInput(e.target))
+    cell.on('keydown', (e) => {
+        if (e.which === 9) events.onDocumentKeydownTab(e)
+        else if (e.which === 13) events.onDocumentKeydownEnter(e)
+        else if (e.which === 37) events.onCellKeydownArrowLeft(e)
+        else if (e.which === 38) events.onCellKeydownArrowUp(e)
+        else if (e.which === 39) events.onCellKeydownArrowRight(e)
+        else if (e.which === 40) events.onCellKeydownArrowDown(e)
+    })
 }
