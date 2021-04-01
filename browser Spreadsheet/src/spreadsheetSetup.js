@@ -11,6 +11,7 @@ export function setupActionBar() {
 
 export function setupSDSL() {
     setupAddRowButton()
+    setupDeleteRowButton()
 }
 
 export function setupSGL() {
@@ -38,6 +39,11 @@ export function setupCreateTableButton() {
 function setupAddRowButton() {
     $('#addRow')
         .on('click', () => events.onAddRowButtonClick())
+}
+
+function setupDeleteRowButton() {
+    $('#deleteRow')
+        .on('click', () => events.onDeleteRowButtonClick())
 }
 
 function setupBuildButton() {

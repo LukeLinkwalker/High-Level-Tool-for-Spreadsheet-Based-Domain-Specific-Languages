@@ -181,6 +181,10 @@ export function addTableNameToCell(cell, tableName) {
     $(cell).addClass(tableName)
 }
 
+export function removeCellFromTable(cell) {
+    $(cell).removeClass(getTableName(cell))
+}
+
 export function getAllCellsFromTableCellIsIn(cell) {
     let tableName = getTableName(cell)
 
@@ -243,4 +247,28 @@ export function getCellsInNewTableRow(cell) {
 
         return getCellsInRange(newRowStartCell, newRowEndCell)
     }
+}
+
+export function setCellAsHeader(cell) {
+    $(cell).addClass('header')
+}
+
+export function removeCellAsHeader(cell) {
+    $(cell).removeClass('header')
+}
+
+export function setCellAsData(cell) {
+    $(cell).addClass('data')
+}
+
+export function removeCellAsData(cell) {
+    $(cell).removeClass('data')
+}
+
+export function getCellType(cell) {
+    let $cell = $(cell)
+
+    if ($cell.hasClass('header')) return 'header'
+    else if ($cell.hasClass('data')) return 'data'
+    else return null
 }

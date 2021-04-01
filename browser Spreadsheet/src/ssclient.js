@@ -45,6 +45,8 @@ socket.addEventListener('open', function(event) {
 
     tools.mergeCells([cell00, cell10])
     requestBuild()
+
+    tools.changeToSDSL()
     //////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -173,17 +175,17 @@ function handleBlackBorder(params) {
 function handleSetAsHeaderCell(params) {
     let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
 
-    tools.setCellAsHeader(cell)
+    spreadsheet.setCellAsHeader(cell)
 }
 
 function handleSetAsDataCell(params) {
     let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
 
-    tools.setCellAsData(cell)
+    spreadsheet.setCellAsData(cell)
 }
 
 //TODO: Fix this. Should only take text
-var updateCounter = 10_000_000;
+let updateCounter = 10_000_000;
 export function sendChange(cell) {
     let cellIndexes = spreadsheet.getCellIndexes(cell)
     let colspan = $(cell).prop('colspan')

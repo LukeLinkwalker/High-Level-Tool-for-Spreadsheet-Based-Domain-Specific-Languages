@@ -137,6 +137,10 @@ export function onAddRowButtonClick() {
     tools.addRow(globals.editingCell)
 }
 
+export function onDeleteRowButtonClick() {
+    tools.deleteRow(globals.editingCell)
+}
+
 export function onBuildButtonClick() {
     client.requestBuild()
 }

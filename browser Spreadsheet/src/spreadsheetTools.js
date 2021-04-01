@@ -1,6 +1,6 @@
-import * as spreadsheet from './spreadsheet.js';
+import * as spreadsheet from './spreadsheet.js'
 import * as globals from './spreadsheetGlobalVariables.js'
-import * as client from "./ssclient.js";
+import * as client from './ssclient.js'
 
 export function mergeCells(cells) {
     let leftmostCellIndexes = spreadsheet.getCellIndexes(cells[0])
@@ -37,22 +37,6 @@ export function setCenterText(cell) {
 
 export function removeCenterText(cell) {
     $(cell).removeClass('center')
-}
-
-export function setCellAsHeader(cell) {
-    $(cell).addClass('header')
-}
-
-export function removeCellAsHeader(cell) {
-    $(cell).removeClass('header')
-}
-
-export function setCellAsData(cell) {
-    $(cell).addClass('data')
-}
-
-export function removeCellAsData(cell) {
-    $(cell).removeClass('data')
 }
 
 export function setBlackBorder(cell) {
@@ -143,9 +127,10 @@ export function clearCell(cell) {
 function clearCellHelper(cell) {
     removeBoldText(cell)
     removeCenterText(cell)
-    removeCellAsHeader(cell)
-    removeCellAsData(cell)
+    spreadsheet.removeCellAsHeader(cell)
+    spreadsheet.removeCellAsData(cell)
     removeBlackBorder(cell)
+    spreadsheet.removeCellFromTable(cell)
     $(cell).text('')
 }
 
@@ -221,9 +206,48 @@ export function addRow(cell) {
     return true
 }
 
+export function deleteRow(cell) {
+    let tableRange = spreadsheet.getTableRange(cell)
+
+    if (tableRange === null) {
+        alert('Cannot delete row as cell is not in a table!')
+        return false
+    }
+    else {
+        let startCell = spreadsheet.getCellFromIndexes(tableRange[0], tableRange[3])
+        let endCell = spreadsheet.getCellFromIndexes(tableRange[2], tableRange[3])
+        let lastRow = spreadsheet.getCellsInRange(startCell, endCell)
+
+        let allCellsAreDataCells = lastRow.every((cellInRow) => {
+            return (spreadsheet.getCellType(cellInRow) === 'data')
+        })
+
+        if (!allCellsAreDataCells) {
+            alert('Cannot delete row as some cells are headers!')
+            return false
+        }
+        else {
+            let allCellsInNewRowAreEmpty = lastRow.every((cellInRow) => {
+                return spreadsheet.checkCellIsEmpty(cellInRow)
+            })
+
+            if (!allCellsInNewRowAreEmpty) {
+                let warning = confirm('Some cells are not empty and their data will be deleted. Do you still wish to ' +
+                    'delete the last row?')
+
+                if (warning) lastRow.forEach((cellInRow) => clearCell(cellInRow))
+                else return false
+            }
+            else lastRow.forEach((cellInRow) => clearCell(cellInRow))
+        }
+    }
+
+    return true
+}
+
 function createDataCellInNewRow(cell, tableName) {
     spreadsheet.addTableNameToCell(cell, tableName)
-    setCellAsData(cell)
+    spreadsheet.setCellAsData(cell)
     setBlackBorder(cell)
 }
 
