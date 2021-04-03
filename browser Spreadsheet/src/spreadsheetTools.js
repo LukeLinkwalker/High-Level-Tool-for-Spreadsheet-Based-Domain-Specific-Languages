@@ -179,32 +179,46 @@ export function createTable(tableName, column, row, tableRange) {
 }
 
 export function addRow(cell) {
-    let cellsInNewRow = spreadsheet.getCellsInNewTableRow(cell)
+    let cellIndexes = spreadsheet.getCellIndexes(cell)
 
-    if (cellsInNewRow === null) alert('Cannot add row as current cell is not in a table!')
+    if (cellIndexes[1] >= globals.rowSize - 1) {
+        alert('Cannot add row as the spreadsheet is not big enough!')
+        return false
+    }
     else {
-        let allCellsInNewRowAreEmpty = cellsInNewRow.every((cellInNewRow) => {
-            return spreadsheet.checkCellIsEmpty(cellInNewRow)
-        })
+        let cellsInNewRow = spreadsheet.getCellsInNewTableRow(cell)
 
-        if (!allCellsInNewRowAreEmpty) {
-            let warning = confirm('Some cells are not empty. Their data will be overwritten. Do you still wish to add a row?')
-
-            if (warning) {
-                let tableName = spreadsheet.getTableName(cell)
-
-                cellsInNewRow.forEach((cellInNewRow) => {
-                    clearCell(cellInNewRow)
-                    createDataCellInNewRow(cellInNewRow, tableName)
-                })
-            }
+        if (cellsInNewRow === null) {
+            alert('Cannot add row as current cell is not in a table!')
+            return false
         }
         else {
-            let tableName = spreadsheet.getTableName(cell)
+            let allCellsInNewRowAreEmpty = cellsInNewRow.every((cellInNewRow) => {
+                return spreadsheet.checkCellIsEmpty(cellInNewRow)
+            })
 
-            cellsInNewRow.forEach((cellInNewRow) => createDataCellInNewRow(cellInNewRow, tableName))
+            if (!allCellsInNewRowAreEmpty) {
+                let warning = confirm('Some cells are not empty. Their data will be overwritten. Do you still wish to add a row?')
+
+                if (warning) {
+                    let tableName = spreadsheet.getTableName(cell)
+
+                    cellsInNewRow.forEach((cellInNewRow) => {
+                        clearCell(cellInNewRow)
+                        createDataCellInNewRow(cellInNewRow, tableName)
+                    })
+                }
+                else return false
+            }
+            else {
+                let tableName = spreadsheet.getTableName(cell)
+
+                cellsInNewRow.forEach((cellInNewRow) => createDataCellInNewRow(cellInNewRow, tableName))
+            }
         }
     }
+
+    return true
 }
 
 function createDataCellInNewRow(cell, tableName) {
@@ -219,4 +233,92 @@ export function suggestion(cellText, column, row) {
     client.requestGetInitialTableRange(cellText, column, row)
 
     // console.log(cellText + 'is a table. WANNA CREATE TABLE? Indexes: ' + column + " " + row)
+}
+
+export function moveOneCellLeft(event) {
+    let editingCellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
+
+    event.preventDefault()
+    $(globals.editingCell).css('outline', '')
+
+    if (editingCellIndexes[0] > 0) {
+        let newEditingCell = spreadsheet.getCellFromIndexes(editingCellIndexes[0] - 1, editingCellIndexes[1])
+
+        globals.setEditingCell(newEditingCell)
+        newEditingCell.focus()
+    }
+}
+
+export function moveOneCellUp(event) {
+    let editingCellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
+
+    event.preventDefault()
+    $(globals.editingCell).css('outline', '')
+
+    if (editingCellIndexes[1] > 0) {
+        let newEditingCell = spreadsheet.getCellFromIndexes(editingCellIndexes[0], editingCellIndexes[1] - 1)
+
+        globals.setEditingCell(newEditingCell)
+        newEditingCell.focus()
+    }
+}
+
+export function moveOneCellRight(event) {
+    let editingCellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
+
+    event.preventDefault()
+    $(globals.editingCell).css('outline', '')
+
+    if (editingCellIndexes[0] < globals.columnSize - 1) {
+        let newEditingCell = spreadsheet.getCellFromIndexes(editingCellIndexes[0] + 1, editingCellIndexes[1])
+
+        globals.setEditingCell(newEditingCell)
+        newEditingCell.focus()
+    }
+}
+
+export function moveOneCellDown(event) {
+    let editingCellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
+
+    event.preventDefault()
+    $(globals.editingCell).css('outline', '')
+
+    if (editingCellIndexes[1] < globals.rowSize - 1) {
+        let newEditingCell = spreadsheet.getCellFromIndexes(editingCellIndexes[0], editingCellIndexes[1] + 1)
+
+        globals.setEditingCell(newEditingCell)
+        newEditingCell.focus()
+    }
+}
+
+export function changeToSGL() {
+    $('.sdslClass').css('display', 'none')
+    $('.sglClass').css('display', '')
+    globals.setSpreadsheetType('sgl')
+}
+
+export function changeToSDSL() {
+    $('.sdslClass').css('display', '')
+    $('.sglClass').css('display', 'none')
+    globals.setSpreadsheetType('sdsl')
+}
+
+export function changeNextCellToStartOfNewRowInTable(cell, tableRange, event) {
+    let cellIndexes = spreadsheet.getCellIndexes(cell)
+    let newEditingCell = spreadsheet.getCellFromIndexes(tableRange[0], cellIndexes[1] + 1)
+
+    event.preventDefault()
+    $(globals.editingCell).css('outline', '')
+    globals.setEditingCell(newEditingCell)
+    newEditingCell.focus()
+}
+
+export function changeCellOneDownAndPossiblyAddRow(event) {
+    let cell = globals.editingCell
+    let cellIndexes = spreadsheet.getCellIndexes(cell)
+    let tableRange = spreadsheet.getTableRange(cell)
+
+    if (tableRange !== null && cellIndexes [1] === tableRange[3]) addRow(cell)
+
+    moveOneCellDown(event)
 }

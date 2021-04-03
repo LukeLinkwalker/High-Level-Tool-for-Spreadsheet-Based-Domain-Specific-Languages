@@ -1,6 +1,6 @@
-import * as events from './spreadsheetEvents.js'
 import * as tools from './spreadsheetTools.js'
 import * as globals from './spreadsheetGlobalVariables.js'
+import * as setup from './spreadsheetSetup.js'
 
 //TODO: Remove after testing
 export function testFunction() {
@@ -14,8 +14,8 @@ export function testFunction() {
 }
 
 export function createSpreadsheet() {
-    globals.setColumnSize(20)
-    globals.setRowSize(20)
+    globals.setColumnSize(30)
+    globals.setRowSize(40)
 
     let table = $('<table id="dynamicTable">')
     let tableBody = $('<tbody id="dynamicBody">')
@@ -39,36 +39,47 @@ function createCell(column, row) {
     let cell = $('<td>')
     cell.attr('id', createCellID(column, row))
     cell.attr('contenteditable', 'true')
+    cell.css('min-width', '100px')
     cell.data('hasError', false)
     cell.data('hiddenText', '')
-    cell.on('mousedown', () => events.onCellMouseDown())
-    cell.on('mouseup', () => events.onCellMouseUp())
-    cell.on('mouseenter', (e) => events.onCellMouseEnter(e.target))
-    cell.on('mouseleave', (e) => events.onCellMouseLeave(e.target))
-    cell.on('focus', (e) => events.onCellFocus(e.target))
-    cell.on('input', (e) => events.onCellInput(e.target))
-    cell.on('focusout', (e) => events.onCellFocusOut(e.target))
+    setup.setupCell(cell)
 
     return cell
 }
 
 function createColumnHeader(tableSize, table) {
     let columnRow = $('<thead>')
-    columnRow.append($('<th>'))
 
-    for (let column = 0; column < tableSize; column++) {
+    for (let column = 0; column <= tableSize; column++) {
         let tableHeader = $('<th>')
-        tableHeader.text(String.fromCharCode(65 + column))
+
+        if (column !== 0) tableHeader.text(createTableHeaderText(column))
+        tableHeader.on('mousedown', (e) => e.preventDefault())
         columnRow.append(tableHeader)
     }
 
     $(table).prepend(columnRow)
 }
 
+function createTableHeaderText(columnNumber) {
+    let temp
+    let letter = ''
+
+    while (columnNumber > 0) {
+        temp = (columnNumber - 1) % 26
+        letter = String.fromCharCode(temp + 65) + letter
+        columnNumber = (columnNumber - temp - 1) / 26
+    }
+
+    return letter
+}
+
 function createRowHeader(tableSize, table) {
     $('tr', table).each( (index, element) => {
         let tableHeader = $('<th>')
+
         tableHeader.text(index + 1)
+        tableHeader.on('mousedown', (e) => e.preventDefault())
         $(element).prepend(tableHeader)
     })
 }

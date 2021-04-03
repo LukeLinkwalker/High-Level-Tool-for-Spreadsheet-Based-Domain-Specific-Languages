@@ -1,45 +1,17 @@
 package com.github.lukelinkwalker.orchestrator.ssserver;
 
 import com.github.lukelinkwalker.orchestrator.App;
-import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSMessage;
-import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSNotification;
-import com.google.gson.Gson;
+import com.github.lukelinkwalker.orchestrator.Util.StringUtilities;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class TableCreator {
-    private static JsonArray ssModelAsJson;
 
-//    //TODO: Remove setup after functionality to setup ssmodel is added
-//    private static void setup(String string) throws IOException {
-//        Gson gson = new Gson();
-//        Reader reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
-//        ssmodel = gson.fromJson(reader, JsonArray.class);
-////        ssmodel = gson.fromJson(string, JsonArray.class);
-//    }
-//
-//    public static void loadSSModel() {
-//        Gson gson = new Gson();
-//        ssModelAsJson = gson.fromJson(App.SSS.getSsModel(), JsonArray.class);
-//    }
-
-    //TODO Update with setup
     public static boolean initializeCreateTable(String tableName, int column, int row, String string) {
-//        try {
-//            setup(string);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
         JsonObject tableObject = findTableJsonObject(tableName);
         boolean success;
 
@@ -85,10 +57,18 @@ public class TableCreator {
 
     private static JsonObject findTableJsonObject(String name) {
         JsonArray ssModel = App.SSS.getSsModel();
-        for (JsonElement jsonElement : ssModel) {
-            String objectName = jsonElement.getAsJsonObject().get("name").getAsString();
 
-            if (name.equals(objectName)) return jsonElement.getAsJsonObject();
+        if (ssModel != null) {
+            for (JsonElement jsonElement : ssModel) {
+                String type = jsonElement.getAsJsonObject().get("type").getAsString();
+
+                if (!type.equals("rules")) {
+                    String objectName = StringUtilities.removeSingleQuotes(jsonElement.getAsJsonObject().get("name")
+                            .getAsString());
+
+                    if (name.equals(objectName)) return jsonElement.getAsJsonObject();
+                }
+            }
         }
 
         return null;
@@ -110,22 +90,10 @@ public class TableCreator {
     }
 
     public static boolean checkIfTextIsATableName(String cellText, String string) {
-//        try {
-//            setup(string);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
         return findTableJsonObject(cellText) != null;
     }
 
     public static int[] getInitialTableRangeResponse(String name, int column, int row, String string) {
-//        try {
-//            setup(string);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
         JsonObject tableObject = findTableJsonObject(name);
 
         if (tableObject == null) return null;
@@ -139,7 +107,7 @@ public class TableCreator {
     }
 
     private static void sendTextCommandForAppropriateCells(JsonObject jsonObject, int startColumn, int startRow) {
-        String name = jsonObject.get("name").getAsString();
+        String name = StringUtilities.removeSingleQuotes(jsonObject.get("name").getAsString());
         int column = jsonObject.get("column").getAsInt() + startColumn;
         int row = jsonObject.get("row").getAsInt() + startRow;
         JsonArray children = jsonObject.get("children").getAsJsonArray();

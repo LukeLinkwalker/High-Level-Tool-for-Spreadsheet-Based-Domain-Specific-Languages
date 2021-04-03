@@ -22,6 +22,29 @@ socket.addEventListener('open', function(event) {
     let open = { sheetName:"Hello", isSGL:true }
     let omsg = { method:"open-sheet", id:"1", data:JSON.stringify(open) };
     socket.send(JSON.stringify(omsg));
+
+    //TODO: Remove after testing
+    let cell00 = spreadsheet.getCellFromIndexes(0, 0)
+    let cell10 = spreadsheet.getCellFromIndexes(1, 0)
+    let cell01 = spreadsheet.getCellFromIndexes(0, 1)
+    let cell11 = spreadsheet.getCellFromIndexes(1, 1)
+    let cell02 = spreadsheet.getCellFromIndexes(0, 2)
+    let cell12 = spreadsheet.getCellFromIndexes(1, 2)
+
+    $(cell00).text('array : Config')
+    $(cell01).text('attribute : Name')
+    $(cell11).text('attribute : Sensor')
+    $(cell02).text('type : String')
+    $(cell12).text('type : String')
+
+    sendChange(cell00)
+    sendChange(cell01)
+    sendChange(cell11)
+    sendChange(cell02)
+    sendChange(cell12)
+
+    tools.mergeCells([cell00, cell10])
+    requestBuild()
     //////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////

@@ -4,22 +4,13 @@ import * as spreadsheet from './spreadsheet.js'
 import * as client from './ssclient.js'
 import * as setup from './spreadsheetSetup.js'
 
-//TODO Update to only use hidden text in SGL mode
+//TODO: Use later: // let regex = new RegExp('^(optional )?(object|array|alternative|attribute) : [a-zA-Z0-9_]+')
+
 export function onInputBarInput(inputBar) {
     let inputBarText = String($(inputBar).val())
-    let regex = new RegExp('^[a-zA-Z0-9_]+ : [a-zA-Z0-9_]+')
     let $editingCell = $(globals.editingCell)
 
-    if (!regex.test(inputBarText)) {
-        $editingCell.text($editingCell.data('hiddenText') + inputBarText)
-        $editingCell.data('hiddenText', '')
-    }
-    else {
-        let textToBeHidden = inputBarText.substr(0, inputBarText.indexOf(':') + 2)
-        $editingCell.data('hiddenText', textToBeHidden)
-        $editingCell.text(inputBarText.replace(textToBeHidden, ''))
-    }
-
+    $editingCell.text(inputBarText)
     client.sendChange(globals.editingCell)
 }
 
@@ -71,44 +62,19 @@ export function onCellFocus(cell) {
     let cellClone = $(cell).clone()
     let divs = $('.errorMessage', cellClone)
 
-    divs.each((i, element) => {
-        element.remove()
-    })
-
+    divs.each((i, element) => element.remove())
     inputBar.val(hiddenText + cellClone.text())
 }
 
-export function onCellFocusOut(cell) {
-    let $cell = $(cell)
-    let cellText = $cell.text()
-    let hiddenText = $cell.data('hiddenText')
-
-    let regex = new RegExp('^[a-zA-Z0-9_]+ : [a-zA-Z0-9_]+')
-    if (regex.test(cellText) && hiddenText === '' && !$cell.data('hasError')) {
-        let textToBeHidden = cellText.substr(0, cellText.indexOf(':') + 2)
-        $cell.data('hiddenText', textToBeHidden)
-        $cell.text(cellText.replace(textToBeHidden, ''))
-    }
-}
-
 export function onCellInput(cell) {
-    let $cell = $(cell)
     let inputBar = $('#input-bar')
-    let regex = new RegExp('^[a-zA-Z0-9_]')
-    let hiddenText = $cell.data('hiddenText')
     let cellClone = $(cell).clone()
     let divs = $('.errorMessage', cellClone)
     let cellIndexes = spreadsheet.getCellIndexes(cell)
 
-    divs.each((i, element) => {
-        element.remove()
-    })
-
-    if (!regex.test(cellClone.text())) $cell.data('')
-
-    if (hiddenText !== '' && !$cell.data('hasError')) inputBar.val(hiddenText + cellClone.text())
-    else inputBar.val(cellClone.text())
-
+    //TODO: Why?
+    divs.each((i, element) => element.remove())
+    inputBar.val(cellClone.text())
     client.sendChange(cell)
 
     if (globals.spreadsheetType === 'sdsl') client.requestCheckIfTextIsATableName(cellClone.text(), cellIndexes[0],
@@ -116,72 +82,39 @@ export function onCellInput(cell) {
 }
 
 export function onDocumentReady() {
-    setup.setupKeys()
     setup.setupSpreadsheetTypeRadioButtons()
     setup.setupCreateTableButton()
     setup.setupInputBar()
+    setup.setupActionBar()
     setup.setupSDSL()
+    setup.setupSGL()
 
+    tools.changeToSGL()
     spreadsheet.createSpreadsheet()
     spreadsheet.setInitialEditingCell()
 
-    $('#sdslRadioButton').prop('checked', true)
+    $('#sglRadioButton').prop('checked', true)
 
     //TODO: Remove after testing
     spreadsheet.testFunction()
 }
 
-export function onDocumentKeypressTab(event) {
+export function onDocumentKeydownTab(event) {
     let cell = globals.editingCell
     let cellIndexes = spreadsheet.getCellIndexes(cell)
     let tableRange = spreadsheet.getTableRange(cell)
 
     if (tableRange !== null && cellIndexes[0] === tableRange[2]) {
-        if (cellIndexes[1] !== tableRange[3]) changeNextCellToStartOfNewRowInTable(cell, tableRange, event)
+        if (cellIndexes[1] !== tableRange[3]) tools.changeNextCellToStartOfNewRowInTable(cell, tableRange, event)
         else {
-            tools.addRow(cell)
-            changeNextCellToStartOfNewRowInTable(cell, tableRange, event)
+            if (tools.addRow(cell)) tools.changeNextCellToStartOfNewRowInTable(cell, tableRange, event)
         }
     }
-    else changeNextCellHorizontally(globals.editingCell, event)
+    else tools.moveOneCellRight(event)
 }
 
-export function changeNextCellHorizontally(cell, event) {
-    let cellIndexes = spreadsheet.getCellIndexes(cell)
-
-    event.preventDefault()
-    $(globals.editingCell).css('outline', '')
-
-    if (cellIndexes[0] < globals.columnSize - 1) {
-        let newEditingCell = spreadsheet.getCellFromIndexes(cellIndexes[0] + 1, cellIndexes[1])
-
-        globals.setEditingCell(newEditingCell)
-        newEditingCell.focus()
-    }
-}
-
-export function changeNextCellToStartOfNewRowInTable(cell, tableRange, event) {
-    let cellIndexes = spreadsheet.getCellIndexes(cell)
-    let newEditingCell = spreadsheet.getCellFromIndexes(tableRange[0], cellIndexes[1] + 1)
-
-    event.preventDefault()
-    $(globals.editingCell).css('outline', '')
-    globals.setEditingCell(newEditingCell)
-    newEditingCell.focus()
-}
-
-export function onDocumentKeypressEnter(event) {
-    let editingCellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
-
-    event.preventDefault()
-    $(globals.editingCell).css('outline', '')
-
-    if (editingCellIndexes[1] < globals.rowSize - 1) {
-        let newEditingCell = spreadsheet.getCellFromIndexes(editingCellIndexes[0], editingCellIndexes[1] + 1)
-
-        globals.setEditingCell(newEditingCell)
-        newEditingCell.focus()
-    }
+export function onDocumentKeydownEnter(event) {
+    tools.changeCellOneDownAndPossiblyAddRow(event)
 }
 
 export function onCreateTableButtonClick() {
@@ -196,10 +129,8 @@ export function onCreateTableButtonClick() {
 export function onSpreadsheetTypeRadioButtonsChange() {
     let spreadsheetType = $('input[name="spreadsheetType"]:checked').val()
 
-    if (spreadsheetType === 'sdsl') setup.setupSDSL()
-    else if (spreadsheetType === 'sgl') setup.setupSGL()
-
-    globals.setSpreadsheetType(spreadsheetType)
+    if (spreadsheetType === 'sdsl') tools.changeToSDSL()
+    else if (spreadsheetType === 'sgl') tools.changeToSGL()
 }
 
 export function onAddRowButtonClick() {
@@ -231,4 +162,20 @@ export function onMergeButtonClick() {
         if (mergedCells.length > 0) mergedCells.forEach((cell) => tools.demergeCell(cell))
         else tools.mergeCells(globals.selectedCells)
     }
+}
+
+export function onCellKeydownArrowLeft(event) {
+    tools.moveOneCellLeft(event)
+}
+
+export function onCellKeydownArrowUp(event) {
+    tools.moveOneCellUp(event)
+}
+
+export function onCellKeydownArrowRight(event) {
+    tools.moveOneCellRight(event)
+}
+
+export function onCellKeydownArrowDown(event) {
+    tools.changeCellOneDownAndPossiblyAddRow(event)
 }
