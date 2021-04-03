@@ -29,7 +29,7 @@ public class SheetTransformer {
 			
 			String tableName = sheet.getHead(table).getData();
 			if(tableName.toLowerCase().equals("rules")) {
-				entry = JsonUtil.get(root, "type", "rules");
+				entry = JsonUtil.find(root, "type", "rules");
 				
 				if(entry == null) {
 					entry = new JsonObject();
@@ -93,6 +93,21 @@ public class SheetTransformer {
 			if(root.contains(entry) == false) {
 				root.add(entry);
 			}
+		}
+		
+		// Move rules table or insert if no rules defined
+		int index = JsonUtil.indexOf(root, "type", "rules");
+		if(index != -1) {
+			JsonObject obj = root.get(index).getAsJsonObject();
+			root.remove(index);
+			root.add(obj);
+		} else {
+			JsonObject obj = new JsonObject();
+			obj.addProperty("column", -1);
+			obj.addProperty("row", -1);
+			obj.addProperty("type", "rules");
+			obj.add("children", new JsonArray());
+			root.add(obj);
 		}
 		
 		return root.toString().toString();
