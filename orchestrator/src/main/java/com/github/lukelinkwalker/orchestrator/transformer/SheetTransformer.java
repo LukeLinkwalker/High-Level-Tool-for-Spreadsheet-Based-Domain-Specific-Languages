@@ -49,12 +49,12 @@ public class SheetTransformer {
 						JsonObject nameObj = new JsonObject();
 						nameObj.addProperty("column", columnStart);
 						nameObj.addProperty("row", row);
-						nameObj.addProperty("value", "'" + name.getData() + "'");
+						nameObj.addProperty("value", JsonUtil.tokenWrap(name.getData()));
 
 						JsonObject valueObj = new JsonObject();
 						valueObj.addProperty("column", columnStart + 1);
 						valueObj.addProperty("row", row);
-						valueObj.addProperty("value", "'" + rule.getData() + "'");
+						valueObj.addProperty("value", JsonUtil.tokenWrap(rule.getData()));
 						
 						ruleObj.add("name", nameObj);
 						ruleObj.add("rule", valueObj);
@@ -124,6 +124,7 @@ public class SheetTransformer {
 			//System.out.println("Table name: " + tableName);
 			
 			// Put out error due to skip? - Yes. Todo
+			System.out.println(tableName);
 			if(App.M.checkIfExists(tableName) == false) {
 				continue;
 			}
