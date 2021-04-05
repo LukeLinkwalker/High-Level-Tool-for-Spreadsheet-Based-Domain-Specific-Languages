@@ -31,6 +31,14 @@ export function removeBoldText(cell) {
     $(cell).removeClass('bold')
 }
 
+export function setItalicText(cell) {
+    $(cell).addClass('italic')
+}
+
+export function removeItalicText(cell) {
+    $(cell).removeClass('italic')
+}
+
 export function setCenterText(cell) {
     $(cell).addClass('center')
 }
@@ -126,6 +134,7 @@ export function clearCell(cell) {
 
 function clearCellHelper(cell) {
     removeBoldText(cell)
+    removeItalicText(cell)
     removeCenterText(cell)
     spreadsheet.removeCellAsHeader(cell)
     spreadsheet.removeCellAsData(cell)
@@ -249,6 +258,7 @@ function createDataCellInNewRow(cell, tableName) {
     spreadsheet.addTableNameToCell(cell, tableName)
     spreadsheet.setCellAsData(cell)
     setBlackBorder(cell)
+    setCenterText(cell)
 }
 
 //TODO: Fix name and everything about this method!
@@ -261,15 +271,19 @@ export function suggestion(cellText, column, row) {
 
 export function moveOneCellLeft(event) {
     let editingCellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
+    let mergedCells = spreadsheet.getMergedCells(globals.editingCell)
 
     event.preventDefault()
     $(globals.editingCell).css('outline', '')
 
     if (editingCellIndexes[0] > 0) {
-        let newEditingCell = spreadsheet.getCellFromIndexes(editingCellIndexes[0] - 1, editingCellIndexes[1])
+        if (mergedCells !== null) {
+            let mergedCellIndexes = spreadsheet.getCellIndexes(mergedCells[0])
+            let columnNumberToSkipMergedCell = globals.currentColumn - mergedCellIndexes[0]
 
-        globals.setEditingCell(newEditingCell)
-        newEditingCell.focus()
+            setNextCell(globals.currentColumn - columnNumberToSkipMergedCell - 1, globals.currentRow)
+        }
+        else setNextCell(globals.currentColumn - 1, globals.currentRow)
     }
 }
 
@@ -279,25 +293,25 @@ export function moveOneCellUp(event) {
     event.preventDefault()
     $(globals.editingCell).css('outline', '')
 
-    if (editingCellIndexes[1] > 0) {
-        let newEditingCell = spreadsheet.getCellFromIndexes(editingCellIndexes[0], editingCellIndexes[1] - 1)
-
-        globals.setEditingCell(newEditingCell)
-        newEditingCell.focus()
-    }
+    if (editingCellIndexes[1] > 0) setNextCell(globals.currentColumn, globals.currentRow - 1)
 }
 
 export function moveOneCellRight(event) {
     let editingCellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
+    let mergedCells = spreadsheet.getMergedCells(globals.editingCell)
 
     event.preventDefault()
     $(globals.editingCell).css('outline', '')
 
     if (editingCellIndexes[0] < globals.columnSize - 1) {
-        let newEditingCell = spreadsheet.getCellFromIndexes(editingCellIndexes[0] + 1, editingCellIndexes[1])
+        if (mergedCells !== null) {
+            let width = $(globals.editingCell).prop('colspan')
+            let mergedCellIndexes = spreadsheet.getCellIndexes(mergedCells[0])
+            let columnNumberToSkipMergedCell = width - (globals.currentColumn - mergedCellIndexes[0])
 
-        globals.setEditingCell(newEditingCell)
-        newEditingCell.focus()
+            setNextCell(globals.currentColumn + columnNumberToSkipMergedCell, globals.currentRow)
+        }
+        else setNextCell(globals.currentColumn + 1, globals.currentRow)
     }
 }
 
@@ -307,12 +321,18 @@ export function moveOneCellDown(event) {
     event.preventDefault()
     $(globals.editingCell).css('outline', '')
 
-    if (editingCellIndexes[1] < globals.rowSize - 1) {
-        let newEditingCell = spreadsheet.getCellFromIndexes(editingCellIndexes[0], editingCellIndexes[1] + 1)
+    if (editingCellIndexes[1] < globals.rowSize - 1) setNextCell(globals.currentColumn, globals.currentRow + 1)
+}
 
-        globals.setEditingCell(newEditingCell)
-        newEditingCell.focus()
-    }
+export function setNextCell(column, row) {
+    let possibleNewEditingCell = spreadsheet.getCellFromIndexes(column, row)
+    let mergedCells = spreadsheet.getMergedCells(possibleNewEditingCell)
+    let newEditingCell = (mergedCells === null) ? possibleNewEditingCell : mergedCells[0]
+
+    globals.setCurrentColumn(column)
+    globals.setCurrentRow(row)
+    globals.setEditingCell(newEditingCell)
+    newEditingCell.focus()
 }
 
 export function changeToSGL() {
@@ -333,6 +353,8 @@ export function changeNextCellToStartOfNewRowInTable(cell, tableRange, event) {
 
     event.preventDefault()
     $(globals.editingCell).css('outline', '')
+    globals.setCurrentColumn(tableRange[0])
+    globals.setCurrentRow(cellIndexes[1] + 1)
     globals.setEditingCell(newEditingCell)
     newEditingCell.focus()
 }
@@ -345,4 +367,15 @@ export function changeCellOneDownAndPossiblyAddRow(event) {
     if (tableRange !== null && cellIndexes [1] === tableRange[3]) addRow(cell)
 
     moveOneCellDown(event)
+}
+
+export function deleteTable(cell) {
+    let cellsInTable = spreadsheet.getAllCellsFromTableCellIsIn(cell)
+
+    if (cellsInTable === null) alert('Cannot delete table as the current cell is not in a table!')
+    else {
+        let warning = confirm('Are you sure you want to delete this table and all its contents?')
+
+        if (warning) cellsInTable.each((i, cellInTable) => clearCell(cellInTable))
+    }
 }

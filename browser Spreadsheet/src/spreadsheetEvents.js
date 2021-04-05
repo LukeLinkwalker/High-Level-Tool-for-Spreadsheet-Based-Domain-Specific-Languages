@@ -81,14 +81,23 @@ export function onCellInput(cell) {
         cellIndexes[1])
 }
 
+export function onCellClick() {
+    let cellIndexes = spreadsheet.getCellIndexes(globals.editingCell);
+
+    globals.setCurrentColumn(cellIndexes[0])
+    globals.setCurrentRow(cellIndexes[1])
+}
+
 export function onDocumentReady() {
+
     setup.setupSpreadsheetTypeRadioButtons()
-    setup.setupCreateTableButton()
     setup.setupInputBar()
     setup.setupActionBar()
     setup.setupSDSL()
     setup.setupSGL()
 
+    tools.changeToSDSL()
+    spreadsheet.createSpreadsheet()
     tools.changeToSGL()
     spreadsheet.createSpreadsheet()
     spreadsheet.setInitialEditingCell()
@@ -103,6 +112,7 @@ export function onDocumentKeydownTab(event) {
     let cell = globals.editingCell
     let cellIndexes = spreadsheet.getCellIndexes(cell)
     let tableRange = spreadsheet.getTableRange(cell)
+    let mergedCells = spreadsheet.getMergedCells(cell)
 
     if (tableRange !== null && cellIndexes[0] === tableRange[2]) {
         if (cellIndexes[1] !== tableRange[3]) tools.changeNextCellToStartOfNewRowInTable(cell, tableRange, event)
@@ -110,6 +120,17 @@ export function onDocumentKeydownTab(event) {
             if (tools.addRow(cell)) tools.changeNextCellToStartOfNewRowInTable(cell, tableRange, event)
         }
     }
+    else if (mergedCells !== null) {
+        let width = $(globals.editingCell).prop('colspan')
+
+        if (tableRange !== null && cellIndexes[0] + width - 1=== tableRange[2]) {
+            if (cellIndexes[1] !== tableRange[3]) tools.changeNextCellToStartOfNewRowInTable(cell, tableRange, event)
+            else {
+                if (tools.addRow(cell)) tools.changeNextCellToStartOfNewRowInTable(cell, tableRange, event)
+            }
+        }
+    }
+
     else tools.moveOneCellRight(event)
 }
 
@@ -182,4 +203,8 @@ export function onCellKeydownArrowRight(event) {
 
 export function onCellKeydownArrowDown(event) {
     tools.changeCellOneDownAndPossiblyAddRow(event)
+}
+
+export function onDeleteTableButtonClick() {
+    tools.deleteTable(globals.editingCell)
 }

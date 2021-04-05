@@ -29,7 +29,7 @@ body {
     height: 25px;
 }
 
-#cell-container {
+.cell-container {
     background-color: white;
     width: 100%;
     height: auto;
@@ -58,10 +58,15 @@ td {
     height: 16pt;
     padding: 0;
     text-align: right;
+    min-width: 100px;
 }
 
 .bold {
     font-weight: bold;
+}
+
+.italic {
+    font-style: italic;
 }
 
 .center {

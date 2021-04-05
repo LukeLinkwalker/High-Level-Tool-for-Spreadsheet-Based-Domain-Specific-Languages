@@ -7,6 +7,8 @@ export let columnSize
 export let rowSize
 export let mouseDown
 export let spreadsheetType
+export let currentColumn
+export let currentRow
 
 //TODO: Should sheetName be here?
 export let spreadsheetName
@@ -60,4 +62,12 @@ export function setSpreadsheetType(value) {
 
 export function setSpreadsheetName(value) {
     spreadsheetName = value
+}
+
+export function setCurrentColumn(value) {
+    currentColumn = value
+}
+
+export function setCurrentRow(value) {
+    currentRow = value
 }

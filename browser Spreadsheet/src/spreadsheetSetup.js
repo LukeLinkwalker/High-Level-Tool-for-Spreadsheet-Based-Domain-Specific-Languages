@@ -10,8 +10,10 @@ export function setupActionBar() {
 }
 
 export function setupSDSL() {
+    setupCreateTableButton()
     setupAddRowButton()
     setupDeleteRowButton()
+    setupDeleteTableButton()
 }
 
 export function setupSGL() {
@@ -31,7 +33,7 @@ export function setupSpreadsheetTypeRadioButtons() {
         .on('change', () => events.onSpreadsheetTypeRadioButtonsChange())
 }
 
-export function setupCreateTableButton() {
+function setupCreateTableButton() {
     $('#createTable')
         .on('click', () => events.onCreateTableButtonClick())
 }
@@ -44,6 +46,11 @@ function setupAddRowButton() {
 function setupDeleteRowButton() {
     $('#deleteRow')
         .on('click', () => events.onDeleteRowButtonClick())
+}
+
+function setupDeleteTableButton() {
+    $('#deleteTable')
+        .on('click', () => events.onDeleteTableButtonClick())
 }
 
 function setupBuildButton() {
@@ -63,6 +70,7 @@ export function setupCell(cell) {
     cell.on('mouseleave', (e) => events.onCellMouseLeave(e.target))
     cell.on('focus', (e) => events.onCellFocus(e.target))
     cell.on('input', (e) => events.onCellInput(e.target))
+    cell.on('click', () => events.onCellClick())
     cell.on('keydown', (e) => {
         if (e.which === 9) events.onDocumentKeydownTab(e)
         else if (e.which === 13) events.onDocumentKeydownEnter(e)

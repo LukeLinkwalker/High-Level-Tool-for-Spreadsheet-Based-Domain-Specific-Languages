@@ -24,29 +24,41 @@ socket.addEventListener('open', function(event) {
     socket.send(JSON.stringify(omsg));
 
     //TODO: Remove after testing
-    let cell00 = spreadsheet.getCellFromIndexes(0, 0)
-    let cell10 = spreadsheet.getCellFromIndexes(1, 0)
-    let cell01 = spreadsheet.getCellFromIndexes(0, 1)
-    let cell11 = spreadsheet.getCellFromIndexes(1, 1)
-    let cell02 = spreadsheet.getCellFromIndexes(0, 2)
-    let cell12 = spreadsheet.getCellFromIndexes(1, 2)
-
-    $(cell00).text('array : Config')
-    $(cell01).text('attribute : Name')
-    $(cell11).text('attribute : Sensor')
-    $(cell02).text('type : String')
-    $(cell12).text('type : String')
-
-    sendChange(cell00)
-    sendChange(cell01)
-    sendChange(cell11)
-    sendChange(cell02)
-    sendChange(cell12)
-
-    tools.mergeCells([cell00, cell10])
-    requestBuild()
-
-    tools.changeToSDSL()
+    // let cell00 = spreadsheet.getCellFromIndexes(0, 0)
+    // let cell10 = spreadsheet.getCellFromIndexes(1, 0)
+    // let cell20 = spreadsheet.getCellFromIndexes(2, 0)
+    // let cell01 = spreadsheet.getCellFromIndexes(0, 1)
+    // let cell11 = spreadsheet.getCellFromIndexes(1, 1)
+    // let cell21 = spreadsheet.getCellFromIndexes(2, 1)
+    // let cell12 = spreadsheet.getCellFromIndexes(1, 2)
+    // let cell22 = spreadsheet.getCellFromIndexes(2, 2)
+    // let cell03 = spreadsheet.getCellFromIndexes(0, 3)
+    // let cell13 = spreadsheet.getCellFromIndexes(1, 3)
+    // let cell23 = spreadsheet.getCellFromIndexes(2, 3)
+    //
+    // $(cell00).text('array : Config')
+    // $(cell01).text('attribute : Name')
+    // $(cell11).text('object : Sensor')
+    // $(cell12).text('attribute : Name')
+    // $(cell22).text('attribute : Type')
+    // $(cell03).text('type : String')
+    // $(cell13).text('type : String')
+    // $(cell23).text('type : String')
+    //
+    // sendChange(cell00)
+    // sendChange(cell01)
+    // sendChange(cell11)
+    // sendChange(cell12)
+    // sendChange(cell22)
+    // sendChange(cell03)
+    // sendChange(cell13)
+    // sendChange(cell23)
+    //
+    // tools.mergeCells([cell00, cell10, cell20])
+    // tools.mergeCells([cell11, cell21])
+    // requestBuild()
+    //
+    // tools.changeToSDSL()
     //////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,6 +83,9 @@ socket.addEventListener('message', (event) => {
         case 'bold-text':
             handleBoldText(jsonObject.params)
             break
+        case 'italic-text':
+            handleItalicText(jsonObject.params)
+            break;
         case 'center-text':
             handleCenterText(jsonObject.params)
             break
@@ -118,11 +133,11 @@ function handleCheckIfTextIsATableName(params) {
         let row = params[2]
         let cell = spreadsheet.getCellFromIndexes(column, row)
 
-        //TODO: Refactor this
+        //TODO: Refactor this. Show box with create table, click enter to do it. Should not work when box is not showing.
         $(cell).on('keydown',(e) => {
             if (e.which === 13) {
                 tools.suggestion(cellText, column, row)
-                $(cell).off('keydown')
+                // $(cell).off('keydown')
             }
         })
     }
@@ -158,6 +173,12 @@ function handleBoldText(params) {
     let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
 
     tools.setBoldText(cell)
+}
+
+function handleItalicText(params) {
+    let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
+
+    tools.setItalicText(cell)
 }
 
 function handleCenterText(params) {

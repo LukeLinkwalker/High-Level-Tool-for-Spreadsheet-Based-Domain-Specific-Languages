@@ -17,14 +17,14 @@ export function createSpreadsheet() {
     globals.setColumnSize(30)
     globals.setRowSize(40)
 
-    let table = $('<table id="dynamicTable">')
-    let tableBody = $('<tbody id="dynamicBody">')
+    let table = $('<table>').attr('id', 'dynamicTable' + globals.spreadsheetType)
+    let tableBody = $('<tbody>').attr('id', 'dynamicBody' + globals.spreadsheetType)
 
     for (let row = 0; row < globals.rowSize; row++) {
         let newRow = $('<tr>')
 
         for (let column = 0; column < globals.columnSize; column++) {
-            newRow.append(createCell(column, row))
+            newRow.append(createCell(column, row, globals.spreadsheetType))
         }
         tableBody.append(newRow)
     }
@@ -32,14 +32,14 @@ export function createSpreadsheet() {
     createRowHeader(globals.rowSize, tableBody)
     createColumnHeader(globals.columnSize, table)
     table.append(tableBody)
-    $('#cell-container').append(table)
+    $('#cell-container-' + globals.spreadsheetType).append(table)
 }
 
 function createCell(column, row) {
     let cell = $('<td>')
     cell.attr('id', createCellID(column, row))
     cell.attr('contenteditable', 'true')
-    cell.css('min-width', '100px')
+    // cell.css('min-width', '100px')
     cell.data('hasError', false)
     cell.data('hiddenText', '')
     setup.setupCell(cell)
@@ -85,7 +85,7 @@ function createRowHeader(tableSize, table) {
 }
 
 export function createCellID(column, row) {
-    return 'cell-' + column + '-' + row
+    return 'cell-' + column + '-' + row + '-' + globals.spreadsheetType
 }
 
 export function getCellFromIndexes(column, row) {
@@ -103,6 +103,8 @@ export function setInitialEditingCell() {
     let cell = getCellFromIndexes(0, 0)
 
     globals.setEditingCell(cell)
+    globals.setCurrentColumn(0)
+    globals.setCurrentRow(0)
     cell.focus()
 }
 
@@ -157,7 +159,8 @@ export function checkCellIsEmpty(cell) {
 export function createTableNameForCells(cell) {
     let cellIndexes = getCellIndexes(cell)
     let cellID = createCellID(cellIndexes[0], cellIndexes[1])
-    return 'table-' + cellID
+
+    return 'table-' + cellID + globals.spreadsheetType
 }
 
 export function getTableName(cell) {
@@ -221,6 +224,13 @@ export function getTableRange(cell) {
 }
 
 export function getMergedCells(cell) {
+    let mergedCellClassName = getMergedCellClassName(cell)
+
+    if (mergedCellClassName === null) return null
+    else return $('.' + getMergedCellClassName(cell))
+}
+
+export function getMergedCellClassName(cell) {
     let classNames = $(cell).attr('class')
 
     if (classNames !== undefined) {
@@ -232,8 +242,9 @@ export function getMergedCells(cell) {
         })
 
         if (mergedCellClassName === null) return null
-        else return $('.' + mergedCellClassName)
+        else return mergedCellClassName
     }
+
     else return null
 }
 
