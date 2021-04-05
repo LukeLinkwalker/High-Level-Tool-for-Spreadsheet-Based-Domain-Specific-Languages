@@ -219,7 +219,7 @@ public class SSServer extends WebSocketServer {
 		String cellText = ssCheckIfTextIsATableName.getCellText();
 		int column = ssCheckIfTextIsATableName.getColumn();
 		int row = ssCheckIfTextIsATableName.getRow();
-		boolean tableNameExists = TableCreator.checkIfTextIsATableName(cellText, sglGrammar);
+		boolean tableNameExists = TableCreator.checkIfTextIsATableName(cellText);
 
 		SSResponse response = new SSResponse(msg);
 		response.setCode(200);
@@ -234,7 +234,7 @@ public class SSServer extends WebSocketServer {
 		String tableName = ssGetInitialTableRange.getTableName();
 		int column = ssGetInitialTableRange.getColumn();
 		int row = ssGetInitialTableRange.getRow();
-		int[] tableRange = TableCreator.getInitialTableRangeResponse(tableName, column, row, sglGrammar);
+		int[] tableRange = TableCreator.getInitialTableRangeResponse(tableName, column, row);
 
 		SSResponse response = new SSResponse(msg);
 		response.setCode(200);
@@ -249,7 +249,7 @@ public class SSServer extends WebSocketServer {
 		String tableName = ssCreateTable.getTableName();
 		int column = ssCreateTable.getColumn();
 		int row = ssCreateTable.getRow();
-		boolean success = TableCreator.initializeCreateTable(tableName, column, row, sglGrammar);
+		boolean success = TableCreator.initializeCreateTable(tableName, column, row);
 
 		SSResponse response = new SSResponse(msg);
 		if (success) response.setCode(200);
