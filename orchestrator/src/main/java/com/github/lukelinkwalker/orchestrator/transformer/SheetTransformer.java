@@ -29,7 +29,7 @@ public class SheetTransformer {
 			
 			String tableName = sheet.getHead(table).getData();
 			if(tableName.toLowerCase().equals("rules")) {
-				entry = JsonUtil.get(root, "type", "rules");
+				entry = JsonUtil.find(root, "type", "rules");
 				
 				if(entry == null) {
 					entry = new JsonObject();
@@ -49,12 +49,12 @@ public class SheetTransformer {
 						JsonObject nameObj = new JsonObject();
 						nameObj.addProperty("column", columnStart);
 						nameObj.addProperty("row", row);
-						nameObj.addProperty("value", "'" + name.getData() + "'");
+						nameObj.addProperty("value", JsonUtil.tokenWrap(name.getData()));
 
 						JsonObject valueObj = new JsonObject();
 						valueObj.addProperty("column", columnStart + 1);
 						valueObj.addProperty("row", row);
-						valueObj.addProperty("value", "'" + rule.getData() + "'");
+						valueObj.addProperty("value", JsonUtil.tokenWrap(rule.getData()));
 						
 						ruleObj.add("name", nameObj);
 						ruleObj.add("rule", valueObj);
@@ -95,6 +95,21 @@ public class SheetTransformer {
 			}
 		}
 		
+		// Move rules table or insert if no rules defined
+		int index = JsonUtil.indexOf(root, "type", "rules");
+		if(index != -1) {
+			JsonObject obj = root.get(index).getAsJsonObject();
+			root.remove(index);
+			root.add(obj);
+		} else {
+			JsonObject obj = new JsonObject();
+			obj.addProperty("column", -1);
+			obj.addProperty("row", -1);
+			obj.addProperty("type", "rules");
+			obj.add("children", new JsonArray());
+			root.add(obj);
+		}
+		
 		return root.toString().toString();
 	}
 	
@@ -109,6 +124,7 @@ public class SheetTransformer {
 			//System.out.println("Table name: " + tableName);
 			
 			// Put out error due to skip? - Yes. Todo
+			System.out.println(tableName);
 			if(App.M.checkIfExists(tableName) == false) {
 				continue;
 			}

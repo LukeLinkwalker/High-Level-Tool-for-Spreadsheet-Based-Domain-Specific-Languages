@@ -79,7 +79,7 @@ public class CellData {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("column", column);
 		obj.addProperty("row", row);
-		obj.addProperty("name", "'" + name + "'");
+		obj.addProperty("name", JsonUtil.tokenWrap(name));
 		obj.addProperty("type", type.toLowerCase());
 		obj.addProperty("isOptional", isOptional);
 		obj.add("children", new JsonArray());
@@ -101,7 +101,7 @@ public class CellData {
 			obj.addProperty("value", name.toLowerCase());
 		} else {
 			obj.addProperty("type", "custom");
-			obj.addProperty("value", "'" + name.toLowerCase() + "'");
+			obj.addProperty("value", JsonUtil.tokenWrap(name.toLowerCase()));
 		}
 		
 		return obj;

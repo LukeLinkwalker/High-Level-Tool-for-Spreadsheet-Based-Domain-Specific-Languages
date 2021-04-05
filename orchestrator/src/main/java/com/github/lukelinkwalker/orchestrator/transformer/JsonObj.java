@@ -24,7 +24,7 @@ public class JsonObj {
 		this.row = row;
 	}
 	public String getNameOnly() {
-		return name.substring(1, name.length() - 1);
+		return JsonUtil.tokenStrip(name);
 	}
 	public String getName() {
 		return name;
