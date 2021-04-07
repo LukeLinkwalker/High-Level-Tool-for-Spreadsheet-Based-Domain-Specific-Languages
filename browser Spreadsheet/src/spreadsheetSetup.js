@@ -64,19 +64,36 @@ function setupMergeButton() {
 }
 
 export function setupCell(cell) {
-    cell.on('mousedown', () => events.onCellMouseDown())
-    cell.on('mouseup', () => events.onCellMouseUp())
-    cell.on('mouseenter', (e) => events.onCellMouseEnter(e.target))
-    cell.on('mouseleave', (e) => events.onCellMouseLeave(e.target))
-    cell.on('focus', (e) => events.onCellFocus(e.target))
-    cell.on('input', (e) => events.onCellInput(e.target))
-    cell.on('click', () => events.onCellClick())
+    setupCellKeyDown(cell)
+    setupCellKeyDownEnter(cell)
+    cell
+        .on('mousedown', () => events.onCellMouseDown())
+        .on('mouseup', () => events.onCellMouseUp())
+        .on('mouseenter', (e) => events.onCellMouseEnter(e.currentTarget))
+        .on('mouseleave', (e) => events.onCellMouseLeave(e.currentTarget))
+        .on('input', (e) => events.onCellInput(e.currentTarget))
+        .on('click', () => events.onCellClick())
+}
+
+export function setupCellKeyDown(cell) {
     cell.on('keydown', (e) => {
-        if (e.which === 9) events.onDocumentKeydownTab(e)
-        else if (e.which === 13) events.onDocumentKeydownEnter(e)
+        if (e.which === 9) events.onCellKeydownTab(e)
         else if (e.which === 37) events.onCellKeydownArrowLeft(e)
         else if (e.which === 38) events.onCellKeydownArrowUp(e)
         else if (e.which === 39) events.onCellKeydownArrowRight(e)
         else if (e.which === 40) events.onCellKeydownArrowDown(e)
     })
+}
+
+export function setupCellKeyDownEnter(cell) {
+    cell.on('keydown', (e) => {
+        if (e.which === 13) events.onCellKeydownEnter(e)
+    })
+}
+
+
+export function setupCellTextDiv(cellTextDiv) {
+    cellTextDiv
+        .on('focus', (e) => events.onCellTextDivFocus(e.currentTarget))
+        .on('focusout', (e) => events.onCellTextDivFocusout(e.currentTarget))
 }

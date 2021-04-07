@@ -3,6 +3,7 @@ import * as tools from './spreadsheetTools.js'
 import * as globals from './spreadsheetGlobalVariables.js'
 
 let id = 1
+let updateCounter = 10_000_000;
 
 const socket = new WebSocket('ws://localhost:20895');
 const debug = true;
@@ -24,41 +25,43 @@ socket.addEventListener('open', function(event) {
     socket.send(JSON.stringify(omsg));
 
     //TODO: Remove after testing
-    // let cell00 = spreadsheet.getCellFromIndexes(0, 0)
-    // let cell10 = spreadsheet.getCellFromIndexes(1, 0)
-    // let cell20 = spreadsheet.getCellFromIndexes(2, 0)
-    // let cell01 = spreadsheet.getCellFromIndexes(0, 1)
-    // let cell11 = spreadsheet.getCellFromIndexes(1, 1)
-    // let cell21 = spreadsheet.getCellFromIndexes(2, 1)
-    // let cell12 = spreadsheet.getCellFromIndexes(1, 2)
-    // let cell22 = spreadsheet.getCellFromIndexes(2, 2)
-    // let cell03 = spreadsheet.getCellFromIndexes(0, 3)
-    // let cell13 = spreadsheet.getCellFromIndexes(1, 3)
-    // let cell23 = spreadsheet.getCellFromIndexes(2, 3)
-    //
-    // $(cell00).text('array : Config')
-    // $(cell01).text('attribute : Name')
-    // $(cell11).text('object : Sensor')
-    // $(cell12).text('attribute : Name')
-    // $(cell22).text('attribute : Type')
-    // $(cell03).text('type : String')
-    // $(cell13).text('type : String')
-    // $(cell23).text('type : String')
-    //
-    // sendChange(cell00)
-    // sendChange(cell01)
-    // sendChange(cell11)
-    // sendChange(cell12)
-    // sendChange(cell22)
-    // sendChange(cell03)
-    // sendChange(cell13)
-    // sendChange(cell23)
-    //
-    // tools.mergeCells([cell00, cell10, cell20])
-    // tools.mergeCells([cell11, cell21])
-    // requestBuild()
-    //
-    // tools.changeToSDSL()
+    let cell00 = spreadsheet.getCellFromIndexes(0, 0)
+    let cell10 = spreadsheet.getCellFromIndexes(1, 0)
+    let cell20 = spreadsheet.getCellFromIndexes(2, 0)
+    let cell01 = spreadsheet.getCellFromIndexes(0, 1)
+    let cell11 = spreadsheet.getCellFromIndexes(1, 1)
+    let cell21 = spreadsheet.getCellFromIndexes(2, 1)
+    let cell12 = spreadsheet.getCellFromIndexes(1, 2)
+    let cell22 = spreadsheet.getCellFromIndexes(2, 2)
+    let cell03 = spreadsheet.getCellFromIndexes(0, 3)
+    let cell13 = spreadsheet.getCellFromIndexes(1, 3)
+    let cell23 = spreadsheet.getCellFromIndexes(2, 3)
+
+    spreadsheet.setCellText(cell00, 'array : Config')
+    spreadsheet.setCellText(cell01, 'attribute : Name')
+    spreadsheet.setCellText(cell11, 'object : Sensor')
+    spreadsheet.setCellText(cell12, 'attribute : Name')
+    spreadsheet.setCellText(cell22, 'attribute : Type')
+    spreadsheet.setCellText(cell03, 'type : String')
+    spreadsheet.setCellText(cell13, 'type : String')
+    spreadsheet.setCellText(cell23, 'type : String')
+
+    sendChange(cell00)
+    sendChange(cell01)
+    sendChange(cell11)
+    sendChange(cell12)
+    sendChange(cell22)
+    sendChange(cell03)
+    sendChange(cell13)
+    sendChange(cell23)
+
+    tools.mergeCells([cell00, cell10, cell20])
+    tools.mergeCells([cell11, cell21])
+    requestBuild()
+
+    tools.changeToSDSL()
+    $('#sdslRadioButton').prop('checked', true)
+
     //////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -86,9 +89,9 @@ socket.addEventListener('message', (event) => {
         case 'italic-text':
             handleItalicText(jsonObject.params)
             break;
-        case 'center-text':
-            handleCenterText(jsonObject.params)
-            break
+        // case 'center-text':
+        //     handleCenterText(jsonObject.params)
+        //     break
         case 'black-border':
             handleBlackBorder(jsonObject.params)
             break
@@ -104,6 +107,7 @@ socket.addEventListener('message', (event) => {
     }
 })
 
+//TODO: Rød streg skal vises hele, besked skal vises ved mouseover, og det skal ske automatisk.
 function handleErrors(errors) {
     removeErrors();
 
@@ -126,20 +130,17 @@ function showError(column, row) {
 
 function handleCheckIfTextIsATableName(params) {
     let tableNameExists = params[3]
+    let column = params[1]
+    let row = params[2]
+    let cell = spreadsheet.getCellFromIndexes(column, row)
+    let infoBox = spreadsheet.getInfoBox(cell)
+    let infoBoxShown = $(cell).data('infoBoxShown')
 
-    if (tableNameExists) {
-        let cellText = params[0]
-        let column = params[1]
-        let row = params[2]
-        let cell = spreadsheet.getCellFromIndexes(column, row)
+    tools.hideCreateTableCodeCompletionForInfoBox(infoBox, cell)
 
-        //TODO: Refactor this. Show box with create table, click enter to do it. Should not work when box is not showing.
-        $(cell).on('keydown',(e) => {
-            if (e.which === 13) {
-                tools.suggestion(cellText, column, row)
-                // $(cell).off('keydown')
-            }
-        })
+    if (tableNameExists && !infoBoxShown) {
+        let tableName = params[0]
+        tools.createTableCodeCompletionForInfoBox(tableName, column, row)
     }
 }
 
@@ -158,7 +159,7 @@ function handleSetText(params) {
     let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
     let text = params[2]
 
-    tools.setText(cell, text)
+    spreadsheet.setCellText(cell, text)
     sendChange(cell)
 }
 
@@ -171,52 +172,38 @@ function handleMerge(params) {
 
 function handleBoldText(params) {
     let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
-
     tools.setBoldText(cell)
 }
 
 function handleItalicText(params) {
     let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
-
     tools.setItalicText(cell)
 }
 
-function handleCenterText(params) {
-    let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
-
-    tools.setCenterText(cell)
-}
+// function handleCenterText(params) {
+//     let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
+//     tools.setCenterText(cell)
+// }
 
 function handleBlackBorder(params) {
     let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
-
     tools.setBlackBorder(cell)
 }
 
 function handleSetAsHeaderCell(params) {
     let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
-
     spreadsheet.setCellAsHeader(cell)
 }
 
 function handleSetAsDataCell(params) {
     let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
-
     spreadsheet.setCellAsData(cell)
 }
 
-//TODO: Fix this. Should only take text
-let updateCounter = 10_000_000;
 export function sendChange(cell) {
     let cellIndexes = spreadsheet.getCellIndexes(cell)
     let colspan = $(cell).prop('colspan')
-    let hiddenText = $(cell).data('hiddenText')
-    let cellClone = $(cell).clone()
-    let divs = $('.errorMessage', cellClone)
-
-    divs.each((i, element) => element.remove())
-
-    let content = hiddenText + cellClone.text()
+    let content = spreadsheet.getCellText(cell)
 
     let object = {
         column: cellIndexes[0],

@@ -61,6 +61,15 @@ td {
     min-width: 100px;
 }
 
+.cellText {
+    height: 100%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+}
+
 .bold {
     font-weight: bold;
 }
@@ -69,9 +78,9 @@ td {
     font-style: italic;
 }
 
-.center {
-    text-align: center;
-}
+/*.center {*/
+/*    text-align: center;*/
+/*}*/
 
 .header {
     background-color: #bfbfbf;
@@ -111,4 +120,16 @@ td {
 
 .errorHighlight {
     background-color: #EF4836;
+}
+
+.infoBox {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+    text-align: left;
+    width: 200px;
+    min-height: 20px;
+    /*margin: 25px 10px;*/
+    position: absolute;
+    display: none;
 }

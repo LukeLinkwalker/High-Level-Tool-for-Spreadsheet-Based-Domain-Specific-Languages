@@ -37,14 +37,31 @@ export function createSpreadsheet() {
 
 function createCell(column, row) {
     let cell = $('<td>')
+    cell.append(createCellTextDiv())
+    cell.append(createInfoBoxDiv())
     cell.attr('id', createCellID(column, row))
-    cell.attr('contenteditable', 'true')
     // cell.css('min-width', '100px')
+    //TODO: Is this necessary?
     cell.data('hasError', false)
-    cell.data('hiddenText', '')
+
     setup.setupCell(cell)
 
     return cell
+}
+
+function createCellTextDiv() {
+    let cellText = $('<div class="cellText">')
+    cellText.attr('contenteditable', 'true')
+    setup.setupCellTextDiv(cellText)
+
+    return cellText
+}
+
+function createInfoBoxDiv() {
+    let infoBox = $('<div class="infoBox">')
+    infoBox.attr('contenteditable', 'false')
+
+    return infoBox
 }
 
 function createColumnHeader(tableSize, table) {
@@ -153,7 +170,7 @@ export function getCellsInRange(startCell, endCell) {
 }
 
 export function checkCellIsEmpty(cell) {
-    return $(cell).text() === ''
+    return getCellText(cell) === ''
 }
 
 export function createTableNameForCells(cell) {
@@ -282,4 +299,24 @@ export function getCellType(cell) {
     if ($cell.hasClass('header')) return 'header'
     else if ($cell.hasClass('data')) return 'data'
     else return null
+}
+
+export function getInfoBox(cell) {
+    return $('.infoBox', cell)
+}
+
+export function getCellTextDiv(cell) {
+    return $('.cellText', cell)[0]
+}
+
+export function getCellText(cell) {
+    return $(getCellTextDiv(cell)).text()
+}
+
+export function setCellText(cell, value) {
+    $(getCellTextDiv(cell)).text(value)
+}
+
+export function getCellFromCellTextDiv(cellTextDiv) {
+    return $(cellTextDiv).parent()[0]
 }

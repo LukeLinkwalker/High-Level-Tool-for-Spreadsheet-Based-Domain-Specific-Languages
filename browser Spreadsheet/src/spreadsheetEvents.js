@@ -7,10 +7,9 @@ import * as setup from './spreadsheetSetup.js'
 //TODO: Use later: // let regex = new RegExp('^(optional )?(object|array|alternative|attribute) : [a-zA-Z0-9_]+')
 
 export function onInputBarInput(inputBar) {
-    let inputBarText = String($(inputBar).val())
-    let $editingCell = $(globals.editingCell)
+    let inputBarText = $(inputBar).val()
 
-    $editingCell.text(inputBarText)
+    spreadsheet.setCellText(globals.editingCell, inputBarText)
     client.sendChange(globals.editingCell)
 }
 
@@ -50,35 +49,32 @@ export function onCellMouseLeave(cell) {
     if ($(cell).data('hasError')) tools.hideErrorMessage(cell)
 }
 
-export function onCellFocus(cell) {
-    if (globals.cellsMarked) tools.clearMarkedCells()
+export function onCellTextDivFocus(cellTextDiv) {
+    let cell = spreadsheet.getCellFromCellTextDiv(cellTextDiv)
+    let inputBar = $('#input-bar')
 
+    if (globals.cellsMarked) tools.clearMarkedCells()
     globals.setEditingCell(cell)
     globals.setSelectedStartCell(cell)
     globals.setSelectedCells([cell])
+    inputBar.val(spreadsheet.getCellText(cell))
+}
 
-    let hiddenText = $(cell).data('hiddenText')
-    let inputBar = $('#input-bar')
-    let cellClone = $(cell).clone()
-    let divs = $('.errorMessage', cellClone)
+export function onCellTextDivFocusout(cellTextDiv) {
+    let cell = spreadsheet.getCellFromCellTextDiv(cellTextDiv)
+    let infoBox = spreadsheet.getInfoBox(cell)
 
-    divs.each((i, element) => element.remove())
-    inputBar.val(hiddenText + cellClone.text())
+    tools.hideCreateTableCodeCompletionForInfoBox(infoBox, cell)
 }
 
 export function onCellInput(cell) {
     let inputBar = $('#input-bar')
-    let cellClone = $(cell).clone()
-    let divs = $('.errorMessage', cellClone)
     let cellIndexes = spreadsheet.getCellIndexes(cell)
+    let cellText = spreadsheet.getCellText(cell)
 
-    //TODO: Why?
-    divs.each((i, element) => element.remove())
-    inputBar.val(cellClone.text())
+    inputBar.val(cellText)
     client.sendChange(cell)
-
-    if (globals.spreadsheetType === 'sdsl') client.requestCheckIfTextIsATableName(cellClone.text(), cellIndexes[0],
-        cellIndexes[1])
+    if (globals.spreadsheetType === 'sdsl') client.requestCheckIfTextIsATableName(cellText, cellIndexes[0], cellIndexes[1])
 }
 
 export function onCellClick() {
@@ -89,26 +85,20 @@ export function onCellClick() {
 }
 
 export function onDocumentReady() {
-
     setup.setupSpreadsheetTypeRadioButtons()
     setup.setupInputBar()
     setup.setupActionBar()
     setup.setupSDSL()
     setup.setupSGL()
-
     tools.changeToSDSL()
     spreadsheet.createSpreadsheet()
     tools.changeToSGL()
     spreadsheet.createSpreadsheet()
     spreadsheet.setInitialEditingCell()
-
     $('#sglRadioButton').prop('checked', true)
-
-    //TODO: Remove after testing
-    spreadsheet.testFunction()
 }
 
-export function onDocumentKeydownTab(event) {
+export function onCellKeydownTab(event) {
     let cell = globals.editingCell
     let cellIndexes = spreadsheet.getCellIndexes(cell)
     let tableRange = spreadsheet.getTableRange(cell)
@@ -131,20 +121,20 @@ export function onDocumentKeydownTab(event) {
         }
     }
 
-    else tools.moveOneCellRight(event)
+    else {
+        tools.moveOneCellRight(event)
+    }
 }
 
-export function onDocumentKeydownEnter(event) {
+export function onCellKeydownEnter(event) {
     tools.changeCellOneDownAndPossiblyAddRow(event)
 }
 
 export function onCreateTableButtonClick() {
     let cellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
-    let tableName = $(globals.editingCell).text();
+    let tableName = spreadsheet.getCellText(globals.editingCell)
 
     client.requestGetInitialTableRange(tableName, cellIndexes[0], cellIndexes[1])
-    //TODO remove after testing
-    // globals.setError('Hej', 0, 0)
 }
 
 export function onSpreadsheetTypeRadioButtonsChange() {

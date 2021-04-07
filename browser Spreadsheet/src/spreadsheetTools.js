@@ -1,6 +1,7 @@
 import * as spreadsheet from './spreadsheet.js'
 import * as globals from './spreadsheetGlobalVariables.js'
 import * as client from './ssclient.js'
+import * as setup from './spreadsheetSetup.js'
 
 export function mergeCells(cells) {
     let leftmostCellIndexes = spreadsheet.getCellIndexes(cells[0])
@@ -12,7 +13,7 @@ export function mergeCells(cells) {
 
     cells.slice(1).forEach((cell) => {
         $(cell).css('display', 'none')
-        $(cell).text('')
+        spreadsheet.setCellText(cell, '')
     })
 
     client.sendChange(spreadsheet.getCellFromIndexes(leftmostCellIndexes[0], leftmostCellIndexes[1]));
@@ -24,27 +25,33 @@ export function demergeCell(cell) {
 }
 
 export function setBoldText(cell) {
-    $(cell).addClass('bold')
+    let cellTextDiv = spreadsheet.getCellTextDiv(cell)
+    $(cellTextDiv).addClass('bold')
 }
 
 export function removeBoldText(cell) {
-    $(cell).removeClass('bold')
+    let cellTextDiv = spreadsheet.getCellTextDiv(cell)
+    $(cellTextDiv).removeClass('bold')
 }
 
 export function setItalicText(cell) {
-    $(cell).addClass('italic')
+    let cellTextDiv = spreadsheet.getCellTextDiv(cell)
+    $(cellTextDiv).addClass('italic')
 }
 
 export function removeItalicText(cell) {
-    $(cell).removeClass('italic')
+    let cellTextDiv = spreadsheet.getCellTextDiv(cell)
+    $(cellTextDiv).removeClass('italic')
 }
 
 export function setCenterText(cell) {
-    $(cell).addClass('center')
+    let cellTextDiv = spreadsheet.getCellTextDiv(cell)
+    $(cellTextDiv).addClass('center')
 }
 
 export function removeCenterText(cell) {
-    $(cell).removeClass('center')
+    let cellTextDiv = spreadsheet.getCellTextDiv(cell)
+    $(cellTextDiv).removeClass('center')
 }
 
 export function setBlackBorder(cell) {
@@ -55,16 +62,20 @@ export function removeBlackBorder(cell) {
     $(cell).removeClass('blackBorder')
 }
 
+//TODO: Update this after the use of NodeValue
 export function showError(errorCellIndexes, errorLineIndexes) {
     let cell = $(spreadsheet.getCellFromIndexes(errorCellIndexes[0], errorCellIndexes[1]))
-    let errorText = cell.text().substring(errorLineIndexes[0], errorLineIndexes[1])
+    // let errorText = cell.text().substring(errorLineIndexes[0], errorLineIndexes[1])
+    let errorText = spreadsheet.getCellText(cell).substring(errorLineIndexes[0], errorLineIndexes[1])
 
     cell.data('hasError', true)
+    //TODO Update here???
     cell.html(cell.html().replace(errorText, '<span class="error">' + errorText + '</span>'))
 
     createErrorMessage(cell, globals.errorMessage)
 }
 
+//TODO: Update as well
 export function removeError(cell) {
     let textWithSpanRemoved = $(cell).html().replace('<span class="error">', '').replace('</span>', '')
 
@@ -84,6 +95,7 @@ export function hideErrorMessage(cell) {
     errorMessage.css('visibility', 'hidden')
 }
 
+//TODO: Update with Infobox
 export function createErrorMessage(cell, errorMessage) {
     let div = $('<div/>')
     div.addClass('errorMessage')
@@ -95,11 +107,6 @@ export function createErrorMessage(cell, errorMessage) {
 export function removeErrorMessage(cell) {
     let errorMessage = $('div.errorMessage', cell)
     errorMessage.remove()
-}
-
-export function setText(cell, text) {
-    //TODO: Change this based on errorMessage and hiddenText? Not sure.
-    $(cell).text(text)
 }
 
 export function markCells() {
@@ -140,7 +147,7 @@ function clearCellHelper(cell) {
     spreadsheet.removeCellAsData(cell)
     removeBlackBorder(cell)
     spreadsheet.removeCellFromTable(cell)
-    $(cell).text('')
+    spreadsheet.setCellText(cell, '')
 }
 
 //TODO: Refactor this?
@@ -261,12 +268,29 @@ function createDataCellInNewRow(cell, tableName) {
     setCenterText(cell)
 }
 
-//TODO: Fix name and everything about this method!
-export function suggestion(cellText, column, row) {
+export function createTableCodeCompletionForInfoBox(tableName, column, row) {
+    let cell = spreadsheet.getCellFromIndexes(column, row)
+    let infoBox = spreadsheet.getInfoBox(cell)
+    let infoBoxText = 'A table with the name ' + tableName + ' exists. Press enter to create it.'
 
-    client.requestGetInitialTableRange(cellText, column, row)
+    $(cell).off('keydown')
+    setup.setupCellKeyDown($(cell))
+    infoBox.text(infoBoxText)
+    infoBox.css('display', 'block')
+    $(cell).data('infoBoxShown', true)
 
-    // console.log(cellText + 'is a table. WANNA CREATE TABLE? Indexes: ' + column + " " + row)
+    $(cell).on('keydown',(e) => {
+        if (e.which === 13) {
+            client.requestGetInitialTableRange(tableName, column, row)
+        }
+    })
+}
+export function hideCreateTableCodeCompletionForInfoBox(infoBox, cell) {
+    $(cell).off('keydown')
+    setup.setupCellKeyDown($(cell))
+    setup.setupCellKeyDownEnter($(cell))
+    infoBox.css('display', 'none')
+    $(cell).data('infoBoxShown', false)
 }
 
 export function moveOneCellLeft(event) {
@@ -328,11 +352,12 @@ export function setNextCell(column, row) {
     let possibleNewEditingCell = spreadsheet.getCellFromIndexes(column, row)
     let mergedCells = spreadsheet.getMergedCells(possibleNewEditingCell)
     let newEditingCell = (mergedCells === null) ? possibleNewEditingCell : mergedCells[0]
+    let newEditingCellTextDiv = spreadsheet.getCellTextDiv(newEditingCell)
 
     globals.setCurrentColumn(column)
     globals.setCurrentRow(row)
     globals.setEditingCell(newEditingCell)
-    newEditingCell.focus()
+    newEditingCellTextDiv.focus()
 }
 
 export function changeToSGL() {
@@ -350,13 +375,14 @@ export function changeToSDSL() {
 export function changeNextCellToStartOfNewRowInTable(cell, tableRange, event) {
     let cellIndexes = spreadsheet.getCellIndexes(cell)
     let newEditingCell = spreadsheet.getCellFromIndexes(tableRange[0], cellIndexes[1] + 1)
+    let newEditingCellTextDiv = spreadsheet.getCellTextDiv(newEditingCell)
 
     event.preventDefault()
     $(globals.editingCell).css('outline', '')
     globals.setCurrentColumn(tableRange[0])
     globals.setCurrentRow(cellIndexes[1] + 1)
     globals.setEditingCell(newEditingCell)
-    newEditingCell.focus()
+    newEditingCellTextDiv.focus()
 }
 
 export function changeCellOneDownAndPossiblyAddRow(event) {
