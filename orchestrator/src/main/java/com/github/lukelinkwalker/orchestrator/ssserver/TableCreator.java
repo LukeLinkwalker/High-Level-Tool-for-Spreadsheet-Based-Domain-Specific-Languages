@@ -24,8 +24,6 @@ public class TableCreator {
 
             sendMergeCommandForAppropriateCells(tableObject, tableName, tableHeaderAreaIndexes[2], column, row);
             sendBoldTextCommandForAppropriateCells(tableObject, column, row);
-            sendCenterTextCommandForAppropriateCells(tableHeaderAreaIndexes);
-            sendCenterTextCommandForAppropriateCells(tableDataAreaIndexes);
             sendBlackBorderCommandForRangeOfCells(tableHeaderAreaIndexes);
             sendBlackBorderCommandForRangeOfCells(tableDataAreaIndexes);
             sendSetAsHeaderCommandForAppropriateCells(tableHeaderAreaIndexes);
@@ -229,14 +227,6 @@ public class TableCreator {
         }
 
         return objectOrArrayCells;
-    }
-
-    private static void sendCenterTextCommandForAppropriateCells(int[] rangeOfCells) {
-        for (int i = rangeOfCells[0]; i <= rangeOfCells[2]; i++) {
-            for (int j = rangeOfCells[1]; j <= rangeOfCells[3]; j++) {
-                App.SSS.sendNotification("center-text", new Object[] {i, j});
-            }
-        }
     }
 
     private static void sendBlackBorderCommandForRangeOfCells(int[] rangeOfCells) {
