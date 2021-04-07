@@ -78,10 +78,6 @@ td {
     font-style: italic;
 }
 
-/*.center {*/
-/*    text-align: center;*/
-/*}*/
-
 .header {
     background-color: #bfbfbf;
 }
@@ -129,7 +125,7 @@ td {
     text-align: left;
     width: 200px;
     min-height: 20px;
-    /*margin: 25px 10px;*/
+    margin: 5px 5px;
     position: absolute;
     display: none;
 }

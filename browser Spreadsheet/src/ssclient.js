@@ -88,10 +88,7 @@ socket.addEventListener('message', (event) => {
             break
         case 'italic-text':
             handleItalicText(jsonObject.params)
-            break;
-        // case 'center-text':
-        //     handleCenterText(jsonObject.params)
-        //     break
+            break
         case 'black-border':
             handleBlackBorder(jsonObject.params)
             break
@@ -135,10 +132,11 @@ function handleCheckIfTextIsATableName(params) {
     let cell = spreadsheet.getCellFromIndexes(column, row)
     let infoBox = spreadsheet.getInfoBox(cell)
     let infoBoxShown = $(cell).data('infoBoxShown')
+    let cellType = spreadsheet.getCellType(cell)
 
     tools.hideCreateTableCodeCompletionForInfoBox(infoBox, cell)
 
-    if (tableNameExists && !infoBoxShown) {
+    if (cellType === 'normal' && tableNameExists && !infoBoxShown) {
         let tableName = params[0]
         tools.createTableCodeCompletionForInfoBox(tableName, column, row)
     }
@@ -179,11 +177,6 @@ function handleItalicText(params) {
     let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
     tools.setItalicText(cell)
 }
-
-// function handleCenterText(params) {
-//     let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
-//     tools.setCenterText(cell)
-// }
 
 function handleBlackBorder(params) {
     let cell = spreadsheet.getCellFromIndexes(params[0], params[1])

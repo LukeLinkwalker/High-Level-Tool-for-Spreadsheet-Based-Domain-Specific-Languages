@@ -118,11 +118,12 @@ export function getCellIndexes(cell) {
 
 export function setInitialEditingCell() {
     let cell = getCellFromIndexes(0, 0)
+    let cellTextDiv = getCellTextDiv(cell)
 
     globals.setEditingCell(cell)
     globals.setCurrentColumn(0)
     globals.setCurrentRow(0)
-    cell.focus()
+    cellTextDiv.focus()
 }
 
 export function findSelectedCells(selectedStartIndexes, selectedEndIndexes) {
@@ -298,7 +299,7 @@ export function getCellType(cell) {
 
     if ($cell.hasClass('header')) return 'header'
     else if ($cell.hasClass('data')) return 'data'
-    else return null
+    else return 'normal'
 }
 
 export function getInfoBox(cell) {
@@ -315,6 +316,11 @@ export function getCellText(cell) {
 
 export function setCellText(cell, value) {
     $(getCellTextDiv(cell)).text(value)
+
+    if (cell === globals.editingCell) {
+        let inputBar = $('#input-bar')
+        inputBar.val(value)
+    }
 }
 
 export function getCellFromCellTextDiv(cellTextDiv) {

@@ -290,6 +290,7 @@ export function hideCreateTableCodeCompletionForInfoBox(infoBox, cell) {
     setup.setupCellKeyDown($(cell))
     setup.setupCellKeyDownEnter($(cell))
     infoBox.css('display', 'none')
+    infoBox.text('')
     $(cell).data('infoBoxShown', false)
 }
 
@@ -364,12 +365,14 @@ export function changeToSGL() {
     $('.sdslClass').css('display', 'none')
     $('.sglClass').css('display', '')
     globals.setSpreadsheetType('sgl')
+    spreadsheet.setInitialEditingCell()
 }
 
 export function changeToSDSL() {
     $('.sdslClass').css('display', '')
     $('.sglClass').css('display', 'none')
     globals.setSpreadsheetType('sdsl')
+    spreadsheet.setInitialEditingCell()
 }
 
 export function changeNextCellToStartOfNewRowInTable(cell, tableRange, event) {

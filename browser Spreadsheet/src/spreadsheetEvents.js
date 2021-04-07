@@ -90,10 +90,11 @@ export function onDocumentReady() {
     setup.setupActionBar()
     setup.setupSDSL()
     setup.setupSGL()
-    tools.changeToSDSL()
+    globals.setSpreadsheetType('sdsl')
+    spreadsheet.createSpreadsheet()
+    globals.setSpreadsheetType('sgl')
     spreadsheet.createSpreadsheet()
     tools.changeToSGL()
-    spreadsheet.createSpreadsheet()
     spreadsheet.setInitialEditingCell()
     $('#sglRadioButton').prop('checked', true)
 }
