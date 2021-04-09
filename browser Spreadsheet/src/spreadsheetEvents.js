@@ -9,6 +9,7 @@ import * as setup from './spreadsheetSetup.js'
 export function onInputBarInput(inputBar) {
     let inputBarText = $(inputBar).val()
 
+    tools.hideAndClearAllErrors()
     spreadsheet.setCellText(globals.editingCell, inputBarText)
     client.sendChange(globals.editingCell)
 }
@@ -42,11 +43,11 @@ export function onCellMouseEnter(cell) {
         tools.markCells()
     }
 
-    if ($(cell).data('hasError')) tools.showErrorMessage(cell)
+    if ($(cell).hasClass('error')) tools.showErrorMessage(cell)
 }
 
 export function onCellMouseLeave(cell) {
-    if ($(cell).data('hasError')) tools.hideErrorMessage(cell)
+    if ($(cell).hasClass('error')) tools.hideErrorMessage(cell)
 }
 
 export function onCellTextDivFocus(cellTextDiv) {
@@ -72,6 +73,7 @@ export function onCellInput(cell) {
     let cellIndexes = spreadsheet.getCellIndexes(cell)
     let cellText = spreadsheet.getCellText(cell)
 
+    tools.hideAndClearAllErrors()
     inputBar.val(cellText)
     client.sendChange(cell)
     if (globals.spreadsheetType === 'sdsl') client.requestCheckIfTextIsATableName(cellText, cellIndexes[0], cellIndexes[1])

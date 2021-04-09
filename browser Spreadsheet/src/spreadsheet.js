@@ -1,17 +1,5 @@
-import * as tools from './spreadsheetTools.js'
 import * as globals from './spreadsheetGlobalVariables.js'
 import * as setup from './spreadsheetSetup.js'
-
-//TODO: Remove after testing
-export function testFunction() {
-    $('#testErrorButton').on('click', () => {
-        tools.showError(globals.errorCellIndexes, globals.errorLineIndexes, globals.errorMessage)
-    })
-
-    $('#removeErrorButton').on('click', () => {
-        tools.removeError(globals.editingCell)
-    })
-}
 
 export function createSpreadsheet() {
     globals.setColumnSize(30)
@@ -37,19 +25,19 @@ export function createSpreadsheet() {
 
 function createCell(column, row) {
     let cell = $('<td>')
-    cell.append(createCellTextDiv())
-    cell.append(createInfoBoxDiv())
-    cell.attr('id', createCellID(column, row))
-    // cell.css('min-width', '100px')
-    //TODO: Is this necessary?
-    cell.data('hasError', false)
+    let divToContainBoxes = $('<div class="boxContainer">')
 
+    divToContainBoxes.append(createInfoBox())
+    divToContainBoxes.append(createErrorBox())
+    cell.append(createCellText())
+    cell.append(divToContainBoxes)
+    cell.attr('id', createCellID(column, row))
     setup.setupCell(cell)
 
     return cell
 }
 
-function createCellTextDiv() {
+function createCellText() {
     let cellText = $('<div class="cellText">')
     cellText.attr('contenteditable', 'true')
     setup.setupCellTextDiv(cellText)
@@ -57,11 +45,12 @@ function createCellTextDiv() {
     return cellText
 }
 
-function createInfoBoxDiv() {
-    let infoBox = $('<div class="infoBox">')
-    infoBox.attr('contenteditable', 'false')
+function createInfoBox() {
+    return $('<div class="infoBox box">')
+}
 
-    return infoBox
+function createErrorBox() {
+    return $('<div class="errorBox box">')
 }
 
 function createColumnHeader(tableSize, table) {
@@ -306,6 +295,10 @@ export function getInfoBox(cell) {
     return $('.infoBox', cell)
 }
 
+export function getErrorBox(cell) {
+    return $('.errorBox', cell)
+}
+
 export function getCellTextDiv(cell) {
     return $('.cellText', cell)[0]
 }
@@ -325,4 +318,10 @@ export function setCellText(cell, value) {
 
 export function getCellFromCellTextDiv(cellTextDiv) {
     return $(cellTextDiv).parent()[0]
+}
+
+export function insertNewMessageInInfoBox(infoBox, value) {
+    let currentText = infoBox.text()
+    if (currentText === '') infoBox.text(currentText + value)
+    else infoBox.text(currentText + '\n' + value)
 }

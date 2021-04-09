@@ -8,7 +8,7 @@ let updateCounter = 10_000_000;
 const socket = new WebSocket('ws://localhost:20895');
 const debug = true;
 
-//TODO do properly.
+//TODO: Do properly.
 globals.setSpreadsheetName('Hello')
 
 socket.addEventListener('open', function(event) {
@@ -62,6 +62,10 @@ socket.addEventListener('open', function(event) {
     tools.changeToSDSL()
     $('#sdslRadioButton').prop('checked', true)
 
+    let cell00sdsl = spreadsheet.getCellFromIndexes(0, 0)
+    spreadsheet.setCellText(cell00sdsl, 'Hej med dig')
+    tools.createError([0, 0], [1, 5], 'Error, write Config')
+
     //////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,25 +108,12 @@ socket.addEventListener('message', (event) => {
     }
 })
 
-//TODO: Rød streg skal vises hele, besked skal vises ved mouseover, og det skal ske automatisk.
+//TODO: This need to be changed, as it doesn't include line index
 function handleErrors(errors) {
-    removeErrors();
-
     console.log("Diagnostic - Number of errors : " + errors.length);
-    for(let i = 0; i < errors.length; i += 1) {
-        globals.setError(errors[i].message, errors[i].column, errors[i].row);
-        showError(errors[i].column, errors[i].row);
+    for(let i = 0; i < errors.length; i++) {
+        tools.createError(errors[i].cellIndexes, errors[i].lineIndexes, errors[i].message)
     }
-}
-
-function removeErrors() {
-    $("td").each(function() {
-        $(this).removeClass("errorHighlight");
-    });
-}
-
-function showError(column, row) {
-    $(spreadsheet.getCellFromIndexes(column, row)).addClass("errorHighlight");
 }
 
 function handleCheckIfTextIsATableName(params) {
@@ -131,7 +122,7 @@ function handleCheckIfTextIsATableName(params) {
     let row = params[2]
     let cell = spreadsheet.getCellFromIndexes(column, row)
     let infoBox = spreadsheet.getInfoBox(cell)
-    let infoBoxShown = $(cell).data('infoBoxShown')
+    let infoBoxShown = $(cell).hasClass('infoBoxShown')
     let cellType = spreadsheet.getCellType(cell)
 
     tools.hideCreateTableCodeCompletionForInfoBox(infoBox, cell)
@@ -213,9 +204,6 @@ export function sendChange(cell) {
     socket.send(JSON.stringify(update_msg));
 
     if (debug) console.log("Send change: " + JSON.stringify(object));
-
-    //TODO: This caused an error on the server
-    // socket.send(JSON.stringify(object));
 }
 
 export function requestCheckIfTextIsATableName(cellText, column, row) {

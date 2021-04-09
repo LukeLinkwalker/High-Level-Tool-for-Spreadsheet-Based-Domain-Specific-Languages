@@ -54,20 +54,15 @@ th {
 
 td {
     border: 1px solid #d9d9d9;
-    width: 50pt;
     height: 16pt;
     padding: 0;
-    text-align: right;
     min-width: 100px;
+    max-width: 150px;
 }
 
 .cellText {
-    height: 100%;
     text-align: center;
-    display: flex;
-    justify-content: center;
-    align-content: center;
-    flex-direction: column;
+    height: 100%;
 }
 
 .bold {
@@ -91,41 +86,37 @@ td {
 }
 
 .selected {
-    background-color: #e0eeff;
+    background-color: #e6f1ff;
 }
 
 .selectedHeader {
+    background-color: #b3d5ff;
+}
+
+.selectedData {
     background-color: #cce3ff;
 }
 
-.error {
+.errorLine {
     text-decoration: underline;
     text-decoration-color: red;
     text-decoration-skip-ink: none;
     text-decoration-thickness: 3px;
 }
 
-.errorMessage {
-    background-color: white;
-    color: black;
-    display: block;
+.boxContainer {
     position: absolute;
-    border: 1px solid black;
-    margin: 5px 10px;
 }
 
-.errorHighlight {
-    background-color: #EF4836;
-}
-
-.infoBox {
-    background-color: white;
+.box {
+    background-color: #f2f2f2;
     color: black;
     border: 1px solid black;
     text-align: left;
     width: 200px;
     min-height: 20px;
     margin: 5px 5px;
-    position: absolute;
+    position: relative;
     display: none;
+    white-space: pre-wrap;
 }

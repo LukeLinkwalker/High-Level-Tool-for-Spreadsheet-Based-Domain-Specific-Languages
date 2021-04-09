@@ -91,7 +91,6 @@ export function setupCellKeyDownEnter(cell) {
     })
 }
 
-
 export function setupCellTextDiv(cellTextDiv) {
     cellTextDiv
         .on('focus', (e) => events.onCellTextDivFocus(e.currentTarget))

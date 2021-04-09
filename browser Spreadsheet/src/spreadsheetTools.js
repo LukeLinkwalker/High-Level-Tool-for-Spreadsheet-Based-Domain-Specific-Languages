@@ -62,68 +62,62 @@ export function removeBlackBorder(cell) {
     $(cell).removeClass('blackBorder')
 }
 
-//TODO: Update this after the use of NodeValue
-export function showError(errorCellIndexes, errorLineIndexes) {
-    let cell = $(spreadsheet.getCellFromIndexes(errorCellIndexes[0], errorCellIndexes[1]))
-    // let errorText = cell.text().substring(errorLineIndexes[0], errorLineIndexes[1])
-    let errorText = spreadsheet.getCellText(cell).substring(errorLineIndexes[0], errorLineIndexes[1])
+export function createError(errorCellIndexes, errorLineIndexes, errorMessage) {
+    let cell = spreadsheet.getCellFromIndexes(errorCellIndexes[0], errorCellIndexes[1])
 
-    cell.data('hasError', true)
-    //TODO Update here???
-    cell.html(cell.html().replace(errorText, '<span class="error">' + errorText + '</span>'))
-
-    createErrorMessage(cell, globals.errorMessage)
+    $(cell).addClass('error')
+    createErrorUnderline(cell, errorLineIndexes)
+    spreadsheet.getErrorBox(cell).text(errorMessage)
 }
 
-//TODO: Update as well
-export function removeError(cell) {
-    let textWithSpanRemoved = $(cell).html().replace('<span class="error">', '').replace('</span>', '')
+export function createErrorUnderline(cell, errorLineIndexes) {
+    let cellText = spreadsheet.getCellText(cell)
+    let textWithError = cellText.substring(errorLineIndexes[0], errorLineIndexes[1])
+    let textWithRedLine = '<span class="errorLine">' + textWithError + '</span>'
 
-    $(cell).data('hasError', false)
-    $(cell).html(textWithSpanRemoved)
+    $(cell).html($(cell).html().replace(textWithError, textWithRedLine))
+}
 
-    removeErrorMessage(cell)
+export function hideAndClearAllErrors() {
+    let errorCells = $('.error')
+
+    errorCells.each((i, element) => {
+        $(element).removeClass('error')
+        $('.errorBox')
+            .css('display', 'none')
+            .text('')
+        removeErrorUnderline(element)
+    })
+}
+
+export function removeErrorUnderline(cell) {
+    let cellText = spreadsheet.getCellText(cell)
+    spreadsheet.setCellText(cell, cellText)
 }
 
 export function showErrorMessage(cell) {
-    let errorMessage = $('div.errorMessage', cell)
-    errorMessage.css('visibility', 'visible')
+    let errorBox = spreadsheet.getErrorBox(cell)
+    errorBox.css('display', 'block')
 }
 
 export function hideErrorMessage(cell) {
-    let errorMessage = $('div.errorMessage', cell)
-    errorMessage.css('visibility', 'hidden')
-}
-
-//TODO: Update with Infobox
-export function createErrorMessage(cell, errorMessage) {
-    let div = $('<div/>')
-    div.addClass('errorMessage')
-    div.text(errorMessage)
-    div.prop('contenteditable', false)
-    cell.append(div)
-}
-
-export function removeErrorMessage(cell) {
-    let errorMessage = $('div.errorMessage', cell)
-    errorMessage.remove()
+    let errorBox = spreadsheet.getErrorBox(cell)
+    errorBox.css('display', 'none')
 }
 
 export function markCells() {
     globals.setCellsMarked(true)
-
-    //TODO: Update for data cells as well.
     globals.selectedCells.forEach((cell) => {
         if ($(cell).hasClass('header')) $(cell).addClass('selectedHeader')
+        else if  ($(cell).hasClass('data')) $(cell).addClass('selectedData')
         else $(cell).addClass('selected')
     })
 }
 
 export function clearMarkedCells() {
     globals.setCellsMarked(false)
-
-    //TODO: Update for data cells as well.
     $('.selected').each((i, element) => $(element).removeClass('selected'))
+    $('.selectedData').each((i, element) => $(element).removeClass('selectedData'))
     $('.selectedHeader').each((i, element) => $(element).removeClass('selectedHeader'))
 }
 
@@ -150,7 +144,6 @@ function clearCellHelper(cell) {
     spreadsheet.setCellText(cell, '')
 }
 
-//TODO: Refactor this?
 export function createTable(tableName, column, row, tableRange) {
     let startCell = spreadsheet.getCellFromIndexes(tableRange[0], tableRange[1])
     let endCell = spreadsheet.getCellFromIndexes(tableRange[2], tableRange[3])
@@ -271,13 +264,13 @@ function createDataCellInNewRow(cell, tableName) {
 export function createTableCodeCompletionForInfoBox(tableName, column, row) {
     let cell = spreadsheet.getCellFromIndexes(column, row)
     let infoBox = spreadsheet.getInfoBox(cell)
-    let infoBoxText = 'A table with the name ' + tableName + ' exists. Press enter to create it.'
+    let infoBoxText = 'Create ' + tableName + ' table? Press enter to create it.'
 
     $(cell).off('keydown')
     setup.setupCellKeyDown($(cell))
-    infoBox.text(infoBoxText)
+    spreadsheet.insertNewMessageInInfoBox(infoBox, infoBoxText)
     infoBox.css('display', 'block')
-    $(cell).data('infoBoxShown', true)
+    $(cell).addClass('infoBoxShown')
 
     $(cell).on('keydown',(e) => {
         if (e.which === 13) {
@@ -285,13 +278,14 @@ export function createTableCodeCompletionForInfoBox(tableName, column, row) {
         }
     })
 }
+
 export function hideCreateTableCodeCompletionForInfoBox(infoBox, cell) {
     $(cell).off('keydown')
     setup.setupCellKeyDown($(cell))
     setup.setupCellKeyDownEnter($(cell))
     infoBox.css('display', 'none')
     infoBox.text('')
-    $(cell).data('infoBoxShown', false)
+    $(cell).removeClass('infoBoxShown')
 }
 
 export function moveOneCellLeft(event) {

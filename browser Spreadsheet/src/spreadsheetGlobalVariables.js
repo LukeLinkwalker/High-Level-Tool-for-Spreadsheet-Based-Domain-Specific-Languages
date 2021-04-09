@@ -13,17 +13,6 @@ export let currentRow
 //TODO: Should sheetName be here?
 export let spreadsheetName
 
-//TODO: Remove after testing
-export let errorMessage = 'ERROR! LOOOOOOOOOOOOOOOOOOOOOOOONG ERROR'
-export let errorCellIndexes = [0, 0]
-export let errorLineIndexes = [1, 3]
-
-//Remove after testing
-export function setError(_errorMessage, column, row) {
-    errorMessage = _errorMessage
-    errorCellIndexes = [column, row]
-}
-
 export function setEditingCell(value) {
     editingCell = value
 }
