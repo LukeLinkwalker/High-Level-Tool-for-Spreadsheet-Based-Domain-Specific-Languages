@@ -72,7 +72,7 @@ export function setupCell(cell) {
         .on('mouseenter', (e) => events.onCellMouseEnter(e.currentTarget))
         .on('mouseleave', (e) => events.onCellMouseLeave(e.currentTarget))
         .on('input', (e) => events.onCellInput(e.currentTarget))
-        .on('click', () => events.onCellClick())
+        .on('click', (e) => events.onCellClick(e.currentTarget))
 }
 
 export function setupCellKeyDown(cell) {

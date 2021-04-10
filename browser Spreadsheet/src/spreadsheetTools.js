@@ -64,10 +64,11 @@ export function removeBlackBorder(cell) {
 
 export function createError(errorCellIndexes, errorLineIndexes, errorMessage) {
     let cell = spreadsheet.getCellFromIndexes(errorCellIndexes[0], errorCellIndexes[1])
+    let errorBox = spreadsheet.getErrorBox(cell)
 
-    $(cell).addClass('error')
+    spreadsheet.insertNewMessageInErrorBox(errorBox, errorMessage)
     createErrorUnderline(cell, errorLineIndexes)
-    spreadsheet.getErrorBox(cell).text(errorMessage)
+    $(cell).addClass('error')
 }
 
 export function createErrorUnderline(cell, errorLineIndexes) {
@@ -97,12 +98,12 @@ export function removeErrorUnderline(cell) {
 
 export function showErrorMessage(cell) {
     let errorBox = spreadsheet.getErrorBox(cell)
-    errorBox.css('display', 'block')
+    $(errorBox).css('display', 'block')
 }
 
 export function hideErrorMessage(cell) {
     let errorBox = spreadsheet.getErrorBox(cell)
-    errorBox.css('display', 'none')
+    $(errorBox).css('display', 'none')
 }
 
 export function markCells() {
@@ -158,18 +159,7 @@ export function createTable(tableName, column, row, tableRange) {
         tableRangeCells.forEach((cellInRange) => spreadsheet.addTableNameToCell(cellInRange, tableNameForCells))
         client.requestCreateTable(tableName, tableRange[0], tableRange[1])
     }
-    else {
-        let warning = confirm('Some cells are not empty. Their data will be overwritten. Do you still wish to create a table?')
-
-        if (warning) {
-            tableRangeCells.forEach((cellInRange) => {
-                clearCell(cellInRange)
-                spreadsheet.addTableNameToCell(cellInRange, tableNameForCells)
-            })
-
-            client.requestCreateTable(tableName, tableRange[0], tableRange[1])
-        }
-    }
+    else alert('Cannot create table as some of the cells are not empty! ')
 }
 
 export function addRow(cell) {
@@ -216,7 +206,8 @@ export function addRow(cell) {
 }
 
 export function deleteRow(cell) {
-    let tableRange = spreadsheet.getTableRange(cell)
+    let tableCells = spreadsheet.getAllCellsFromTableCellIsIn(cell)
+    let tableRange = spreadsheet.getTableRange(tableCells)
 
     if (tableRange === null) {
         alert('Cannot delete row as cell is not in a table!')
@@ -269,7 +260,7 @@ export function createTableCodeCompletionForInfoBox(tableName, column, row) {
     $(cell).off('keydown')
     setup.setupCellKeyDown($(cell))
     spreadsheet.insertNewMessageInInfoBox(infoBox, infoBoxText)
-    infoBox.css('display', 'block')
+    $(infoBox).css('display', 'block')
     $(cell).addClass('infoBoxShown')
 
     $(cell).on('keydown',(e) => {
@@ -283,8 +274,8 @@ export function hideCreateTableCodeCompletionForInfoBox(infoBox, cell) {
     $(cell).off('keydown')
     setup.setupCellKeyDown($(cell))
     setup.setupCellKeyDownEnter($(cell))
-    infoBox.css('display', 'none')
-    infoBox.text('')
+    $(infoBox).css('display', 'none')
+    $(infoBox).text('')
     $(cell).removeClass('infoBoxShown')
 }
 
@@ -385,7 +376,8 @@ export function changeNextCellToStartOfNewRowInTable(cell, tableRange, event) {
 export function changeCellOneDownAndPossiblyAddRow(event) {
     let cell = globals.editingCell
     let cellIndexes = spreadsheet.getCellIndexes(cell)
-    let tableRange = spreadsheet.getTableRange(cell)
+    let tableCells = spreadsheet.getAllCellsFromTableCellIsIn(cell)
+    let tableRange = spreadsheet.getTableRange(tableCells)
 
     if (tableRange !== null && cellIndexes [1] === tableRange[3]) addRow(cell)
 
@@ -399,6 +391,6 @@ export function deleteTable(cell) {
     else {
         let warning = confirm('Are you sure you want to delete this table and all its contents?')
 
-        if (warning) cellsInTable.each((i, cellInTable) => clearCell(cellInTable))
+        if (warning) cellsInTable.forEach((cellInTable) => clearCell(cellInTable))
     }
 }

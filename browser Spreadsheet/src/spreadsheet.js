@@ -199,16 +199,15 @@ export function getAllCellsFromTableCellIsIn(cell) {
     let tableName = getTableName(cell)
 
     if (tableName === null) return null
-    else return $('.' + tableName)
+    else return $('.' + tableName).get()
 }
 
-export function getTableRange(cell) {
-    let tableCells = getAllCellsFromTableCellIsIn(cell)
+export function getTableRange(tableCells) {
     let startCell = null
     let endCell = null
 
     if (tableCells !== null) {
-        tableCells.each((i, cell) => {
+        tableCells.forEach((cell) => {
             if (startCell === null && endCell === null) {
                 startCell = cell
                 endCell = cell
@@ -256,7 +255,8 @@ export function getMergedCellClassName(cell) {
 }
 
 export function getCellsInNewTableRow(cell) {
-    let tableRange = getTableRange(cell)
+    let tableCells = getAllCellsFromTableCellIsIn(cell)
+    let tableRange = getTableRange(tableCells)
 
     if (tableRange === null) return null
     else {
@@ -292,11 +292,12 @@ export function getCellType(cell) {
 }
 
 export function getInfoBox(cell) {
-    return $('.infoBox', cell)
+    return $('.infoBox', cell)[0]
 }
 
 export function getErrorBox(cell) {
-    return $('.errorBox', cell)
+    // return $('.errorBox.box', cell)[0]
+    return $('.errorBox', cell)[0]
 }
 
 export function getCellTextDiv(cell) {
@@ -321,7 +322,36 @@ export function getCellFromCellTextDiv(cellTextDiv) {
 }
 
 export function insertNewMessageInInfoBox(infoBox, value) {
-    let currentText = infoBox.text()
-    if (currentText === '') infoBox.text(currentText + value)
-    else infoBox.text(currentText + '\n' + value)
+    let currentText = $(infoBox).text()
+
+    if (currentText === '') $(infoBox).text(value)
+    else $(infoBox).text(currentText + '\n' + value)
 }
+
+export function insertNewMessageInErrorBox(errorBox, value) {
+    let currentText = $(errorBox).text()
+
+    if (currentText === '') $(errorBox).text(value)
+    else $(errorBox).text(currentText + '\n' + value)
+}
+
+// export function getBreakoutTableCells(cell) {
+//     let width = $(cell).prop('colspan')
+//     let cellIndexes = getCellIndexes(cell)
+//     let breakoutTableCells = []
+//
+//     for (let i = cellIndexes[0]; i < width + cellIndexes[0]; i++) {
+//         let nextCell = getCellFromIndexes(i, cellIndexes[1])
+//         let nextCellType = getCellType(nextCell)
+//
+//         while (nextCellType === 'header' || nextCellType === 'data') {
+//             breakoutTableCells.push(nextCell)
+//
+//             let nextCellIndexes = getCellIndexes(nextCell)
+//             nextCell = getCellFromIndexes(i, nextCellIndexes[1] + 1)
+//             nextCellType = getCellType(nextCell)
+//         }
+//     }
+//
+//     return breakoutTableCells
+// }

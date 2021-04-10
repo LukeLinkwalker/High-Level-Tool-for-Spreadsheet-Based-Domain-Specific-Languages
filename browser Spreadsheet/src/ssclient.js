@@ -1,6 +1,7 @@
 import * as spreadsheet from './spreadsheet.js'
 import * as tools from './spreadsheetTools.js'
 import * as globals from './spreadsheetGlobalVariables.js'
+import * as events from './spreadsheetEvents.js'
 
 let id = 1
 let updateCounter = 10_000_000;
@@ -63,8 +64,12 @@ socket.addEventListener('open', function(event) {
     $('#sdslRadioButton').prop('checked', true)
 
     let cell00sdsl = spreadsheet.getCellFromIndexes(0, 0)
-    spreadsheet.setCellText(cell00sdsl, 'Hej med dig')
-    tools.createError([0, 0], [1, 5], 'Error, write Config')
+
+    spreadsheet.setCellText(cell00sdsl, 'Config')
+    events.onCreateTableButtonClick()
+
+    // spreadsheet.setCellText(cell00sdsl, 'Hej med dig')
+    // tools.createError([0, 0], [1, 5], 'Error, write Config')
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////

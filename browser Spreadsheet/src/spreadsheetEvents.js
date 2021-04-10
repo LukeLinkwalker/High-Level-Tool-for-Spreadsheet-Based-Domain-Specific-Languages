@@ -79,11 +79,17 @@ export function onCellInput(cell) {
     if (globals.spreadsheetType === 'sdsl') client.requestCheckIfTextIsATableName(cellText, cellIndexes[0], cellIndexes[1])
 }
 
-export function onCellClick() {
-    let cellIndexes = spreadsheet.getCellIndexes(globals.editingCell);
+export function onCellClick(cell) {
+    let cellIndexes = spreadsheet.getCellIndexes(cell);
+    let cellType = spreadsheet.getCellType(cell)
 
     globals.setCurrentColumn(cellIndexes[0])
     globals.setCurrentRow(cellIndexes[1])
+
+    // if (cellType === 'header') {
+    //     let breakoutTableCells = spreadsheet.getBreakoutTableCells(cell)
+    //     tools.showBreakoutTableOutline(breakoutTableCells)
+    // }
 }
 
 export function onDocumentReady() {
@@ -104,7 +110,8 @@ export function onDocumentReady() {
 export function onCellKeydownTab(event) {
     let cell = globals.editingCell
     let cellIndexes = spreadsheet.getCellIndexes(cell)
-    let tableRange = spreadsheet.getTableRange(cell)
+    let tableCells = spreadsheet.getAllCellsFromTableCellIsIn(cell)
+    let tableRange = spreadsheet.getTableRange(tableCells)
     let mergedCells = spreadsheet.getMergedCells(cell)
 
     if (tableRange !== null && cellIndexes[0] === tableRange[2]) {
