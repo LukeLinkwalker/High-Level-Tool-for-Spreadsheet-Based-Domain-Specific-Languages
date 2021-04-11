@@ -23,30 +23,46 @@ export function onInputBarFocusOut() {
     $(globals.editingCell).css('outline', '')
 }
 
-export function onCellMouseDown() {
+export function onCellMouseDown(cell) {
+    let cellTextDiv = spreadsheet.getCellTextDiv(cell)
+    let cellType = spreadsheet.getCellType(cell)
+    let hasBoldText = $(cellTextDiv).hasClass('bold')
+
     globals.setMouseDown(true)
+
+    if (cellType === 'header' && hasBoldText) {
+        let breakoutTableCells = spreadsheet.getBreakoutTableCells(cell)
+
+        globals.setMoveBreakoutTableActivated(true)
+        globals.setBreakoutTableCells(breakoutTableCells)
+        tools.showBreakoutTableOutline(cell)
+    }
 }
 
-export function onCellMouseUp() {
+export function onCellMouseUp(cell) {
     globals.setMouseDown(false)
+    if (globals.moveBreakoutTableActivated) tools.removeBreakoutTableOutline(cell)
+    globals.setMoveBreakoutTableActivated(false)
 }
 
 export function onCellMouseEnter(cell) {
-    if (globals.editingCell !== cell && globals.mouseDown) {
-        globals.setSelectedEndCell(cell)
+    // if (globals.editingCell !== cell && globals.mouseDown) {
+    //     globals.setSelectedEndCell(cell)
+    //
+    //     let startCellIndexes = spreadsheet.getCellIndexes(globals.selectedStartCell)
+    //     let endCellIndexes = spreadsheet.getCellIndexes(globals.selectedEndCell)
+    //
+    //     spreadsheet.findSelectedCells(startCellIndexes, endCellIndexes)
+    //     tools.clearMarkedCells()
+    //     tools.markCells()
+    // }
 
-        let startCellIndexes = spreadsheet.getCellIndexes(globals.selectedStartCell)
-        let endCellIndexes = spreadsheet.getCellIndexes(globals.selectedEndCell)
-
-        spreadsheet.findSelectedCells(startCellIndexes, endCellIndexes)
-        tools.clearMarkedCells()
-        tools.markCells()
-    }
-
+    if (globals.moveBreakoutTableActivated) tools.showBreakoutTableOutline(cell)
     if ($(cell).hasClass('error')) tools.showErrorMessage(cell)
 }
 
 export function onCellMouseLeave(cell) {
+    if (globals.moveBreakoutTableActivated) tools.removeBreakoutTableOutline(cell)
     if ($(cell).hasClass('error')) tools.hideErrorMessage(cell)
 }
 
@@ -54,7 +70,7 @@ export function onCellTextDivFocus(cellTextDiv) {
     let cell = spreadsheet.getCellFromCellTextDiv(cellTextDiv)
     let inputBar = $('#input-bar')
 
-    if (globals.cellsMarked) tools.clearMarkedCells()
+    // if (globals.cellsMarked) tools.clearMarkedCells()
     globals.setEditingCell(cell)
     globals.setSelectedStartCell(cell)
     globals.setSelectedCells([cell])
@@ -81,15 +97,9 @@ export function onCellInput(cell) {
 
 export function onCellClick(cell) {
     let cellIndexes = spreadsheet.getCellIndexes(cell);
-    let cellType = spreadsheet.getCellType(cell)
 
     globals.setCurrentColumn(cellIndexes[0])
     globals.setCurrentRow(cellIndexes[1])
-
-    // if (cellType === 'header') {
-    //     let breakoutTableCells = spreadsheet.getBreakoutTableCells(cell)
-    //     tools.showBreakoutTableOutline(breakoutTableCells)
-    // }
 }
 
 export function onDocumentReady() {

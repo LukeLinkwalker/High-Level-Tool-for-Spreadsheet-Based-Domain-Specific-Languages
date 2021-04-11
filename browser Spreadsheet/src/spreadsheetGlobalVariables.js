@@ -9,6 +9,8 @@ export let mouseDown
 export let spreadsheetType
 export let currentColumn
 export let currentRow
+export let moveBreakoutTableActivated
+export let breakoutTableCells
 
 //TODO: Should sheetName be here?
 export let spreadsheetName
@@ -59,4 +61,12 @@ export function setCurrentColumn(value) {
 
 export function setCurrentRow(value) {
     currentRow = value
+}
+
+export function setMoveBreakoutTableActivated(value) {
+    moveBreakoutTableActivated = value
+}
+
+export function setBreakoutTableCells(value) {
+    breakoutTableCells = value
 }

@@ -394,3 +394,47 @@ export function deleteTable(cell) {
         if (warning) cellsInTable.forEach((cellInTable) => clearCell(cellInTable))
     }
 }
+
+export function getBreakoutOutlineCells(cell) {
+    let breakoutTableRange = spreadsheet.getTableRange(globals.breakoutTableCells)
+    let headerCellIndexes = spreadsheet.getCellIndexes(globals.breakoutTableCells[0])
+    let currentCellIndexes = spreadsheet.getCellIndexes(cell)
+    let headerAndCurrentColumnDifference = currentCellIndexes[0] - headerCellIndexes[0]
+    let headerAndCurrentRowDifference = currentCellIndexes[1] - headerCellIndexes[1]
+    let startCell = spreadsheet.getCellFromIndexes(breakoutTableRange[0] + headerAndCurrentColumnDifference,
+        breakoutTableRange[1] + headerAndCurrentRowDifference)
+    let endCell = spreadsheet.getCellFromIndexes(breakoutTableRange[2] + headerAndCurrentColumnDifference,
+        breakoutTableRange[3] + headerAndCurrentRowDifference)
+
+    return spreadsheet.getCellsInRange(startCell, endCell)
+}
+
+export function showBreakoutTableOutline(cell) {
+    let breakoutOutlineCells = getBreakoutOutlineCells(cell)
+    let breakoutTableRange = spreadsheet.getTableRange(breakoutOutlineCells)
+    let leftColumn = breakoutTableRange[0]
+    let topRow = breakoutTableRange[1]
+    let rightColumn = breakoutTableRange[2]
+    let bottomRow = breakoutTableRange[3]
+
+    breakoutOutlineCells.forEach((boCell) => {
+        let cellIndexes = spreadsheet.getCellIndexes(boCell)
+        let width = $(boCell).prop('colspan')
+
+        if (leftColumn === cellIndexes[0]) $(boCell).css('border-left','2px double royalblue')
+        if (topRow === cellIndexes[1]) $(boCell).css('border-top','2px double royalblue')
+        if (rightColumn === cellIndexes[0] + width - 1) $(boCell).css('border-right','2px double royalblue')
+        if (bottomRow === cellIndexes[1]) $(boCell).css('border-bottom','2px double royalblue')
+    })
+}
+
+export function removeBreakoutTableOutline(cell) {
+    let breakoutOutlineCells = getBreakoutOutlineCells(cell)
+
+    breakoutOutlineCells.forEach((cell) => {
+        $(cell).css('border-left', '')
+        $(cell).css('border-top', '')
+        $(cell).css('border-right', '')
+        $(cell).css('border-bottom', '')
+    })
+}

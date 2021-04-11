@@ -67,8 +67,8 @@ export function setupCell(cell) {
     setupCellKeyDown(cell)
     setupCellKeyDownEnter(cell)
     cell
-        .on('mousedown', () => events.onCellMouseDown())
-        .on('mouseup', () => events.onCellMouseUp())
+        .on('mousedown', (e) => events.onCellMouseDown(e.currentTarget))
+        .on('mouseup', (e) => events.onCellMouseUp(e.currentTarget))
         .on('mouseenter', (e) => events.onCellMouseEnter(e.currentTarget))
         .on('mouseleave', (e) => events.onCellMouseLeave(e.currentTarget))
         .on('input', (e) => events.onCellInput(e.currentTarget))

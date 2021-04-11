@@ -67,6 +67,7 @@ td {
 
 .bold {
     font-weight: bold;
+    cursor: pointer;
 }
 
 .italic {
@@ -120,7 +121,3 @@ td {
     display: none;
     white-space: pre-wrap;
 }
-
-/*.breakoutOutline {*/
-/*    border: 1px solid royalblue;*/
-/*}*/

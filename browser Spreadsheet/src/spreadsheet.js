@@ -296,7 +296,6 @@ export function getInfoBox(cell) {
 }
 
 export function getErrorBox(cell) {
-    // return $('.errorBox.box', cell)[0]
     return $('.errorBox', cell)[0]
 }
 
@@ -335,23 +334,23 @@ export function insertNewMessageInErrorBox(errorBox, value) {
     else $(errorBox).text(currentText + '\n' + value)
 }
 
-// export function getBreakoutTableCells(cell) {
-//     let width = $(cell).prop('colspan')
-//     let cellIndexes = getCellIndexes(cell)
-//     let breakoutTableCells = []
-//
-//     for (let i = cellIndexes[0]; i < width + cellIndexes[0]; i++) {
-//         let nextCell = getCellFromIndexes(i, cellIndexes[1])
-//         let nextCellType = getCellType(nextCell)
-//
-//         while (nextCellType === 'header' || nextCellType === 'data') {
-//             breakoutTableCells.push(nextCell)
-//
-//             let nextCellIndexes = getCellIndexes(nextCell)
-//             nextCell = getCellFromIndexes(i, nextCellIndexes[1] + 1)
-//             nextCellType = getCellType(nextCell)
-//         }
-//     }
-//
-//     return breakoutTableCells
-// }
+export function getBreakoutTableCells(cell) {
+    let width = $(cell).prop('colspan')
+    let cellIndexes = getCellIndexes(cell)
+    let breakoutTableCells = []
+
+    for (let i = cellIndexes[0]; i < width + cellIndexes[0]; i++) {
+        let nextCell = getCellFromIndexes(i, cellIndexes[1])
+        let nextCellType = getCellType(nextCell)
+
+        while (nextCellType === 'header' || nextCellType === 'data') {
+            breakoutTableCells.push(nextCell)
+
+            let nextCellIndexes = getCellIndexes(nextCell)
+            nextCell = getCellFromIndexes(i, nextCellIndexes[1] + 1)
+            nextCellType = getCellType(nextCell)
+        }
+    }
+
+    return breakoutTableCells
+}
