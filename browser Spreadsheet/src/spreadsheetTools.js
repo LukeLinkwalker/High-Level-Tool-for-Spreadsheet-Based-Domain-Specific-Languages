@@ -21,6 +21,7 @@ export function mergeCells(cells) {
 export function demergeCell(cell) {
     $(cell).css('display', '')
     $(cell).removeAttr('colspan')
+    $(cell).removeClass(spreadsheet.getMergedCellsName(cell))
 }
 
 export function setBoldText(cell) {
@@ -122,18 +123,7 @@ export function clearMarkedCells() {
 }
 
 export function clearCell(cell) {
-    let mergedCells = spreadsheet.getMergedCells(cell)
-
-    if (mergedCells !== null) {
-        mergedCells.each((i, mergedCell) => {
-            demergeCell(mergedCell)
-            clearCellHelper(mergedCell)
-        })
-    }
-    else clearCellHelper(cell)
-}
-
-function clearCellHelper(cell) {
+    demergeCell(cell)
     removeBoldText(cell)
     removeItalicText(cell)
     removeCenterText(cell)
@@ -227,7 +217,7 @@ export function deleteRow(cell) {
         }
         else {
             let allCellsInNewRowAreEmpty = lastRow.every((cellInRow) => {
-                return spreadsheet.checkCellIsEmpty(cellInRow)
+                return spreadsheet.getCellText(cellInRow) === ''
             })
 
             if (!allCellsInNewRowAreEmpty) {
@@ -427,6 +417,8 @@ export function removeBreakoutTableOutline(cell) {
 export function copyCell(oldCell, newCell) {
     let oldDiv = spreadsheet.getCellTextDiv(oldCell)
     let newDiv = spreadsheet.getCellTextDiv(newCell)
+    let oldTableName = spreadsheet.getTableName(newCell)
+    let newTableName = spreadsheet.createNewTableNameForCopyingCell(oldCell, newCell)
     let mergedCellsName = spreadsheet.getMergedCellsName(oldCell)
 
     $(newCell).attr('class', $(oldCell).attr('class'))
@@ -434,25 +426,40 @@ export function copyCell(oldCell, newCell) {
     $(newCell).css('display', $(oldCell).css('display'))
     $(newDiv).attr('class', $(oldDiv).attr('class'))
     spreadsheet.setCellText(newCell, spreadsheet.getCellText(oldCell))
-    $(newCell).removeClass(spreadsheet.getTableName(newCell))
-    $(newCell).addClass(spreadsheet.createNewTableNameForCopyingCell(oldCell, newCell))
+    $(newCell).removeClass(oldTableName)
+    $(newCell).addClass(newTableName)
 
     if (mergedCellsName !== null) {
+        let newMergedCellsName = spreadsheet.createNewMergedCellsNameForCopyingCell(oldCell, newCell)
+
         $(newCell).removeClass(mergedCellsName)
-        $(newCell).addClass(spreadsheet.createNewMergedCellsNameForCopyingCell(oldCell, newCell))
+        $(newCell).addClass(newMergedCellsName)
     }
 }
 
-export function copyAllBreakoutTableCells(breakoutOutlineCells) {
-    let allTableCellsAreEmpty = breakoutOutlineCells.every((boCell) => {
-        let cellType = spreadsheet.getCellType(boCell)
-        return spreadsheet.checkCellIsEmpty(boCell) && cellType === 'normal'
+export function copyAllBreakoutTableCellsAndClearOldCells(breakoutOutlineCells) {
+    let nonEmptyCells = []
+
+    breakoutOutlineCells.forEach((boCell) => {
+        if (!spreadsheet.checkCellIsEmpty(boCell)) nonEmptyCells.push(boCell)
     })
 
-    if (allTableCellsAreEmpty) {
-        for (let i = 0; i < globals.breakoutTableCells.length; i++) {
-            copyCell(globals.breakoutTableCells[i], breakoutOutlineCells[i])
+    let allNonEmptyCellsAreOriginalBreakoutCells = nonEmptyCells.every((nonEmptyCell) => {
+        return globals.breakoutTableCells.includes(nonEmptyCell)
+    })
+
+    if (nonEmptyCells.size === 0 || (allNonEmptyCellsAreOriginalBreakoutCells)) {
+        if (globals.breakoutTableCells.length !== nonEmptyCells.length) {
+            let copyOfBreakOutTableCells = []
+
+            globals.breakoutTableCells.forEach((boCell) => {
+                copyOfBreakOutTableCells.push($(boCell).clone()[0])
+                clearCell(boCell)
+            })
+            copyOfBreakOutTableCells.forEach((oldCell, index) => copyCell(oldCell, breakoutOutlineCells[index]))
         }
     }
-    else alert('Cannot place table here as some of the cells are not empty! ')
+    else {
+        alert('Cannot place table here as some of the cells are not empty! ')
+    }
 }

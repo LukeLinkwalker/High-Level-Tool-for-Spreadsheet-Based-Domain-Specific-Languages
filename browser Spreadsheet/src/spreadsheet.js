@@ -160,7 +160,8 @@ export function getCellsInRange(startCell, endCell) {
 }
 
 export function checkCellIsEmpty(cell) {
-    return getCellText(cell) === ''
+    let cellType = getCellType(cell)
+    return getCellText(cell) === '' && cellType === 'normal'
 }
 
 export function createTableName(column, row) {
@@ -336,17 +337,18 @@ export function getBreakoutTableCells(cell) {
     let width = $(cell).prop('colspan')
     let cellIndexes = getCellIndexes(cell)
     let breakoutTableCells = []
+    let tableName = getTableName(cell)
 
     for (let i = cellIndexes[0]; i < width + cellIndexes[0]; i++) {
         let nextCell = getCellFromIndexes(i, cellIndexes[1])
-        let nextCellType = getCellType(nextCell)
+        let nextCellTableName = getTableName(nextCell)
 
-        while (nextCellType === 'header' || nextCellType === 'data') {
+        while (nextCellTableName === tableName) {
             breakoutTableCells.push(nextCell)
 
             let nextCellIndexes = getCellIndexes(nextCell)
             nextCell = getCellFromIndexes(i, nextCellIndexes[1] + 1)
-            nextCellType = getCellType(nextCell)
+            nextCellTableName = getTableName(nextCell)
         }
     }
 

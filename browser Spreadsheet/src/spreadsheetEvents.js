@@ -27,11 +27,12 @@ export function onCellMouseDown(cell) {
     let cellTextDiv = spreadsheet.getCellTextDiv(cell)
     let cellType = spreadsheet.getCellType(cell)
     let hasBoldText = $(cellTextDiv).hasClass('bold')
-    let breakoutTableCells = spreadsheet.getBreakoutTableCells(cell)
 
     globals.setMouseDown(true)
 
     if (cellType === 'header' && hasBoldText) {
+        let breakoutTableCells = spreadsheet.getBreakoutTableCells(cell)
+
         if (spreadsheet.checkHeaderCellIsHeaderForWholeTable(cell) || spreadsheet.checkTableHasNameAttribute(breakoutTableCells)) {
 
             globals.setMoveBreakoutTableActivated(true)
@@ -47,8 +48,7 @@ export function onCellMouseUp(cell) {
         let breakoutOutlineCells = spreadsheet.getBreakoutOutlineCells(cell)
 
         tools.removeBreakoutTableOutline(cell)
-        tools.copyAllBreakoutTableCells(breakoutOutlineCells)
-        globals.breakoutTableCells.forEach((boCell) => tools.clearCell(boCell))
+        tools.copyAllBreakoutTableCellsAndClearOldCells(breakoutOutlineCells)
     }
 
     globals.setMouseDown(false)
