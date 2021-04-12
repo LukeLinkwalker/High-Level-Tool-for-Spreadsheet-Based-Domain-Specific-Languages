@@ -163,11 +163,9 @@ export function checkCellIsEmpty(cell) {
     return getCellText(cell) === ''
 }
 
-export function createTableNameForCells(cell) {
-    let cellIndexes = getCellIndexes(cell)
-    let cellID = createCellID(cellIndexes[0], cellIndexes[1])
-
-    return 'table-' + cellID + globals.spreadsheetType
+export function createTableName(column, row) {
+    let cellID = createCellID(column, row)
+    return 'table-' + cellID
 }
 
 export function getTableName(cell) {
@@ -230,13 +228,13 @@ export function getTableRange(tableCells) {
 }
 
 export function getMergedCells(cell) {
-    let mergedCellClassName = getMergedCellClassName(cell)
+    let mergedCellClassName = getMergedCellsName(cell)
 
     if (mergedCellClassName === null) return null
-    else return $('.' + getMergedCellClassName(cell))
+    else return $('.' + getMergedCellsName(cell))
 }
 
-export function getMergedCellClassName(cell) {
+export function getMergedCellsName(cell) {
     let classNames = $(cell).attr('class')
 
     if (classNames !== undefined) {
@@ -353,4 +351,81 @@ export function getBreakoutTableCells(cell) {
     }
 
     return breakoutTableCells
+}
+
+export function getBreakoutOutlineCells(cell) {
+    let breakoutTableRange = getTableRange(globals.breakoutTableCells)
+    let headerCellIndexes = getCellIndexes(globals.breakoutTableCells[0])
+    let currentCellIndexes = getCellIndexes(cell)
+    let headerAndCurrentColumnDifference = currentCellIndexes[0] - headerCellIndexes[0]
+    let headerAndCurrentRowDifference = currentCellIndexes[1] - headerCellIndexes[1]
+    let startCell = getCellFromIndexes(breakoutTableRange[0] + headerAndCurrentColumnDifference,
+        breakoutTableRange[1] + headerAndCurrentRowDifference)
+    let endCell = getCellFromIndexes(breakoutTableRange[2] + headerAndCurrentColumnDifference,
+        breakoutTableRange[3] + headerAndCurrentRowDifference)
+
+    return getCellsInRange(startCell, endCell)
+}
+
+export function checkTableHasNameAttribute(breakoutTableCells) {
+    let headerRow = getCellIndexes(breakoutTableCells[0])[1]
+    let tableHasNameAttribute = false
+
+    breakoutTableCells.forEach((boCell) => {
+        let boCellIndexes = getCellIndexes(boCell)
+        let cellText = getCellText(boCell).toLowerCase()
+
+        if (boCellIndexes[1] === headerRow + 1 && cellText === 'name') tableHasNameAttribute = true
+    })
+
+    return tableHasNameAttribute
+}
+
+export function checkHeaderCellIsHeaderForWholeTable(cell) {
+    let headerCellTableName = getTableName(cell)
+    let headerCellIndexes = getCellIndexes(cell)
+    let cellAboveHeader = getCellFromIndexes(headerCellIndexes[0], headerCellIndexes[1] - 1)
+    let cellAboveHeaderTableName = getTableName(cellAboveHeader)
+
+    return headerCellTableName !== cellAboveHeaderTableName;
+}
+
+export function createNewTableNameForCopyingCell(oldCell, newCell) {
+    let cellIndexesFromTableName = getCellIndexesFromTableName(getTableName(oldCell))
+    let newTableIndexes = getIndexDifferencesForNewCellWhenCopying(oldCell, newCell, cellIndexesFromTableName)
+
+    return createTableName(newTableIndexes[0], newTableIndexes[1])
+}
+
+export function createNewMergedCellsNameForCopyingCell(oldCell, newCell) {
+    let cellIndexesFromMergedCellsName = getCellIndexesFromMergedCellsName(getMergedCellsName(oldCell))
+    let newMergedCellsIndexes = getIndexDifferencesForNewCellWhenCopying(oldCell, newCell, cellIndexesFromMergedCellsName)
+
+    return createMergedCellsName(newMergedCellsIndexes[0], newMergedCellsIndexes[1])
+}
+
+export function getIndexDifferencesForNewCellWhenCopying(oldCell, newCell, cellIndexesFromName) {
+    let oldCellIndexes = getCellIndexes(oldCell)
+    let newCellIndexes = getCellIndexes(newCell)
+    let columnDifference = newCellIndexes[0] - oldCellIndexes[0]
+    let rowDifference = newCellIndexes[1] - oldCellIndexes[1]
+    let newColumn = cellIndexesFromName[0] + columnDifference
+    let newRow = cellIndexesFromName[1] + rowDifference
+
+    return [newColumn, newRow]
+}
+
+export function getCellIndexesFromTableName(tableName) {
+    let matches = tableName.match(/^table-cell-(\d+)-(\d+)/)
+    return [Number(matches[1]), Number(matches[2])]
+}
+
+export function getCellIndexesFromMergedCellsName(mergedCellsName) {
+    let matches = mergedCellsName.match(/^merged-cell-(\d+)-(\d+)/)
+    return [Number(matches[1]), Number(matches[2])]
+}
+
+export function createMergedCellsName(column, row) {
+    let cellID = createCellID(column, row)
+    return 'merged-' + cellID
 }

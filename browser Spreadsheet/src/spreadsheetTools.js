@@ -5,8 +5,7 @@ import * as setup from './spreadsheetSetup.js'
 
 export function mergeCells(cells) {
     let leftmostCellIndexes = spreadsheet.getCellIndexes(cells[0])
-    let leftmostCellID = spreadsheet.createCellID(leftmostCellIndexes[0], leftmostCellIndexes[1])
-    let className = 'merged-' + leftmostCellID
+    let className = spreadsheet.createMergedCellsName(leftmostCellIndexes[0], leftmostCellIndexes[1])
 
     $(cells[0]).attr('colspan', cells.length)
     cells.forEach((cell) => $(cell).addClass(className))
@@ -149,7 +148,7 @@ export function createTable(tableName, column, row, tableRange) {
     let startCell = spreadsheet.getCellFromIndexes(tableRange[0], tableRange[1])
     let endCell = spreadsheet.getCellFromIndexes(tableRange[2], tableRange[3])
     let tableRangeCells = spreadsheet.getCellsInRange(startCell, endCell)
-    let tableNameForCells = spreadsheet.createTableNameForCells(startCell)
+    let tableNameForCells = spreadsheet.createTableName(tableRange[0], tableRange[1])
 
     let allTableCellsAreEmpty = tableRangeCells.slice(1).every((cellInRange) => {
         return spreadsheet.checkCellIsEmpty(cellInRange)
@@ -395,22 +394,8 @@ export function deleteTable(cell) {
     }
 }
 
-export function getBreakoutOutlineCells(cell) {
-    let breakoutTableRange = spreadsheet.getTableRange(globals.breakoutTableCells)
-    let headerCellIndexes = spreadsheet.getCellIndexes(globals.breakoutTableCells[0])
-    let currentCellIndexes = spreadsheet.getCellIndexes(cell)
-    let headerAndCurrentColumnDifference = currentCellIndexes[0] - headerCellIndexes[0]
-    let headerAndCurrentRowDifference = currentCellIndexes[1] - headerCellIndexes[1]
-    let startCell = spreadsheet.getCellFromIndexes(breakoutTableRange[0] + headerAndCurrentColumnDifference,
-        breakoutTableRange[1] + headerAndCurrentRowDifference)
-    let endCell = spreadsheet.getCellFromIndexes(breakoutTableRange[2] + headerAndCurrentColumnDifference,
-        breakoutTableRange[3] + headerAndCurrentRowDifference)
-
-    return spreadsheet.getCellsInRange(startCell, endCell)
-}
-
 export function showBreakoutTableOutline(cell) {
-    let breakoutOutlineCells = getBreakoutOutlineCells(cell)
+    let breakoutOutlineCells = spreadsheet.getBreakoutOutlineCells(cell)
     let breakoutTableRange = spreadsheet.getTableRange(breakoutOutlineCells)
     let leftColumn = breakoutTableRange[0]
     let topRow = breakoutTableRange[1]
@@ -429,7 +414,7 @@ export function showBreakoutTableOutline(cell) {
 }
 
 export function removeBreakoutTableOutline(cell) {
-    let breakoutOutlineCells = getBreakoutOutlineCells(cell)
+    let breakoutOutlineCells = spreadsheet.getBreakoutOutlineCells(cell)
 
     breakoutOutlineCells.forEach((cell) => {
         $(cell).css('border-left', '')
@@ -437,4 +422,37 @@ export function removeBreakoutTableOutline(cell) {
         $(cell).css('border-right', '')
         $(cell).css('border-bottom', '')
     })
+}
+
+export function copyCell(oldCell, newCell) {
+    let oldDiv = spreadsheet.getCellTextDiv(oldCell)
+    let newDiv = spreadsheet.getCellTextDiv(newCell)
+    let mergedCellsName = spreadsheet.getMergedCellsName(oldCell)
+
+    $(newCell).attr('class', $(oldCell).attr('class'))
+    $(newCell).prop('colspan', $(oldCell).prop('colspan'))
+    $(newCell).css('display', $(oldCell).css('display'))
+    $(newDiv).attr('class', $(oldDiv).attr('class'))
+    spreadsheet.setCellText(newCell, spreadsheet.getCellText(oldCell))
+    $(newCell).removeClass(spreadsheet.getTableName(newCell))
+    $(newCell).addClass(spreadsheet.createNewTableNameForCopyingCell(oldCell, newCell))
+
+    if (mergedCellsName !== null) {
+        $(newCell).removeClass(mergedCellsName)
+        $(newCell).addClass(spreadsheet.createNewMergedCellsNameForCopyingCell(oldCell, newCell))
+    }
+}
+
+export function copyAllBreakoutTableCells(breakoutOutlineCells) {
+    let allTableCellsAreEmpty = breakoutOutlineCells.every((boCell) => {
+        let cellType = spreadsheet.getCellType(boCell)
+        return spreadsheet.checkCellIsEmpty(boCell) && cellType === 'normal'
+    })
+
+    if (allTableCellsAreEmpty) {
+        for (let i = 0; i < globals.breakoutTableCells.length; i++) {
+            copyCell(globals.breakoutTableCells[i], breakoutOutlineCells[i])
+        }
+    }
+    else alert('Cannot place table here as some of the cells are not empty! ')
 }

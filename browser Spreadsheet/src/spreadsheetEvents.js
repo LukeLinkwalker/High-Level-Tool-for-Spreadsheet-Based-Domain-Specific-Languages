@@ -27,21 +27,31 @@ export function onCellMouseDown(cell) {
     let cellTextDiv = spreadsheet.getCellTextDiv(cell)
     let cellType = spreadsheet.getCellType(cell)
     let hasBoldText = $(cellTextDiv).hasClass('bold')
+    let breakoutTableCells = spreadsheet.getBreakoutTableCells(cell)
 
     globals.setMouseDown(true)
 
     if (cellType === 'header' && hasBoldText) {
-        let breakoutTableCells = spreadsheet.getBreakoutTableCells(cell)
+        if (spreadsheet.checkHeaderCellIsHeaderForWholeTable(cell) || spreadsheet.checkTableHasNameAttribute(breakoutTableCells)) {
 
-        globals.setMoveBreakoutTableActivated(true)
-        globals.setBreakoutTableCells(breakoutTableCells)
-        tools.showBreakoutTableOutline(cell)
+            globals.setMoveBreakoutTableActivated(true)
+            globals.setBreakoutTableCells(breakoutTableCells)
+            tools.showBreakoutTableOutline(cell)
+        }
+        else alert('Cannot breakout table as it doesn\'t have a name attribute')
     }
 }
 
 export function onCellMouseUp(cell) {
+    if (globals.moveBreakoutTableActivated) {
+        let breakoutOutlineCells = spreadsheet.getBreakoutOutlineCells(cell)
+
+        tools.removeBreakoutTableOutline(cell)
+        tools.copyAllBreakoutTableCells(breakoutOutlineCells)
+        globals.breakoutTableCells.forEach((boCell) => tools.clearCell(boCell))
+    }
+
     globals.setMouseDown(false)
-    if (globals.moveBreakoutTableActivated) tools.removeBreakoutTableOutline(cell)
     globals.setMoveBreakoutTableActivated(false)
 }
 
