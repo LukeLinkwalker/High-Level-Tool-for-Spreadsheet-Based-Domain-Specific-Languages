@@ -4,8 +4,6 @@ import * as spreadsheet from './spreadsheet.js'
 import * as client from './ssclient.js'
 import * as setup from './spreadsheetSetup.js'
 
-//TODO: Use later: // let regex = new RegExp('^(optional )?(object|array|alternative|attribute) : [a-zA-Z0-9_]+')
-
 export function onInputBarInput(inputBar) {
     let inputBarText = $(inputBar).val()
 
@@ -44,13 +42,7 @@ export function onCellMouseDown(cell) {
 }
 
 export function onCellMouseUp(cell) {
-    if (globals.moveBreakoutTableActivated) {
-        let breakoutOutlineCells = spreadsheet.getBreakoutOutlineCells(cell)
-
-        tools.removeBreakoutTableOutline(cell)
-        tools.copyAllBreakoutTableCellsAndClearOldCells(breakoutOutlineCells)
-    }
-
+    if (globals.moveBreakoutTableActivated) tools.breakoutCells(cell)
     globals.setMouseDown(false)
     globals.setMoveBreakoutTableActivated(false)
 }
@@ -143,7 +135,7 @@ export function onCellKeydownTab(event) {
     else if (mergedCells !== null) {
         let width = $(globals.editingCell).prop('colspan')
 
-        if (tableRange !== null && cellIndexes[0] + width - 1=== tableRange[2]) {
+        if (tableRange !== null && cellIndexes[0] + width - 1 === tableRange[2]) {
             if (cellIndexes[1] !== tableRange[3]) tools.changeNextCellToStartOfNewRowInTable(cell, tableRange, event)
             else {
                 if (tools.addRow(cell)) tools.changeNextCellToStartOfNewRowInTable(cell, tableRange, event)
@@ -202,7 +194,7 @@ export function onMergeButtonClick() {
         numberOfRowsSelected.add(cellIndexes[1])
     })
 
-    if (numberOfRowsSelected.size > 1) alert("Cannot merge rows!")
+    if (numberOfRowsSelected.size > 1) alert('Cannot merge rows!')
     else {
         if (mergedCells.length > 0) mergedCells.forEach((cell) => tools.demergeCell(cell))
         else tools.mergeCells(globals.selectedCells)

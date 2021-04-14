@@ -392,27 +392,27 @@ export function checkHeaderCellIsHeaderForWholeTable(cell) {
     return headerCellTableName !== cellAboveHeaderTableName;
 }
 
-export function createNewTableNameForCopyingCell(oldCell, newCell) {
-    let cellIndexesFromTableName = getCellIndexesFromTableName(getTableName(oldCell))
-    let newTableIndexes = getIndexDifferencesForNewCellWhenCopying(oldCell, newCell, cellIndexesFromTableName)
+export function getNewTableHeaderForCopyingCell(oldCell, newCell, headerCell) {
+    let headerCellIndexes = getCellIndexes(headerCell)
+    let newTableIndexes = getIndexDifferencesForHeaderAndMergeCellNamesForWhenCopying(oldCell, newCell, headerCellIndexes)
 
-    return createTableName(newTableIndexes[0], newTableIndexes[1])
+    return getCellFromIndexes(newTableIndexes[0], newTableIndexes[1])
 }
 
 export function createNewMergedCellsNameForCopyingCell(oldCell, newCell) {
     let cellIndexesFromMergedCellsName = getCellIndexesFromMergedCellsName(getMergedCellsName(oldCell))
-    let newMergedCellsIndexes = getIndexDifferencesForNewCellWhenCopying(oldCell, newCell, cellIndexesFromMergedCellsName)
+    let newMergedCellsIndexes = getIndexDifferencesForHeaderAndMergeCellNamesForWhenCopying(oldCell, newCell, cellIndexesFromMergedCellsName)
 
     return createMergedCellsName(newMergedCellsIndexes[0], newMergedCellsIndexes[1])
 }
 
-export function getIndexDifferencesForNewCellWhenCopying(oldCell, newCell, cellIndexesFromName) {
+export function getIndexDifferencesForHeaderAndMergeCellNamesForWhenCopying(oldCell, newCell, cellIndexes) {
     let oldCellIndexes = getCellIndexes(oldCell)
     let newCellIndexes = getCellIndexes(newCell)
     let columnDifference = newCellIndexes[0] - oldCellIndexes[0]
     let rowDifference = newCellIndexes[1] - oldCellIndexes[1]
-    let newColumn = cellIndexesFromName[0] + columnDifference
-    let newRow = cellIndexesFromName[1] + rowDifference
+    let newColumn = cellIndexes[0] + columnDifference
+    let newRow = cellIndexes[1] + rowDifference
 
     return [newColumn, newRow]
 }
@@ -430,4 +430,22 @@ export function getCellIndexesFromMergedCellsName(mergedCellsName) {
 export function createMergedCellsName(column, row) {
     let cellID = createCellID(column, row)
     return 'merged-' + cellID
+}
+
+export function getTableCellsAsRows(tableCells) {
+    let tableRange = getTableRange(tableCells)
+    let headerRows = []
+
+    for (let i = tableRange[1]; i <= tableRange[3]; i++) {
+        let headerRow = []
+
+        tableCells.forEach((cell) => {
+            let cellIndexes = getCellIndexes(cell)
+            if (cellIndexes[1] === i) headerRow.push(cell)
+        })
+
+        headerRows.push(headerRow)
+    }
+
+    return headerRows
 }

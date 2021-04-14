@@ -414,11 +414,12 @@ export function removeBreakoutTableOutline(cell) {
     })
 }
 
-export function copyCell(oldCell, newCell) {
+export function copyCell(oldCell, newCell, newHeader) {
+    let newHeaderIndexes = spreadsheet.getCellIndexes(newHeader)
     let oldDiv = spreadsheet.getCellTextDiv(oldCell)
     let newDiv = spreadsheet.getCellTextDiv(newCell)
-    let oldTableName = spreadsheet.getTableName(newCell)
-    let newTableName = spreadsheet.createNewTableNameForCopyingCell(oldCell, newCell)
+    let oldTableName = spreadsheet.getTableName(oldCell)
+    let newTableName = spreadsheet.createTableName(newHeaderIndexes[0], newHeaderIndexes[1])
     let mergedCellsName = spreadsheet.getMergedCellsName(oldCell)
 
     $(newCell).attr('class', $(oldCell).attr('class'))
@@ -437,8 +438,13 @@ export function copyCell(oldCell, newCell) {
     }
 }
 
-export function copyAllBreakoutTableCellsAndClearOldCells(breakoutOutlineCells) {
+// export function findNewHeaderCell(oldCell, newCell, newHeader) {
+//     let newTableName = spreadsheet.getNewTableHeaderForCopyingCell(oldCell, newCell, newHeader)
+// }
+
+export function copyCellsAndClearOldCells(breakoutOutlineCells, breakoutHeader) {
     let nonEmptyCells = []
+    let oldTableHeader = spreadsheet.getAllCellsFromTableCellIsIn(breakoutHeader)[0]
 
     breakoutOutlineCells.forEach((boCell) => {
         if (!spreadsheet.checkCellIsEmpty(boCell)) nonEmptyCells.push(boCell)
@@ -448,7 +454,7 @@ export function copyAllBreakoutTableCellsAndClearOldCells(breakoutOutlineCells) 
         return globals.breakoutTableCells.includes(nonEmptyCell)
     })
 
-    if (nonEmptyCells.size === 0 || (allNonEmptyCellsAreOriginalBreakoutCells)) {
+    if (nonEmptyCells.size === 0 || allNonEmptyCellsAreOriginalBreakoutCells) {
         if (globals.breakoutTableCells.length !== nonEmptyCells.length) {
             let copyOfBreakOutTableCells = []
 
@@ -456,10 +462,176 @@ export function copyAllBreakoutTableCellsAndClearOldCells(breakoutOutlineCells) 
                 copyOfBreakOutTableCells.push($(boCell).clone()[0])
                 clearCell(boCell)
             })
-            copyOfBreakOutTableCells.forEach((oldCell, index) => copyCell(oldCell, breakoutOutlineCells[index]))
+
+            copyOfBreakOutTableCells.forEach((oldCell, index) => {
+                let newTableHeader = spreadsheet.getNewTableHeaderForCopyingCell(oldCell, breakoutOutlineCells[index],
+                    breakoutHeader)
+                copyCell(oldCell, breakoutOutlineCells[index], newTableHeader)
+            })
+
+            if (!spreadsheet.checkHeaderCellIsHeaderForWholeTable(copyOfBreakOutTableCells[0])) {
+                insertNameColumnWhenBreakingOut(copyOfBreakOutTableCells, oldTableHeader)
+                cleanupTableAfterInsertingNameColumnWhenBreakingOut(copyOfBreakOutTableCells[0], oldTableHeader)
+            }
         }
     }
     else {
         alert('Cannot place table here as some of the cells are not empty! ')
     }
+}
+
+export function insertNameColumnWhenBreakingOut(breakoutTableCells, tableHeader) {
+    let firstCellIndexes = spreadsheet.getCellIndexes(breakoutTableCells[0])
+    let rowWhereNameAttributeIs = firstCellIndexes[1] + 1
+    let nameAttributeInFirstRow = breakoutTableCells.filter((boCell) => {
+        let boCellIndexes = spreadsheet.getCellIndexes(boCell)
+        let boCellText = spreadsheet.getCellText(boCell)
+
+        return boCellIndexes[1] === rowWhereNameAttributeIs && boCellText.toLowerCase() === 'name'
+    })
+    let nameAttributeCellIndexes = spreadsheet.getCellIndexes(nameAttributeInFirstRow)
+
+    breakoutTableCells.forEach((boCell) => {
+        let boCellIndexes = spreadsheet.getCellIndexes(boCell)
+
+        if (boCellIndexes[0] === nameAttributeCellIndexes[0]) {
+            let newCell = spreadsheet.getCellFromIndexes(firstCellIndexes[0], boCellIndexes[1])
+            copyCell(boCell, newCell, tableHeader)
+
+            let width = $(newCell).prop('colspan')
+            if (width > 1) demergeCell(newCell)
+        }
+    })
+}
+
+export function cleanupTableAfterInsertingNameColumnWhenBreakingOut(breakoutHeader, tableHeader) {
+    let width = $(breakoutHeader).prop('colspan')
+    let shrinkSize = width - 1
+    let cellsToTheRightOfBreakoutHeader = getCellsToTheRightOfTheBreakoutHeader(breakoutHeader)
+    let mergedCellsStraightUpFromBreakoutHeader = getMergedCellsStraightUpFromBreakoutHeader(breakoutHeader)
+
+    moveCellsToTheRightOfBreakoutHeader(cellsToTheRightOfBreakoutHeader, shrinkSize, tableHeader)
+    mergeAndDemergeCellsAfterBreakout(mergedCellsStraightUpFromBreakoutHeader, shrinkSize)
+
+    let tableCells = spreadsheet.getAllCellsFromTableCellIsIn(tableHeader)
+
+    deleteHeaderRowIfEmpty(tableCells)
+    moveTableUpAfterRowIsDeleted(tableCells, tableHeader)
+}
+
+function deleteHeaderRowIfEmpty(tableCells) {
+    let headerRows = spreadsheet.getTableCellsAsRows(tableCells)
+
+    headerRows.forEach((row) => {
+        let headerRowIsEmpty = row.every((cell) => {
+            let cellType = spreadsheet.getCellType(cell)
+            let cellText = spreadsheet.getCellText(cell)
+
+            return cellType === 'header' && cellText === ''
+        })
+        if (headerRowIsEmpty) row.forEach((cell) => clearCell(cell))
+    })
+}
+
+function moveTableUpAfterRowIsDeleted(tableCells, tableHeader) {
+    let headerRows = spreadsheet.getTableCellsAsRows(tableCells)
+    let emptyRow
+    let restOfRowCells = []
+    let emptyRowIsFound = false
+
+    for (let i = 0; i < headerRows.length; i++) {
+        if (!emptyRowIsFound) {
+            let rowIsEmpty = headerRows[i].every((cell) => spreadsheet.checkCellIsEmpty(cell))
+
+            if (rowIsEmpty) {
+                emptyRow = headerRows[i]
+                emptyRowIsFound = true
+            }
+        }
+        else headerRows[i].forEach((cell) => restOfRowCells.push(cell))
+    }
+
+    let copyOfCells = []
+
+    restOfRowCells.forEach((cell) => {
+        copyOfCells.push($(cell).clone()[0])
+        clearCell(cell)
+    })
+
+    copyOfCells.forEach((oldCell) => {
+        let oldCellIndexes = spreadsheet.getCellIndexes(oldCell)
+        let newCell = spreadsheet.getCellFromIndexes(oldCellIndexes[0], oldCellIndexes[1] - 1)
+        copyCell(oldCell, newCell, tableHeader)
+    })
+}
+
+function moveCellsToTheRightOfBreakoutHeader(cellsToTheRightOfBreakoutHeader, shrinkSize, tableHeader) {
+    cellsToTheRightOfBreakoutHeader.forEach((cell) => {
+        let cellIndexes = spreadsheet.getCellIndexes(cell)
+        let newCell = spreadsheet.getCellFromIndexes(cellIndexes[0] - shrinkSize, cellIndexes[1])
+
+        copyCell(cell, newCell, tableHeader)
+        clearCell(cell)
+    })
+}
+
+function mergeAndDemergeCellsAfterBreakout(mergedCellsStraightUpFromBreakoutHeader, shrinkSize) {
+    mergedCellsStraightUpFromBreakoutHeader.forEach((mergedCell) => {
+        let cellsInMergedCell = spreadsheet.getMergedCells(mergedCell)
+        let mergedCellWidth = $(mergedCell).prop('colspan')
+        let mergedCellShrinkSize = mergedCellWidth - shrinkSize
+        let cellsToBeMerged = []
+
+        cellsInMergedCell.each((index, cell) => {
+            demergeCell(cell)
+            if (index + 1 > mergedCellShrinkSize) clearCell(cell)
+            else cellsToBeMerged.push(cell)
+        })
+
+        mergeCells(cellsToBeMerged)
+    })
+}
+
+export function getCellsToTheRightOfTheBreakoutHeader(breakoutHeader) {
+    let breakoutHeaderIndexes = spreadsheet.getCellIndexes(breakoutHeader)
+    let allCellsInTable = spreadsheet.getAllCellsFromTableCellIsIn(breakoutHeader)
+
+    return allCellsInTable.filter((cell) => {
+        let cellIndexes = spreadsheet.getCellIndexes(cell)
+        let mergedCells = spreadsheet.getMergedCells(cell)
+
+        if (mergedCells !== null) {
+            let mergedCellIndexes = spreadsheet.getCellIndexes(mergedCells[0])
+            return mergedCellIndexes[0] > breakoutHeaderIndexes[0]
+        }
+        else return cellIndexes[0] > breakoutHeaderIndexes[0]
+    })
+}
+
+export function getMergedCellsStraightUpFromBreakoutHeader(breakoutHeader) {
+    let breakoutHeaderIndexes = spreadsheet.getCellIndexes(breakoutHeader)
+    let allCellsInTable = spreadsheet.getAllCellsFromTableCellIsIn(breakoutHeader)
+    let mergedCells = []
+
+    allCellsInTable.forEach((cell) => {
+        let cellIndexes = spreadsheet.getCellIndexes(cell)
+
+        if (cellIndexes[0] === breakoutHeaderIndexes[0] && cellIndexes[1] < breakoutHeaderIndexes[1]) {
+            let mergedCellsInTable = spreadsheet.getMergedCells(cell)
+            if (mergedCellsInTable !== null) mergedCells.push(mergedCellsInTable[0])
+        }
+    })
+
+    return mergedCells
+}
+
+export function breakoutCells(cell) {
+    let breakoutOutlineCells = spreadsheet.getBreakoutOutlineCells(cell)
+    //TODO: To Mikkel
+    let breakoutHeader = globals.breakoutTableCells[0]
+    let tableHeader = spreadsheet.getAllCellsFromTableCellIsIn(breakoutHeader)[0]
+    let tableHeaderIndexes = spreadsheet.getCellIndexes(tableHeader)
+
+    removeBreakoutTableOutline(cell)
+    copyCellsAndClearOldCells(breakoutOutlineCells, globals.breakoutTableCells[0])
 }
