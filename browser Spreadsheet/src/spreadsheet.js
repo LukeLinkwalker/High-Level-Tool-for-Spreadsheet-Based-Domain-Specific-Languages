@@ -107,12 +107,7 @@ export function getCellIndexes(cell) {
 
 export function setInitialEditingCell() {
     let cell = getCellFromIndexes(0, 0)
-    let cellTextDiv = getCellTextDiv(cell)
-
-    globals.setEditingCell(cell)
-    globals.setCurrentColumn(0)
-    globals.setCurrentRow(0)
-    cellTextDiv.focus()
+    setFocusOnCell(cell)
 }
 
 export function findSelectedCells(selectedStartIndexes, selectedEndIndexes) {
@@ -448,4 +443,14 @@ export function getTableCellsAsRows(tableCells) {
     }
 
     return headerRows
+}
+
+export function setFocusOnCell(cell) {
+    let cellTextDiv = getCellTextDiv(cell)
+    let cellIndexes = getCellIndexes(cell)
+
+    globals.setEditingCell(cell)
+    globals.setCurrentColumn(cellIndexes[0])
+    globals.setCurrentRow(cellIndexes[1])
+    cellTextDiv.focus()
 }

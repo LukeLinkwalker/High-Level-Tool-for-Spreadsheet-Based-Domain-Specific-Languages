@@ -326,13 +326,9 @@ export function moveOneCellDown(event) {
 export function setNextCell(column, row) {
     let possibleNewEditingCell = spreadsheet.getCellFromIndexes(column, row)
     let mergedCells = spreadsheet.getMergedCells(possibleNewEditingCell)
-    let newEditingCell = (mergedCells === null) ? possibleNewEditingCell : mergedCells[0]
-    let newEditingCellTextDiv = spreadsheet.getCellTextDiv(newEditingCell)
+    let newCell = (mergedCells === null) ? possibleNewEditingCell : mergedCells[0]
 
-    globals.setCurrentColumn(column)
-    globals.setCurrentRow(row)
-    globals.setEditingCell(newEditingCell)
-    newEditingCellTextDiv.focus()
+    spreadsheet.setFocusOnCell(newCell)
 }
 
 export function changeToSGL() {
@@ -351,15 +347,11 @@ export function changeToSDSL() {
 
 export function changeNextCellToStartOfNewRowInTable(cell, tableRange, event) {
     let cellIndexes = spreadsheet.getCellIndexes(cell)
-    let newEditingCell = spreadsheet.getCellFromIndexes(tableRange[0], cellIndexes[1] + 1)
-    let newEditingCellTextDiv = spreadsheet.getCellTextDiv(newEditingCell)
+    let newCell = spreadsheet.getCellFromIndexes(tableRange[0], cellIndexes[1] + 1)
 
     event.preventDefault()
     $(globals.editingCell).css('outline', '')
-    globals.setCurrentColumn(tableRange[0])
-    globals.setCurrentRow(cellIndexes[1] + 1)
-    globals.setEditingCell(newEditingCell)
-    newEditingCellTextDiv.focus()
+    spreadsheet.setFocusOnCell(newCell)
 }
 
 export function changeCellOneDownAndPossiblyAddRow(event) {
@@ -438,10 +430,6 @@ export function copyCell(oldCell, newCell, newHeader) {
     }
 }
 
-// export function findNewHeaderCell(oldCell, newCell, newHeader) {
-//     let newTableName = spreadsheet.getNewTableHeaderForCopyingCell(oldCell, newCell, newHeader)
-// }
-
 export function copyCellsAndClearOldCells(breakoutOutlineCells, breakoutHeader) {
     let nonEmptyCells = []
     let oldTableHeader = spreadsheet.getAllCellsFromTableCellIsIn(breakoutHeader)[0]
@@ -480,28 +468,32 @@ export function copyCellsAndClearOldCells(breakoutOutlineCells, breakoutHeader) 
     }
 }
 
-export function insertNameColumnWhenBreakingOut(breakoutTableCells, tableHeader) {
-    let firstCellIndexes = spreadsheet.getCellIndexes(breakoutTableCells[0])
-    let rowWhereNameAttributeIs = firstCellIndexes[1] + 1
-    let nameAttributeInFirstRow = breakoutTableCells.filter((boCell) => {
+export function insertNameColumnWhenBreakingOut(copyOfBreakoutTableCells, tableHeader) {
+    let breakoutHeader = copyOfBreakoutTableCells[0]
+    let breakoutHeaderIndexes = spreadsheet.getCellIndexes(breakoutHeader)
+    let rowWhereNameAttributeIs = breakoutHeaderIndexes[1] + 1
+    let nameAttributeInFirstRow = copyOfBreakoutTableCells.filter((boCell) => {
         let boCellIndexes = spreadsheet.getCellIndexes(boCell)
         let boCellText = spreadsheet.getCellText(boCell)
 
         return boCellIndexes[1] === rowWhereNameAttributeIs && boCellText.toLowerCase() === 'name'
     })
-    let nameAttributeCellIndexes = spreadsheet.getCellIndexes(nameAttributeInFirstRow)
 
-    breakoutTableCells.forEach((boCell) => {
+    let nameAttributeCellIndexes = spreadsheet.getCellIndexes(nameAttributeInFirstRow)
+    let breakoutHeaderCellFromOriginalTable = spreadsheet.getCellFromIndexes(breakoutHeaderIndexes[0],
+        breakoutHeaderIndexes[1])
+
+    copyOfBreakoutTableCells.forEach((boCell) => {
         let boCellIndexes = spreadsheet.getCellIndexes(boCell)
 
-        if (boCellIndexes[0] === nameAttributeCellIndexes[0]) {
-            let newCell = spreadsheet.getCellFromIndexes(firstCellIndexes[0], boCellIndexes[1])
+        if (boCellIndexes[0] === nameAttributeCellIndexes[0] && boCellIndexes[1] !== breakoutHeaderIndexes[1]) {
+            let newCell = spreadsheet.getCellFromIndexes(breakoutHeaderIndexes[0], boCellIndexes[1])
             copyCell(boCell, newCell, tableHeader)
-
-            let width = $(newCell).prop('colspan')
-            if (width > 1) demergeCell(newCell)
         }
     })
+
+    copyCell(breakoutHeader, breakoutHeaderCellFromOriginalTable, tableHeader)
+    demergeCell(breakoutHeaderCellFromOriginalTable)
 }
 
 export function cleanupTableAfterInsertingNameColumnWhenBreakingOut(breakoutHeader, tableHeader) {
@@ -626,12 +618,22 @@ export function getMergedCellsStraightUpFromBreakoutHeader(breakoutHeader) {
 }
 
 export function breakoutCells(cell) {
-    let breakoutOutlineCells = spreadsheet.getBreakoutOutlineCells(cell)
-    //TODO: To Mikkel
     let breakoutHeader = globals.breakoutTableCells[0]
-    let tableHeader = spreadsheet.getAllCellsFromTableCellIsIn(breakoutHeader)[0]
-    let tableHeaderIndexes = spreadsheet.getCellIndexes(tableHeader)
+    let width = $(breakoutHeader).prop('colspan')
 
-    removeBreakoutTableOutline(cell)
-    copyCellsAndClearOldCells(breakoutOutlineCells, globals.breakoutTableCells[0])
+    if (width < 2) {
+        removeBreakoutTableOutline(cell)
+        alert('Cannot break out table as it only has 1 column!')
+    }
+    else {
+        let breakoutOutlineCells = spreadsheet.getBreakoutOutlineCells(cell)
+        //TODO: To Mikkel
+        let breakoutHeader = globals.breakoutTableCells[0]
+        let tableHeader = spreadsheet.getAllCellsFromTableCellIsIn(breakoutHeader)[0]
+        let tableHeaderIndexes = spreadsheet.getCellIndexes(tableHeader)
+
+        removeBreakoutTableOutline(cell)
+        copyCellsAndClearOldCells(breakoutOutlineCells, globals.breakoutTableCells[0])
+        spreadsheet.setFocusOnCell(breakoutOutlineCells[0])
+    }
 }
