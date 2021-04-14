@@ -131,6 +131,7 @@ export function clearCell(cell) {
     spreadsheet.removeCellAsData(cell)
     removeBlackBorder(cell)
     spreadsheet.removeCellFromTable(cell)
+    spreadsheet.removeBreakoutReferenceToOriginalTable(cell)
     spreadsheet.setCellText(cell, '')
 }
 
@@ -367,12 +368,19 @@ export function changeCellOneDownAndPossiblyAddRow(event) {
 
 export function deleteTable(cell) {
     let cellsInTable = spreadsheet.getAllCellsFromTableCellIsIn(cell)
+    let breakoutReferenceToOriginalTable = spreadsheet.getBreakoutReferenceToOriginalTable(cell)
 
     if (cellsInTable === null) alert('Cannot delete table as the current cell is not in a table!')
+        else if (breakoutReferenceToOriginalTable !== null) alert('Cannot delete breakout table. Delete the table it ' +
+        'was broken out from instead!')
     else {
         let warning = confirm('Are you sure you want to delete this table and all its contents?')
 
-        if (warning) cellsInTable.forEach((cellInTable) => clearCell(cellInTable))
+        if (warning) {
+            let breakoutTableCells = spreadsheet.findBrokenOutTableCells(cell)
+            cellsInTable.forEach((cellInTable) => clearCell(cellInTable))
+            breakoutTableCells.forEach((breakoutTableCell) => clearCell(breakoutTableCell))
+        }
     }
 }
 
@@ -430,7 +438,7 @@ export function copyCell(oldCell, newCell, newHeader) {
     }
 }
 
-export function copyCellsAndClearOldCells(breakoutOutlineCells, breakoutHeader) {
+export function copyCellsAndClearOldCells(breakoutOutlineCells, breakoutHeader, isBreakingOut) {
     let nonEmptyCells = []
     let oldTableHeader = spreadsheet.getAllCellsFromTableCellIsIn(breakoutHeader)[0]
 
@@ -457,7 +465,9 @@ export function copyCellsAndClearOldCells(breakoutOutlineCells, breakoutHeader) 
                 copyCell(oldCell, breakoutOutlineCells[index], newTableHeader)
             })
 
-            if (!spreadsheet.checkHeaderCellIsHeaderForWholeTable(copyOfBreakOutTableCells[0])) {
+            if (isBreakingOut) {
+                let referenceToOriginalTable = spreadsheet.createBreakoutReferenceToOriginalTable(oldTableHeader)
+                breakoutOutlineCells.forEach((cell) => $(cell).addClass(referenceToOriginalTable))
                 insertNameColumnWhenBreakingOut(copyOfBreakOutTableCells, oldTableHeader)
                 cleanupTableAfterInsertingNameColumnWhenBreakingOut(copyOfBreakOutTableCells[0], oldTableHeader)
             }
@@ -617,7 +627,7 @@ export function getMergedCellsStraightUpFromBreakoutHeader(breakoutHeader) {
     return mergedCells
 }
 
-export function breakoutCells(cell) {
+export function moveOrBreakoutCells(cell) {
     let breakoutHeader = globals.breakoutTableCells[0]
     let width = $(breakoutHeader).prop('colspan')
 
@@ -629,11 +639,12 @@ export function breakoutCells(cell) {
         let breakoutOutlineCells = spreadsheet.getBreakoutOutlineCells(cell)
         //TODO: To Mikkel
         let breakoutHeader = globals.breakoutTableCells[0]
-        let tableHeader = spreadsheet.getAllCellsFromTableCellIsIn(breakoutHeader)[0]
+        let tableHeader = spreadsheet.findTableHeader(globals.breakoutTableCells[0])
         let tableHeaderIndexes = spreadsheet.getCellIndexes(tableHeader)
+        let isBreakingOut = !spreadsheet.checkHeaderCellIsHeaderForWholeTable(breakoutHeader)
 
         removeBreakoutTableOutline(cell)
-        copyCellsAndClearOldCells(breakoutOutlineCells, globals.breakoutTableCells[0])
+        copyCellsAndClearOldCells(breakoutOutlineCells, globals.breakoutTableCells[0], isBreakingOut)
         spreadsheet.setFocusOnCell(breakoutOutlineCells[0])
     }
 }

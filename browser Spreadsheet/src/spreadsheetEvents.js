@@ -42,23 +42,12 @@ export function onCellMouseDown(cell) {
 }
 
 export function onCellMouseUp(cell) {
-    if (globals.moveBreakoutTableActivated) tools.breakoutCells(cell)
+    if (globals.moveBreakoutTableActivated) tools.moveOrBreakoutCells(cell)
     globals.setMouseDown(false)
     globals.setMoveBreakoutTableActivated(false)
 }
 
 export function onCellMouseEnter(cell) {
-    // if (globals.editingCell !== cell && globals.mouseDown) {
-    //     globals.setSelectedEndCell(cell)
-    //
-    //     let startCellIndexes = spreadsheet.getCellIndexes(globals.selectedStartCell)
-    //     let endCellIndexes = spreadsheet.getCellIndexes(globals.selectedEndCell)
-    //
-    //     spreadsheet.findSelectedCells(startCellIndexes, endCellIndexes)
-    //     tools.clearMarkedCells()
-    //     tools.markCells()
-    // }
-
     if (globals.moveBreakoutTableActivated) tools.showBreakoutTableOutline(cell)
     if ($(cell).hasClass('error')) tools.showErrorMessage(cell)
 }
@@ -72,7 +61,6 @@ export function onCellTextDivFocus(cellTextDiv) {
     let cell = spreadsheet.getCellFromCellTextDiv(cellTextDiv)
     let inputBar = $('#input-bar')
 
-    // if (globals.cellsMarked) tools.clearMarkedCells()
     globals.setEditingCell(cell)
     globals.setSelectedStartCell(cell)
     globals.setSelectedCells([cell])

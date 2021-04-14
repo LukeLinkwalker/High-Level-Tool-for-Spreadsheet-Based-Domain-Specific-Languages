@@ -165,6 +165,24 @@ export function createTableName(column, row) {
 }
 
 export function getTableName(cell) {
+    return getSpecificClassFromCell(cell, 'table-cell-')
+}
+
+export function createBreakoutReferenceToOriginalTable(cell) {
+    let tableHeader = findTableHeader(cell)
+    let cellIndexes = getCellIndexes(tableHeader)
+    return 'breakout-from-' + createTableName(cellIndexes[0], cellIndexes[1])
+}
+
+export function getBreakoutReferenceToOriginalTable(cell) {
+    return getSpecificClassFromCell(cell, 'breakout-from-')
+}
+
+export function removeBreakoutReferenceToOriginalTable(cell) {
+    $(cell).removeClass(getBreakoutReferenceToOriginalTable(cell))
+}
+
+function getSpecificClassFromCell(cell, specificClassName) {
     let classNames = $(cell).attr('class')
 
     if (classNames !== undefined) {
@@ -172,7 +190,7 @@ export function getTableName(cell) {
         let tableName = undefined
 
         classNamesArray.forEach((className) => {
-            if (className.startsWith('table-cell-')) tableName = className
+            if (className.startsWith(specificClassName)) tableName = className
         })
 
         if (tableName === undefined) return null
@@ -453,4 +471,13 @@ export function setFocusOnCell(cell) {
     globals.setCurrentColumn(cellIndexes[0])
     globals.setCurrentRow(cellIndexes[1])
     cellTextDiv.focus()
+}
+
+export function findBrokenOutTableCells(cell) {
+    let breakoutTableName = createBreakoutReferenceToOriginalTable(cell)
+    return $('.' + breakoutTableName).get()
+}
+
+export function findTableHeader(cell) {
+    return getAllCellsFromTableCellIsIn(cell)[0]
 }
