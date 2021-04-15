@@ -10,7 +10,10 @@ export function setupActionBar() {
 }
 
 export function setupSDSL() {
+    setupCreateTableButton()
     setupAddRowButton()
+    setupDeleteRowButton()
+    setupDeleteTableButton()
 }
 
 export function setupSGL() {
@@ -30,7 +33,7 @@ export function setupSpreadsheetTypeRadioButtons() {
         .on('change', () => events.onSpreadsheetTypeRadioButtonsChange())
 }
 
-export function setupCreateTableButton() {
+function setupCreateTableButton() {
     $('#createTable')
         .on('click', () => events.onCreateTableButtonClick())
 }
@@ -38,6 +41,16 @@ export function setupCreateTableButton() {
 function setupAddRowButton() {
     $('#addRow')
         .on('click', () => events.onAddRowButtonClick())
+}
+
+function setupDeleteRowButton() {
+    $('#deleteRow')
+        .on('click', () => events.onDeleteRowButtonClick())
+}
+
+function setupDeleteTableButton() {
+    $('#deleteTable')
+        .on('click', () => events.onDeleteTableButtonClick())
 }
 
 function setupBuildButton() {
@@ -51,18 +64,35 @@ function setupMergeButton() {
 }
 
 export function setupCell(cell) {
-    cell.on('mousedown', () => events.onCellMouseDown())
-    cell.on('mouseup', () => events.onCellMouseUp())
-    cell.on('mouseenter', (e) => events.onCellMouseEnter(e.target))
-    cell.on('mouseleave', (e) => events.onCellMouseLeave(e.target))
-    cell.on('focus', (e) => events.onCellFocus(e.target))
-    cell.on('input', (e) => events.onCellInput(e.target))
+    setupCellKeyDown(cell)
+    setupCellKeyDownEnter(cell)
+    cell
+        .on('mousedown', (e) => events.onCellMouseDown(e.currentTarget))
+        .on('mouseup', (e) => events.onCellMouseUp(e.currentTarget))
+        .on('mouseenter', (e) => events.onCellMouseEnter(e.currentTarget))
+        .on('mouseleave', (e) => events.onCellMouseLeave(e.currentTarget))
+        .on('input', (e) => events.onCellInput(e.currentTarget))
+        .on('click', (e) => events.onCellClick(e.currentTarget))
+}
+
+export function setupCellKeyDown(cell) {
     cell.on('keydown', (e) => {
-        if (e.which === 9) events.onDocumentKeydownTab(e)
-        else if (e.which === 13) events.onDocumentKeydownEnter(e)
+        if (e.which === 9) events.onCellKeydownTab(e)
         else if (e.which === 37) events.onCellKeydownArrowLeft(e)
         else if (e.which === 38) events.onCellKeydownArrowUp(e)
         else if (e.which === 39) events.onCellKeydownArrowRight(e)
         else if (e.which === 40) events.onCellKeydownArrowDown(e)
     })
+}
+
+export function setupCellKeyDownEnter(cell) {
+    cell.on('keydown', (e) => {
+        if (e.which === 13) events.onCellKeydownEnter(e)
+    })
+}
+
+export function setupCellTextDiv(cellTextDiv) {
+    cellTextDiv
+        .on('focus', (e) => events.onCellTextDivFocus(e.currentTarget))
+        .on('focusout', (e) => events.onCellTextDivFocusout(e.currentTarget))
 }

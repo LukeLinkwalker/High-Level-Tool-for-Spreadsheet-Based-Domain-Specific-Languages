@@ -1,30 +1,18 @@
-import * as tools from './spreadsheetTools.js'
 import * as globals from './spreadsheetGlobalVariables.js'
 import * as setup from './spreadsheetSetup.js'
-
-//TODO: Remove after testing
-export function testFunction() {
-    $('#testErrorButton').on('click', () => {
-        tools.showError(globals.errorCellIndexes, globals.errorLineIndexes, globals.errorMessage)
-    })
-
-    $('#removeErrorButton').on('click', () => {
-        tools.removeError(globals.editingCell)
-    })
-}
 
 export function createSpreadsheet() {
     globals.setColumnSize(30)
     globals.setRowSize(40)
 
-    let table = $('<table id="dynamicTable">')
-    let tableBody = $('<tbody id="dynamicBody">')
+    let table = $('<table>').attr('id', 'dynamicTable' + globals.spreadsheetType)
+    let tableBody = $('<tbody>').attr('id', 'dynamicBody' + globals.spreadsheetType)
 
     for (let row = 0; row < globals.rowSize; row++) {
         let newRow = $('<tr>')
 
         for (let column = 0; column < globals.columnSize; column++) {
-            newRow.append(createCell(column, row))
+            newRow.append(createCell(column, row, globals.spreadsheetType))
         }
         tableBody.append(newRow)
     }
@@ -32,19 +20,37 @@ export function createSpreadsheet() {
     createRowHeader(globals.rowSize, tableBody)
     createColumnHeader(globals.columnSize, table)
     table.append(tableBody)
-    $('#cell-container').append(table)
+    $('#cell-container-' + globals.spreadsheetType).append(table)
 }
 
 function createCell(column, row) {
     let cell = $('<td>')
+    let divToContainBoxes = $('<div class="boxContainer">')
+
+    divToContainBoxes.append(createInfoBox())
+    divToContainBoxes.append(createErrorBox())
+    cell.append(createCellText())
+    cell.append(divToContainBoxes)
     cell.attr('id', createCellID(column, row))
-    cell.attr('contenteditable', 'true')
-    cell.css('min-width', '100px')
-    cell.data('hasError', false)
-    cell.data('hiddenText', '')
     setup.setupCell(cell)
 
     return cell
+}
+
+function createCellText() {
+    let cellText = $('<div class="cellText">')
+    cellText.attr('contenteditable', 'true')
+    setup.setupCellTextDiv(cellText)
+
+    return cellText
+}
+
+function createInfoBox() {
+    return $('<div class="infoBox box">')
+}
+
+function createErrorBox() {
+    return $('<div class="errorBox box">')
 }
 
 function createColumnHeader(tableSize, table) {
@@ -85,7 +91,7 @@ function createRowHeader(tableSize, table) {
 }
 
 export function createCellID(column, row) {
-    return 'cell-' + column + '-' + row
+    return 'cell-' + column + '-' + row + '-' + globals.spreadsheetType
 }
 
 export function getCellFromIndexes(column, row) {
@@ -101,9 +107,7 @@ export function getCellIndexes(cell) {
 
 export function setInitialEditingCell() {
     let cell = getCellFromIndexes(0, 0)
-
-    globals.setEditingCell(cell)
-    cell.focus()
+    setFocusOnCell(cell)
 }
 
 export function findSelectedCells(selectedStartIndexes, selectedEndIndexes) {
@@ -151,16 +155,34 @@ export function getCellsInRange(startCell, endCell) {
 }
 
 export function checkCellIsEmpty(cell) {
-    return $(cell).text() === ''
+    let cellType = getCellType(cell)
+    return getCellText(cell) === '' && cellType === 'normal'
 }
 
-export function createTableNameForCells(cell) {
-    let cellIndexes = getCellIndexes(cell)
-    let cellID = createCellID(cellIndexes[0], cellIndexes[1])
+export function createTableName(column, row) {
+    let cellID = createCellID(column, row)
     return 'table-' + cellID
 }
 
 export function getTableName(cell) {
+    return getSpecificClassFromCell(cell, 'table-cell-')
+}
+
+export function createBreakoutReferenceToOriginalTable(cell) {
+    let tableHeader = findTableHeader(cell)
+    let cellIndexes = getCellIndexes(tableHeader)
+    return 'breakout-from-' + createTableName(cellIndexes[0], cellIndexes[1])
+}
+
+export function getBreakoutReferenceToOriginalTable(cell) {
+    return getSpecificClassFromCell(cell, 'breakout-from-')
+}
+
+export function removeBreakoutReferenceToOriginalTable(cell) {
+    $(cell).removeClass(getBreakoutReferenceToOriginalTable(cell))
+}
+
+function getSpecificClassFromCell(cell, specificClassName) {
     let classNames = $(cell).attr('class')
 
     if (classNames !== undefined) {
@@ -168,7 +190,7 @@ export function getTableName(cell) {
         let tableName = undefined
 
         classNamesArray.forEach((className) => {
-            if (className.startsWith('table-cell-')) tableName = className
+            if (className.startsWith(specificClassName)) tableName = className
         })
 
         if (tableName === undefined) return null
@@ -181,20 +203,23 @@ export function addTableNameToCell(cell, tableName) {
     $(cell).addClass(tableName)
 }
 
+export function removeCellFromTable(cell) {
+    $(cell).removeClass(getTableName(cell))
+}
+
 export function getAllCellsFromTableCellIsIn(cell) {
     let tableName = getTableName(cell)
 
     if (tableName === null) return null
-    else return $('.' + tableName)
+    else return $('.' + tableName).get()
 }
 
-export function getTableRange(cell) {
-    let tableCells = getAllCellsFromTableCellIsIn(cell)
+export function getTableRange(tableCells) {
     let startCell = null
     let endCell = null
 
     if (tableCells !== null) {
-        tableCells.each((i, cell) => {
+        tableCells.forEach((cell) => {
             if (startCell === null && endCell === null) {
                 startCell = cell
                 endCell = cell
@@ -217,6 +242,13 @@ export function getTableRange(cell) {
 }
 
 export function getMergedCells(cell) {
+    let mergedCellClassName = getMergedCellsName(cell)
+
+    if (mergedCellClassName === null) return null
+    else return $('.' + getMergedCellsName(cell))
+}
+
+export function getMergedCellsName(cell) {
     let classNames = $(cell).attr('class')
 
     if (classNames !== undefined) {
@@ -228,13 +260,15 @@ export function getMergedCells(cell) {
         })
 
         if (mergedCellClassName === null) return null
-        else return $('.' + mergedCellClassName)
+        else return mergedCellClassName
     }
+
     else return null
 }
 
 export function getCellsInNewTableRow(cell) {
-    let tableRange = getTableRange(cell)
+    let tableCells = getAllCellsFromTableCellIsIn(cell)
+    let tableRange = getTableRange(tableCells)
 
     if (tableRange === null) return null
     else {
@@ -243,4 +277,207 @@ export function getCellsInNewTableRow(cell) {
 
         return getCellsInRange(newRowStartCell, newRowEndCell)
     }
+}
+
+export function setCellAsHeader(cell) {
+    $(cell).addClass('header')
+}
+
+export function removeCellAsHeader(cell) {
+    $(cell).removeClass('header')
+}
+
+export function setCellAsData(cell) {
+    $(cell).addClass('data')
+}
+
+export function removeCellAsData(cell) {
+    $(cell).removeClass('data')
+}
+
+export function getCellType(cell) {
+    let $cell = $(cell)
+
+    if ($cell.hasClass('header')) return 'header'
+    else if ($cell.hasClass('data')) return 'data'
+    else return 'normal'
+}
+
+export function getInfoBox(cell) {
+    return $('.infoBox', cell)[0]
+}
+
+export function getErrorBox(cell) {
+    return $('.errorBox', cell)[0]
+}
+
+export function getCellTextDiv(cell) {
+    return $('.cellText', cell)[0]
+}
+
+export function getCellText(cell) {
+    return $(getCellTextDiv(cell)).text()
+}
+
+export function setCellText(cell, value) {
+    $(getCellTextDiv(cell)).text(value)
+
+    if (cell === globals.editingCell) {
+        let inputBar = $('#input-bar')
+        inputBar.val(value)
+    }
+}
+
+export function getCellFromCellTextDiv(cellTextDiv) {
+    return $(cellTextDiv).parent()[0]
+}
+
+export function insertNewMessageInInfoBox(infoBox, value) {
+    let currentText = $(infoBox).text()
+
+    if (currentText === '') $(infoBox).text(value)
+    else $(infoBox).text(currentText + '\n' + value)
+}
+
+export function insertNewMessageInErrorBox(errorBox, value) {
+    let currentText = $(errorBox).text()
+
+    if (currentText === '') $(errorBox).text(value)
+    else $(errorBox).text(currentText + '\n' + value)
+}
+
+export function getBreakoutTableCells(cell) {
+    let width = $(cell).prop('colspan')
+    let cellIndexes = getCellIndexes(cell)
+    let breakoutTableCells = []
+    let tableName = getTableName(cell)
+
+    for (let i = cellIndexes[0]; i < width + cellIndexes[0]; i++) {
+        let nextCell = getCellFromIndexes(i, cellIndexes[1])
+        let nextCellTableName = getTableName(nextCell)
+
+        while (nextCellTableName === tableName) {
+            breakoutTableCells.push(nextCell)
+
+            let nextCellIndexes = getCellIndexes(nextCell)
+            nextCell = getCellFromIndexes(i, nextCellIndexes[1] + 1)
+            nextCellTableName = getTableName(nextCell)
+        }
+    }
+
+    return breakoutTableCells
+}
+
+export function getBreakoutOutlineCells(cell) {
+    let breakoutTableRange = getTableRange(globals.breakoutTableCells)
+    let headerCellIndexes = getCellIndexes(globals.breakoutTableCells[0])
+    let currentCellIndexes = getCellIndexes(cell)
+    let headerAndCurrentColumnDifference = currentCellIndexes[0] - headerCellIndexes[0]
+    let headerAndCurrentRowDifference = currentCellIndexes[1] - headerCellIndexes[1]
+    let startCell = getCellFromIndexes(breakoutTableRange[0] + headerAndCurrentColumnDifference,
+        breakoutTableRange[1] + headerAndCurrentRowDifference)
+    let endCell = getCellFromIndexes(breakoutTableRange[2] + headerAndCurrentColumnDifference,
+        breakoutTableRange[3] + headerAndCurrentRowDifference)
+
+    return getCellsInRange(startCell, endCell)
+}
+
+export function checkTableHasNameAttribute(breakoutTableCells) {
+    let headerRow = getCellIndexes(breakoutTableCells[0])[1]
+    let tableHasNameAttribute = false
+
+    breakoutTableCells.forEach((boCell) => {
+        let boCellIndexes = getCellIndexes(boCell)
+        let cellText = getCellText(boCell).toLowerCase()
+
+        if (boCellIndexes[1] === headerRow + 1 && cellText === 'name') tableHasNameAttribute = true
+    })
+
+    return tableHasNameAttribute
+}
+
+export function checkHeaderCellIsHeaderForWholeTable(cell) {
+    let headerCellTableName = getTableName(cell)
+    let headerCellIndexes = getCellIndexes(cell)
+    let cellAboveHeader = getCellFromIndexes(headerCellIndexes[0], headerCellIndexes[1] - 1)
+    let cellAboveHeaderTableName = getTableName(cellAboveHeader)
+
+    return headerCellTableName !== cellAboveHeaderTableName;
+}
+
+export function getNewTableHeaderForCopyingCell(oldCell, newCell, headerCell) {
+    let headerCellIndexes = getCellIndexes(headerCell)
+    let newTableIndexes = getIndexDifferencesForHeaderAndMergeCellNamesForWhenCopying(oldCell, newCell, headerCellIndexes)
+
+    return getCellFromIndexes(newTableIndexes[0], newTableIndexes[1])
+}
+
+export function createNewMergedCellsNameForCopyingCell(oldCell, newCell) {
+    let cellIndexesFromMergedCellsName = getCellIndexesFromMergedCellsName(getMergedCellsName(oldCell))
+    let newMergedCellsIndexes = getIndexDifferencesForHeaderAndMergeCellNamesForWhenCopying(oldCell, newCell, cellIndexesFromMergedCellsName)
+
+    return createMergedCellsName(newMergedCellsIndexes[0], newMergedCellsIndexes[1])
+}
+
+export function getIndexDifferencesForHeaderAndMergeCellNamesForWhenCopying(oldCell, newCell, cellIndexes) {
+    let oldCellIndexes = getCellIndexes(oldCell)
+    let newCellIndexes = getCellIndexes(newCell)
+    let columnDifference = newCellIndexes[0] - oldCellIndexes[0]
+    let rowDifference = newCellIndexes[1] - oldCellIndexes[1]
+    let newColumn = cellIndexes[0] + columnDifference
+    let newRow = cellIndexes[1] + rowDifference
+
+    return [newColumn, newRow]
+}
+
+export function getCellIndexesFromTableName(tableName) {
+    let matches = tableName.match(/^table-cell-(\d+)-(\d+)/)
+    return [Number(matches[1]), Number(matches[2])]
+}
+
+export function getCellIndexesFromMergedCellsName(mergedCellsName) {
+    let matches = mergedCellsName.match(/^merged-cell-(\d+)-(\d+)/)
+    return [Number(matches[1]), Number(matches[2])]
+}
+
+export function createMergedCellsName(column, row) {
+    let cellID = createCellID(column, row)
+    return 'merged-' + cellID
+}
+
+export function getTableCellsAsRows(tableCells) {
+    let tableRange = getTableRange(tableCells)
+    let headerRows = []
+
+    for (let i = tableRange[1]; i <= tableRange[3]; i++) {
+        let headerRow = []
+
+        tableCells.forEach((cell) => {
+            let cellIndexes = getCellIndexes(cell)
+            if (cellIndexes[1] === i) headerRow.push(cell)
+        })
+
+        headerRows.push(headerRow)
+    }
+
+    return headerRows
+}
+
+export function setFocusOnCell(cell) {
+    let cellTextDiv = getCellTextDiv(cell)
+    let cellIndexes = getCellIndexes(cell)
+
+    globals.setEditingCell(cell)
+    globals.setCurrentColumn(cellIndexes[0])
+    globals.setCurrentRow(cellIndexes[1])
+    cellTextDiv.focus()
+}
+
+export function findBrokenOutTableCells(cell) {
+    let breakoutTableName = createBreakoutReferenceToOriginalTable(cell)
+    return $('.' + breakoutTableName).get()
+}
+
+export function findTableHeader(cell) {
+    return getAllCellsFromTableCellIsIn(cell)[0]
 }

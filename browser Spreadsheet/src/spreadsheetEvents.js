@@ -4,13 +4,11 @@ import * as spreadsheet from './spreadsheet.js'
 import * as client from './ssclient.js'
 import * as setup from './spreadsheetSetup.js'
 
-//TODO: Use later: // let regex = new RegExp('^(optional )?(object|array|alternative|attribute) : [a-zA-Z0-9_]+')
-
 export function onInputBarInput(inputBar) {
-    let inputBarText = String($(inputBar).val())
-    let $editingCell = $(globals.editingCell)
+    let inputBarText = $(inputBar).val()
 
-    $editingCell.text(inputBarText)
+    tools.hideAndClearAllErrors()
+    spreadsheet.setCellText(globals.editingCell, inputBarText)
     client.sendChange(globals.editingCell)
 }
 
@@ -23,86 +21,98 @@ export function onInputBarFocusOut() {
     $(globals.editingCell).css('outline', '')
 }
 
-export function onCellMouseDown() {
+export function onCellMouseDown(cell) {
+    let cellTextDiv = spreadsheet.getCellTextDiv(cell)
+    let cellType = spreadsheet.getCellType(cell)
+    let hasBoldText = $(cellTextDiv).hasClass('bold')
+
     globals.setMouseDown(true)
+
+    if (cellType === 'header' && hasBoldText) {
+        let breakoutTableCells = spreadsheet.getBreakoutTableCells(cell)
+
+        if (spreadsheet.checkHeaderCellIsHeaderForWholeTable(cell) || spreadsheet.checkTableHasNameAttribute(breakoutTableCells)) {
+
+            globals.setMoveBreakoutTableActivated(true)
+            globals.setBreakoutTableCells(breakoutTableCells)
+            tools.showBreakoutTableOutline(cell)
+        }
+        else alert('Cannot breakout table as it doesn\'t have a name attribute')
+    }
 }
 
-export function onCellMouseUp() {
+export function onCellMouseUp(cell) {
+    if (globals.moveBreakoutTableActivated) tools.moveOrBreakoutCells(cell)
     globals.setMouseDown(false)
+    globals.setMoveBreakoutTableActivated(false)
 }
 
 export function onCellMouseEnter(cell) {
-    if (globals.editingCell !== cell && globals.mouseDown) {
-        globals.setSelectedEndCell(cell)
-
-        let startCellIndexes = spreadsheet.getCellIndexes(globals.selectedStartCell)
-        let endCellIndexes = spreadsheet.getCellIndexes(globals.selectedEndCell)
-
-        spreadsheet.findSelectedCells(startCellIndexes, endCellIndexes)
-        tools.clearMarkedCells()
-        tools.markCells()
-    }
-
-    if ($(cell).data('hasError')) tools.showErrorMessage(cell)
+    if (globals.moveBreakoutTableActivated) tools.showBreakoutTableOutline(cell)
+    if ($(cell).hasClass('error')) tools.showErrorMessage(cell)
 }
 
 export function onCellMouseLeave(cell) {
-    if ($(cell).data('hasError')) tools.hideErrorMessage(cell)
+    if (globals.moveBreakoutTableActivated) tools.removeBreakoutTableOutline(cell)
+    if ($(cell).hasClass('error')) tools.hideErrorMessage(cell)
 }
 
-export function onCellFocus(cell) {
-    if (globals.cellsMarked) tools.clearMarkedCells()
+export function onCellTextDivFocus(cellTextDiv) {
+    let cell = spreadsheet.getCellFromCellTextDiv(cellTextDiv)
+    let inputBar = $('#input-bar')
 
     globals.setEditingCell(cell)
     globals.setSelectedStartCell(cell)
     globals.setSelectedCells([cell])
+    inputBar.val(spreadsheet.getCellText(cell))
+}
 
-    let hiddenText = $(cell).data('hiddenText')
-    let inputBar = $('#input-bar')
-    let cellClone = $(cell).clone()
-    let divs = $('.errorMessage', cellClone)
+export function onCellTextDivFocusout(cellTextDiv) {
+    let cell = spreadsheet.getCellFromCellTextDiv(cellTextDiv)
+    let infoBox = spreadsheet.getInfoBox(cell)
 
-    divs.each((i, element) => element.remove())
-    inputBar.val(hiddenText + cellClone.text())
+    tools.hideCreateTableCodeCompletionForInfoBox(infoBox, cell)
 }
 
 export function onCellInput(cell) {
     let inputBar = $('#input-bar')
-    let cellClone = $(cell).clone()
-    let divs = $('.errorMessage', cellClone)
     let cellIndexes = spreadsheet.getCellIndexes(cell)
+    let cellText = spreadsheet.getCellText(cell)
 
-    //TODO: Why?
-    divs.each((i, element) => element.remove())
-    inputBar.val(cellClone.text())
+    tools.hideAndClearAllErrors()
+    inputBar.val(cellText)
     client.sendChange(cell)
+    if (globals.spreadsheetType === 'sdsl') client.requestCheckIfTextIsATableName(cellText, cellIndexes[0], cellIndexes[1])
+}
 
-    if (globals.spreadsheetType === 'sdsl') client.requestCheckIfTextIsATableName(cellClone.text(), cellIndexes[0],
-        cellIndexes[1])
+export function onCellClick(cell) {
+    let cellIndexes = spreadsheet.getCellIndexes(cell);
+
+    globals.setCurrentColumn(cellIndexes[0])
+    globals.setCurrentRow(cellIndexes[1])
 }
 
 export function onDocumentReady() {
     setup.setupSpreadsheetTypeRadioButtons()
-    setup.setupCreateTableButton()
     setup.setupInputBar()
     setup.setupActionBar()
     setup.setupSDSL()
     setup.setupSGL()
-
-    tools.changeToSGL()
+    globals.setSpreadsheetType('sdsl')
     spreadsheet.createSpreadsheet()
+    globals.setSpreadsheetType('sgl')
+    spreadsheet.createSpreadsheet()
+    tools.changeToSGL()
     spreadsheet.setInitialEditingCell()
-
     $('#sglRadioButton').prop('checked', true)
-
-    //TODO: Remove after testing
-    spreadsheet.testFunction()
 }
 
-export function onDocumentKeydownTab(event) {
+export function onCellKeydownTab(event) {
     let cell = globals.editingCell
     let cellIndexes = spreadsheet.getCellIndexes(cell)
-    let tableRange = spreadsheet.getTableRange(cell)
+    let tableCells = spreadsheet.getAllCellsFromTableCellIsIn(cell)
+    let tableRange = spreadsheet.getTableRange(tableCells)
+    let mergedCells = spreadsheet.getMergedCells(cell)
 
     if (tableRange !== null && cellIndexes[0] === tableRange[2]) {
         if (cellIndexes[1] !== tableRange[3]) tools.changeNextCellToStartOfNewRowInTable(cell, tableRange, event)
@@ -110,20 +120,31 @@ export function onDocumentKeydownTab(event) {
             if (tools.addRow(cell)) tools.changeNextCellToStartOfNewRowInTable(cell, tableRange, event)
         }
     }
-    else tools.moveOneCellRight(event)
+    else if (mergedCells !== null) {
+        let width = $(globals.editingCell).prop('colspan')
+
+        if (tableRange !== null && cellIndexes[0] + width - 1 === tableRange[2]) {
+            if (cellIndexes[1] !== tableRange[3]) tools.changeNextCellToStartOfNewRowInTable(cell, tableRange, event)
+            else {
+                if (tools.addRow(cell)) tools.changeNextCellToStartOfNewRowInTable(cell, tableRange, event)
+            }
+        }
+    }
+
+    else {
+        tools.moveOneCellRight(event)
+    }
 }
 
-export function onDocumentKeydownEnter(event) {
+export function onCellKeydownEnter(event) {
     tools.changeCellOneDownAndPossiblyAddRow(event)
 }
 
 export function onCreateTableButtonClick() {
     let cellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
-    let tableName = $(globals.editingCell).text();
+    let tableName = spreadsheet.getCellText(globals.editingCell)
 
     client.requestGetInitialTableRange(tableName, cellIndexes[0], cellIndexes[1])
-    //TODO remove after testing
-    // globals.setError('Hej', 0, 0)
 }
 
 export function onSpreadsheetTypeRadioButtonsChange() {
@@ -135,6 +156,10 @@ export function onSpreadsheetTypeRadioButtonsChange() {
 
 export function onAddRowButtonClick() {
     tools.addRow(globals.editingCell)
+}
+
+export function onDeleteRowButtonClick() {
+    tools.deleteRow(globals.editingCell)
 }
 
 export function onBuildButtonClick() {
@@ -157,7 +182,7 @@ export function onMergeButtonClick() {
         numberOfRowsSelected.add(cellIndexes[1])
     })
 
-    if (numberOfRowsSelected.size > 1) alert("Cannot merge rows!")
+    if (numberOfRowsSelected.size > 1) alert('Cannot merge rows!')
     else {
         if (mergedCells.length > 0) mergedCells.forEach((cell) => tools.demergeCell(cell))
         else tools.mergeCells(globals.selectedCells)
@@ -178,4 +203,8 @@ export function onCellKeydownArrowRight(event) {
 
 export function onCellKeydownArrowDown(event) {
     tools.changeCellOneDownAndPossiblyAddRow(event)
+}
+
+export function onDeleteTableButtonClick() {
+    tools.deleteTable(globals.editingCell)
 }

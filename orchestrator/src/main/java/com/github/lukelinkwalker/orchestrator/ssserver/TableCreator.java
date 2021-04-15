@@ -11,9 +11,9 @@ import java.util.List;
 
 public class TableCreator {
 
-    public static boolean initializeCreateTable(String tableName, int column, int row, String string) {
+    public static boolean initializeCreateTable(String tableName, int column, int row) {
         JsonObject tableObject = findTableJsonObject(tableName);
-        boolean success;
+        boolean success = true;
 
         if (tableObject == null) {
             success = false;
@@ -24,15 +24,12 @@ public class TableCreator {
 
             sendMergeCommandForAppropriateCells(tableObject, tableName, tableHeaderAreaIndexes[2], column, row);
             sendBoldTextCommandForAppropriateCells(tableObject, column, row);
-            sendCenterTextCommandForAppropriateCells(tableHeaderAreaIndexes);
-            sendCenterTextCommandForAppropriateCells(tableDataAreaIndexes);
             sendBlackBorderCommandForRangeOfCells(tableHeaderAreaIndexes);
             sendBlackBorderCommandForRangeOfCells(tableDataAreaIndexes);
             sendSetAsHeaderCommandForAppropriateCells(tableHeaderAreaIndexes);
             sendSetAsDataCommandForAppropriateCells(tableDataAreaIndexes);
-            sendTextCommandForAppropriateCells(tableObject, column, row);
-
-            success = true;
+            sendTextCommandForHeaderNamesForAppropriateCells(tableObject, column, row);
+            sendTextAndItalicCommandForTypesForAppropriateCells(tableObject, column, row);
         }
 
         return success;
@@ -77,7 +74,9 @@ public class TableCreator {
     private static int[] findEndCellIndexes(JsonObject jsonObject, int column, int row) {
         int endCellColumn = jsonObject.get("column").getAsInt() + column;
         int endCellRow = jsonObject.get("row").getAsInt() + row;
-        int[] biggestEndCellIndexes = new int[] {endCellColumn, endCellRow};
+
+        //+1 to add row for datatypes
+        int[] biggestEndCellIndexes = new int[] {endCellColumn, endCellRow + 1};
 
         for (JsonElement jsonElement : jsonObject.get("children").getAsJsonArray()) {
             int[] thisCellIndexes = findEndCellIndexes(jsonElement.getAsJsonObject(), column, row);
@@ -89,11 +88,11 @@ public class TableCreator {
         return biggestEndCellIndexes;
     }
 
-    public static boolean checkIfTextIsATableName(String cellText, String string) {
+    public static boolean checkIfTextIsATableName(String cellText) {
         return findTableJsonObject(cellText) != null;
     }
 
-    public static int[] getInitialTableRangeResponse(String name, int column, int row, String string) {
+    public static int[] getInitialTableRangeResponse(String name, int column, int row) {
         JsonObject tableObject = findTableJsonObject(name);
 
         if (tableObject == null) return null;
@@ -106,21 +105,55 @@ public class TableCreator {
         }
     }
 
-    private static void sendTextCommandForAppropriateCells(JsonObject jsonObject, int startColumn, int startRow) {
+    private static void sendTextCommandForHeaderNamesForAppropriateCells(JsonObject jsonObject, int startColumn, int startRow) {
         String name = StringUtilities.removeSingleQuotes(jsonObject.get("name").getAsString());
         int column = jsonObject.get("column").getAsInt() + startColumn;
         int row = jsonObject.get("row").getAsInt() + startRow;
+        String type = jsonObject.get("type").getAsString();
+        boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
+
+        if (type.equals("array")) name += " [ ]";
+        if (isOptional) name += " ?";
+
         JsonArray children = jsonObject.get("children").getAsJsonArray();
 
         App.SSS.sendNotification("set-text", new Object[] {column, row, name});
 
         for (JsonElement child : children) {
-            sendTextCommandForAppropriateCells(child.getAsJsonObject(), startColumn, startRow);
+            sendTextCommandForHeaderNamesForAppropriateCells(child.getAsJsonObject(), startColumn, startRow);
+        }
+    }
+
+    private static void sendTextAndItalicCommandForTypesForAppropriateCells(JsonObject jsonObject, int startColumn, int startRow) {
+        JsonArray dataTypes = jsonObject.get("dataTypes").getAsJsonArray();
+        JsonArray children = jsonObject.get("children").getAsJsonArray();
+
+        if (dataTypes.size() != 0) {
+            String type = jsonObject.get("type").getAsString();
+            JsonObject dataType = dataTypes.get(0).getAsJsonObject();
+
+            int column = dataType.get("column").getAsInt() + startColumn;
+            int row = dataType.get("row").getAsInt() + startRow;
+            String value;
+
+            if (type.equals("alternative")) value = "alternative";
+            else {
+                String typeOfDataType = dataType.get("type").getAsString();
+                value = dataType.get("value").getAsString();
+                if (typeOfDataType.equals("custom")) value = StringUtilities.removeSingleQuotes(value);
+            }
+
+            App.SSS.sendNotification("set-text", new Object[] {column, row, value});
+            App.SSS.sendNotification("italic-text", new Object[] {column, row});
+        }
+
+        for (JsonElement child : children) {
+            sendTextAndItalicCommandForTypesForAppropriateCells(child.getAsJsonObject(), startColumn, startRow);
         }
     }
 
     private static void sendMergeCommandForAppropriateCells(JsonObject jsonObject, String tableName, int endCellColumn, int startColumn, int startRow) {
-        String name = jsonObject.get("name").getAsString();
+        String name = StringUtilities.removeSingleQuotes(jsonObject.get("name").getAsString());
         JsonArray children = jsonObject.get("children").getAsJsonArray();
 
         if (name.equals(tableName)) {
@@ -194,14 +227,6 @@ public class TableCreator {
         }
 
         return objectOrArrayCells;
-    }
-
-    private static void sendCenterTextCommandForAppropriateCells(int[] rangeOfCells) {
-        for (int i = rangeOfCells[0]; i <= rangeOfCells[2]; i++) {
-            for (int j = rangeOfCells[1]; j <= rangeOfCells[3]; j++) {
-                App.SSS.sendNotification("center-text", new Object[] {i, j});
-            }
-        }
     }
 
     private static void sendBlackBorderCommandForRangeOfCells(int[] rangeOfCells) {

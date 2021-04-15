@@ -7,20 +7,13 @@ export let columnSize
 export let rowSize
 export let mouseDown
 export let spreadsheetType
+export let currentColumn
+export let currentRow
+export let moveBreakoutTableActivated
+export let breakoutTableCells
 
 //TODO: Should sheetName be here?
 export let spreadsheetName
-
-//TODO: Remove after testing
-export let errorMessage = 'ERROR! LOOOOOOOOOOOOOOOOOOOOOOOONG ERROR'
-export let errorCellIndexes = [0, 0]
-export let errorLineIndexes = [1, 3]
-
-//Remove after testing
-export function setError(_errorMessage, column, row) {
-    errorMessage = _errorMessage
-    errorCellIndexes = [column, row]
-}
 
 export function setEditingCell(value) {
     editingCell = value
@@ -60,4 +53,20 @@ export function setSpreadsheetType(value) {
 
 export function setSpreadsheetName(value) {
     spreadsheetName = value
+}
+
+export function setCurrentColumn(value) {
+    currentColumn = value
+}
+
+export function setCurrentRow(value) {
+    currentRow = value
+}
+
+export function setMoveBreakoutTableActivated(value) {
+    moveBreakoutTableActivated = value
+}
+
+export function setBreakoutTableCells(value) {
+    breakoutTableCells = value
 }
