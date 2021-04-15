@@ -115,9 +115,9 @@ socket.addEventListener('open', function(event) {
     sendChange(cell44)
     spreadsheet.setCellText(cell54, 'type : float')
     sendChange(cell54)
-    spreadsheet.setCellText(cell64, 'type : Get')
+    spreadsheet.setCellText(cell64, 'type : String')
     sendChange(cell64)
-    spreadsheet.setCellText(cell65, 'type : Set')
+    spreadsheet.setCellText(cell65, 'type : int')
     sendChange(cell65)
     tools.mergeCells([cell00, cell10, cell20, cell30, cell40, cell50, cell60])
     tools.mergeCells([cell11, cell21, cell31, cell41, cell51])
@@ -183,7 +183,7 @@ socket.addEventListener('message', (event) => {
 function handleErrors(errors) {
     console.log("Diagnostic - Number of errors : " + errors.length);
     for(let i = 0; i < errors.length; i++) {
-        tools.createError(errors[i].cellIndexes, errors[i].lineIndexes, errors[i].message)
+        tools.createError(errors[i].column, errors[i].row,  errors[i].message)
     }
 }
 
