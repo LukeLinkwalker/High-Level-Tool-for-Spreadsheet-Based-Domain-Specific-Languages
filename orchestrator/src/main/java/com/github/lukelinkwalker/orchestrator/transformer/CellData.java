@@ -70,11 +70,14 @@ public class CellData {
 		this.cellName = cellName;
 	}
 
+	
+	
 	@Override
 	public String toString() {
-		return "CellData [name=" + name + ", type=" + type + ", isOptional=" + isOptional + "]";
+		return "CellData [name=" + name + ", type=" + type + ", isOptional=" + isOptional + ", column=" + column
+				+ ", row=" + row + ", cellName=" + cellName + "]";
 	}
-	
+
 	public JsonObject getAsObject() {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("column", column);

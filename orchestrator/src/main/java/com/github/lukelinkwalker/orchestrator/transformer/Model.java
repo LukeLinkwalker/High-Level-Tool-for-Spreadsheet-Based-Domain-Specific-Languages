@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.github.lukelinkwalker.orchestrator.Util.FileReader;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 
 public class Model {
 	private HashMap<String, JsonObj> headerMap = new HashMap<>();
@@ -14,9 +15,13 @@ public class Model {
 	public Model(String path) {
 		String input = FileReader.readTextFile(path);
 
-		JsonObj[] headers = new Gson().fromJson(input, JsonObj[].class);
-		for(JsonObj header : headers) {
-			headerMap.put(header.getName(), header);
+		JsonArray arr = new Gson().fromJson(input, JsonArray.class);
+		
+		for(int i = 0; i < arr.size(); i += 1) {
+			if(!arr.get(i).getAsJsonObject().get("type").getAsString().equals("rules")) {
+				JsonObj header = new Gson().fromJson(arr.get(i), JsonObj.class);
+				headerMap.put(header.getNameOnly(), header);
+			}
 		}
 	}
 	
@@ -60,6 +65,33 @@ public class Model {
 		return Collections.unmodifiableList(attributes);
 	}
 	
+	public boolean isFirstAttribute(String headerIdentifier, int column) {
+		List<JsonObj> attributes = getAttributes(headerIdentifier);
+		ArrayList<ArrayList<String>> lists = getArrayLayout(headerIdentifier);
+		
+		ArrayList<String> visited = new ArrayList<>();
+		
+		String listName = lists.get(column).get(lists.get(column).size() - 1);
+		for(int i = 0; i < attributes.size(); i += 1) {
+			String tmpListName = lists.get(i).get(lists.get(i).size() - 1);
+			
+			if(listName.equals(tmpListName) == true) {
+				if(i == column) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	public String getListName(String headerIdentifier, int column) {
+		ArrayList<ArrayList<String>> lists = getArrayLayout(headerIdentifier);
+		return lists.get(column).get(lists.get(column).size() - 1);
+	}
+	
 	public ArrayList<JsonObj> getAttributes(JsonObj root) {
 		ArrayList<JsonObj> result = new ArrayList<>();
 		
@@ -84,7 +116,7 @@ public class Model {
 		}
 		
 		ArrayList<String> arrays = new ArrayList<>();
-		arrays.add(headerIdentifier);
+		//arrays.add(headerIdentifier);
 		
 		JsonObj root = headerMap.get(headerIdentifier);
 		

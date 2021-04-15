@@ -36,4 +36,8 @@ public class JsonUtil {
 	public static String tokenStrip(String str) {
 		return str.replace(tokenStart, "").replace(tokenStop, "");
 	}
+	
+	public static boolean tokenWrapped(String str) {
+		return (str.contains(tokenStart) && str.contains(tokenStop));
+	}
 }

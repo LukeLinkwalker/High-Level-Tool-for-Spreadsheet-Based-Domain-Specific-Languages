@@ -1,9 +1,10 @@
 package com.github.lukelinkwalker.orchestrator.transformer;
 
+import com.github.lukelinkwalker.orchestrator.Util.Tuple;
 import com.google.gson.Gson;
 
 public class JsonSearch {
-	public static JsonObj find(String JSON, int position) {
+	public static Tuple<Tuple<Integer, Integer>, String> find(String JSON, int position) {
 		int start = -1;
 		int end = -1;
 		int objectCounter = 0;
@@ -41,6 +42,10 @@ public class JsonSearch {
 			}
 		}
 
-		return new Gson().fromJson(JSON.substring(start, end + 1), JsonObj.class);
+		JsonObj obj = new Gson().fromJson(JSON.substring(start, end + 1), JsonObj.class);
+		Tuple<Integer, Integer> posResult = new Tuple<>(obj.getColumn(), obj.getRow());
+		
+		
+		return new Tuple<>(posResult, JSON.substring(start, end + 1));
 	}
 }
