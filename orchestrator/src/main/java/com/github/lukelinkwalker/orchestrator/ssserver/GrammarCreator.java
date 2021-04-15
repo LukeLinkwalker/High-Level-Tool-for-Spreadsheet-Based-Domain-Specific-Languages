@@ -4,12 +4,28 @@ import com.github.lukelinkwalker.orchestrator.App;
 import com.github.lukelinkwalker.orchestrator.Util.StringUtilities;
 import com.google.gson.*;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.StringJoiner;
 
 public class GrammarCreator {
     private static StringBuilder model;
     private static StringBuilder tables;
     private static int tablesInitialLength;
+
+//    public static void main(String[] args) {
+//        Gson gson = new Gson();
+//        Reader reader = null;
+//        try {
+//            reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        JsonArray ssModel = gson.fromJson(reader, JsonArray.class);
+//        System.out.println(createGrammar(ssModel));
+//    }
 
     public static String createGrammar() {
         JsonArray ssModel = App.SSS.getSsModel();
@@ -98,7 +114,9 @@ public class GrammarCreator {
         StringBuilder sb = new StringBuilder();
         StringBuilder assignment = new StringBuilder();
 
-        sb.append("\n      '\"").append(name).append("\"' ':' '['\n");
+        //TODO: Upper is without list, lower with. Make decision later.
+//        sb.append("\n      '\"").append(name).append("\"' ':' '['\n");
+        sb.append("\n      '\"").append(name).append("\"' ':' '{'\n         '\"List\"' ':' '['\n");
         model.append(printTable(name, parentName));
 
         assignment.append(makeFirstLetterLowerCase(name)).append(" += ").append(parentName).append(name)
@@ -116,7 +134,9 @@ public class GrammarCreator {
                     .append("Reference)*))");
         }
 
-        sb.append("         ").append(assignment).append("\n      ']'");
+        //TODO: Upper is without list, lower with. Make decision later.
+//        sb.append("         ").append(assignment).append("\n      ']'");
+        sb.append("         ").append(assignment).append("\n         ']'\n      '}'");
 
         int indexBeforeIterating = model.length();
 
