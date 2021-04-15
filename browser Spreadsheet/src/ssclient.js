@@ -87,7 +87,7 @@ socket.addEventListener('open', function(event) {
     sendChange(cell01)
     spreadsheet.setCellText(cell11, 'array : Sensors')
     sendChange(cell11)
-    spreadsheet.setCellText(cell61, 'alternative : Functions')
+    spreadsheet.setCellText(cell61, 'attribute : Functions')
     sendChange(cell61)
     spreadsheet.setCellText(cell12, 'attribute : Name')
     sendChange(cell12)
@@ -115,10 +115,8 @@ socket.addEventListener('open', function(event) {
     sendChange(cell44)
     spreadsheet.setCellText(cell54, 'type : float')
     sendChange(cell54)
-    spreadsheet.setCellText(cell64, 'type : String')
+    spreadsheet.setCellText(cell64, 'type : string')
     sendChange(cell64)
-    spreadsheet.setCellText(cell65, 'type : int')
-    sendChange(cell65)
     tools.mergeCells([cell00, cell10, cell20, cell30, cell40, cell50, cell60])
     tools.mergeCells([cell11, cell21, cell31, cell41, cell51])
     tools.mergeCells([cell22, cell32])
@@ -126,13 +124,25 @@ socket.addEventListener('open', function(event) {
     // tools.mergeCells([cell22, cell32])
     requestBuild()
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+    close = { sheetName:"Hello" }
+    cmsg = { method:"close-sheet", id:"0", data:JSON.stringify(close) };
+    socket.send(JSON.stringify(cmsg));
+
+    open = { sheetName:"Hello", isSGL:false }
+    omsg = { method:"open-sheet", id:"1", data:JSON.stringify(open) };
+    socket.send(JSON.stringify(omsg));
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
+
     tools.changeToSDSL()
     $('#sdslRadioButton').prop('checked', true)
 
     let cell00sdsl = spreadsheet.getCellFromIndexes(0, 0)
 
-    spreadsheet.setCellText(cell00sdsl, 'Config')
-    events.onCreateTableButtonClick()
+    //spreadsheet.setCellText(cell00sdsl, 'Config')
+    //events.onCreateTableButtonClick()
 
     // spreadsheet.setCellText(cell00sdsl, 'Hej med dig')
     // tools.createError([0, 0], [1, 5], 'Error, write Config')
@@ -183,6 +193,8 @@ socket.addEventListener('message', (event) => {
 function handleErrors(errors) {
     console.log("Diagnostic - Number of errors : " + errors.length);
     for(let i = 0; i < errors.length; i++) {
+        //tools.createError(errors[i].cellIndexes, errors[i].lineIndexes, errors[i].message)
+        console.log("Error @ " + errors[i].column + " | " + errors[i].row + " -> " + errors[i].message);
         tools.createError(errors[i].column, errors[i].row,  errors[i].message)
     }
 }

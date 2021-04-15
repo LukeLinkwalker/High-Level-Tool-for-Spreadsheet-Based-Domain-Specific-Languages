@@ -150,7 +150,8 @@ public class SheetTransformer {
 			List<JsonObj> attributes = App.M.getAttributes(tableName);
 			System.out.println("Attributes : " + attributes.size());
 			
-			int rowStart = table1.getY() + App.M.getDepth(tableName);
+			int rowStart = table1.getY() + App.M.getDepth(tableName) + 1; // +1 due to type row.. needs to be updated to be dynamic through model
+			System.out.println("Row start : " + rowStart);
 			int rowEnd = table1.getY() + table1.getHeight();
 			int columnStart = table1.getX();
 			int columnEnd = table1.getX() + table1.getWidth();
@@ -168,9 +169,10 @@ public class SheetTransformer {
 					
 					if(cell != null) {
 						CellData cellData = parseCellData(cell.getData(), cell.getColumn(), cell.getRow());
-						cellData.setCellName(attributes.get(column).getName());
+						System.out.println("Column: " + column);
+						cellData.setCellName(attributes.get(column - 1).getName());
 						CDs.add(new Tuple(column, cellData));
-						System.out.println(cellData.getColumn() + " | " + cellData.getRow() + " -> " + cellData.getName() + " in " + arrLayout.get(column).get(arrLayout.get(column).size() - 1));						
+						//System.out.println(cellData.getColumn() + " | " + cellData.getRow() + " -> " + cellData.getName() + " in " + arrLayout.get(column).get(arrLayout.get(column).size() - 1));						
 					}
 				}
 				
@@ -197,6 +199,7 @@ public class SheetTransformer {
 							value.addProperty("value", JsonUtil.tokenWrap(CD.getB().getName()));
 							break;
 						case "int":
+							System.out.println("INT ERROR : " + CD.getB().toString());
 							value.addProperty("value", Integer.parseInt(CD.getB().getName()));
 							break;
 						case "float":
@@ -211,7 +214,7 @@ public class SheetTransformer {
 					}
 					
 					JsonObject container = new JsonObject();
-					container.add(App.M.getAttribute(tableName, CD.getA()).getName(), value);
+					container.add(App.M.getAttribute(tableName, CD.getA() - 1).getName(), value);
 					
 					Objects.add(value);
 					allObjects.add(value);

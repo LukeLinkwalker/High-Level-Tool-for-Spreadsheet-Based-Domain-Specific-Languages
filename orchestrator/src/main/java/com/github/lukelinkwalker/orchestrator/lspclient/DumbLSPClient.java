@@ -84,9 +84,19 @@ public class DumbLSPClient extends WebSocketClient {
 					//error.addProperty("message", diag.getMessage());
 					
 					JsonObject error = new JsonObject();
-					error.addProperty("column", errorInfo.getA().getA());
-					error.addProperty("row", errorInfo.getA().getB());
-					error.addProperty("message", errorInfo.getB());
+					
+					int column = errorInfo.getA().getA();
+					if(column == -1) {
+						column = 0;
+					}
+					int row = errorInfo.getA().getB();
+					if(row == -1) {
+						row = 0;
+					}
+					
+					error.addProperty("column", column);
+					error.addProperty("row", row);
+					error.addProperty("message", diag.getMessage());
 					
 					// Add error indeces
 					

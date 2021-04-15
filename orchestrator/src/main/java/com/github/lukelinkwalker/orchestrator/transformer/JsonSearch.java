@@ -52,9 +52,18 @@ public class JsonSearch {
 			}
 		}
 		
+		if(start == -1) {
+			return new Tuple<>(
+					new Tuple<Integer, Integer>(
+							0, 
+							0
+					), 
+					"Empty"
+				);
+		}
+		
 		String json = JSON.substring(start, end + 1);
 		
-		getFirstColumn(JSON.substring(start, end + 1));
 		return new Tuple<>(
 				new Tuple<Integer, Integer>(
 						getFirstColumn(json), 

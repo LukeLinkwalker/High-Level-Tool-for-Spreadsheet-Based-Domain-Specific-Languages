@@ -67,7 +67,7 @@ export function removeBlackBorder(cell) {
 export function createError(errorCellColumn, errorCellRow, errorMessage) {
     let cell = spreadsheet.getCellFromIndexes(errorCellColumn, errorCellRow)
     let errorBox = spreadsheet.getErrorBox(cell)
-
+    console.log(cell)
     spreadsheet.insertNewMessageInErrorBox(errorBox, errorMessage)
     //TODO: Refactor after errorLineIndexes work on server.
     // createErrorUnderline(cell, errorLineIndexes)

@@ -136,21 +136,15 @@
         "column": 6,
         "row": 15,
         "name": "OKZVVTSPKHOVYSMUFunctionsSQPSUQMWUPQSBXDT",
-        "type": "alternative",
+        "type": "attribute",
         "isOptional": false,
         "children": [],
         "dataTypes": [
           {
             "column": 6,
             "row": 18,
-            "type": "custom",
-            "value": "OKZVVTSPKHOVYSMUgetSQPSUQMWUPQSBXDT"
-          },
-          {
-            "column": 6,
-            "row": 19,
-            "type": "custom",
-            "value": "OKZVVTSPKHOVYSMUsetSQPSUQMWUPQSBXDT"
+            "type": "predefined",
+            "value": "string"
           }
         ]
       }
