@@ -61,18 +61,24 @@ export function setBlackBorder(cell) {
 export function removeBlackBorder(cell) {
     $(cell).removeClass('blackBorder')
 }
+//TODO: Refactor after errorLineIndexes work on server.
 
-export function createError(errorCellIndexes, errorLineIndexes, errorMessage) {
+// export function createError(errorCellIndexes, errorLineIndexes, errorMessage) {
+export function createError(errorCellIndexes, errorMessage) {
     let cell = spreadsheet.getCellFromIndexes(errorCellIndexes[0], errorCellIndexes[1])
     let errorBox = spreadsheet.getErrorBox(cell)
 
     spreadsheet.insertNewMessageInErrorBox(errorBox, errorMessage)
-    createErrorUnderline(cell, errorLineIndexes)
+    //TODO: Refactor after errorLineIndexes work on server.
+    // createErrorUnderline(cell, errorLineIndexes)
+    createErrorUnderline(cell)
     $(cell).addClass('error')
 }
+//TODO: Refactor after errorLineIndexes work on server.
 
-export function createErrorUnderline(cell, errorLineIndexes) {
-    let cellText = spreadsheet.getCellText(cell)
+// export function createErrorUnderline(cell, errorLineIndexes) {
+export function createErrorUnderline(cell) {
+        let cellText = spreadsheet.getCellText(cell)
     //TODO: Refactor after errorLineIndexes work on server.
     let textWithError = cellText
     // let textWithError = cellText.substring(errorLineIndexes[0], errorLineIndexes[1])
