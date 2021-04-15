@@ -158,8 +158,10 @@ public class GrammarCreator {
 
         for (JsonElement jsonElement : dataTypes) {
             String dataType = jsonElement.getAsJsonObject().get("value").getAsString();
+            //TODO: Done quickly.
+            if (!(dataType.equals("string") || dataType.equals("int") || dataType.equals("float") ||
+                    dataType.equals("boolean"))) dataType = StringUtilities.removeSingleQuotes(dataType);
             dataType = replaceWhiteSpaceWithUnderscore(dataType);
-            dataType = StringUtilities.removeSingleQuotes(dataType);
             sj.add("value" + dataType + " = " + dataType);
         }
 
