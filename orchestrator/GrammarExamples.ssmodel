@@ -1,46 +1,15 @@
 [
   {
     "column": 0,
-    "row": 0,
-    "type": "rules",
-    "children": [
-      {
-        "name": {
-          "column": 0,
-          "row": 2,
-          "value": "'SensorType'"
-        },
-        "rule": {
-          "column": 1,
-          "row": 2,
-          "value": "'External | Internal'"
-        }
-      },
-      {
-        "name": {
-          "column": 0,
-          "row": 9,
-          "value": "'Temperature Unit'"
-        },
-        "rule": {
-          "column": 1,
-          "row": 9,
-          "value": "'Celsius | Fahrenheit'"
-        }
-      }
-    ]
-  },
-  {
-    "column": 0,
     "row": 14,
-    "name": "'Config'",
+    "name": "OKZVVTSPKHOVYSMUConfigSQPSUQMWUPQSBXDT",
     "type": "array",
     "isOptional": false,
     "children": [
       {
         "column": 0,
         "row": 15,
-        "name": "'Name'",
+        "name": "OKZVVTSPKHOVYSMUNameSQPSUQMWUPQSBXDT",
         "type": "attribute",
         "isOptional": false,
         "children": [],
@@ -56,14 +25,14 @@
       {
         "column": 1,
         "row": 15,
-        "name": "'Sensors'",
+        "name": "OKZVVTSPKHOVYSMUSensorsSQPSUQMWUPQSBXDT",
         "type": "array",
         "isOptional": false,
         "children": [
           {
             "column": 1,
             "row": 16,
-            "name": "'Name'",
+            "name": "OKZVVTSPKHOVYSMUNameSQPSUQMWUPQSBXDT",
             "type": "attribute",
             "isOptional": false,
             "children": [],
@@ -79,14 +48,14 @@
           {
             "column": 2,
             "row": 16,
-            "name": "'Inputs'",
+            "name": "OKZVVTSPKHOVYSMUInputsSQPSUQMWUPQSBXDT",
             "type": "array",
             "isOptional": false,
             "children": [
               {
                 "column": 2,
                 "row": 17,
-                "name": "'Source'",
+                "name": "OKZVVTSPKHOVYSMUSourceSQPSUQMWUPQSBXDT",
                 "type": "attribute",
                 "isOptional": false,
                 "children": [],
@@ -102,7 +71,7 @@
               {
                 "column": 3,
                 "row": 17,
-                "name": "'Rate'",
+                "name": "OKZVVTSPKHOVYSMURateSQPSUQMWUPQSBXDT",
                 "type": "attribute",
                 "isOptional": false,
                 "children": [],
@@ -121,14 +90,14 @@
           {
             "column": 4,
             "row": 16,
-            "name": "'Outputs'",
+            "name": "OKZVVTSPKHOVYSMUOutputsSQPSUQMWUPQSBXDT",
             "type": "array",
             "isOptional": false,
             "children": [
               {
                 "column": 4,
                 "row": 17,
-                "name": "'Type'",
+                "name": "OKZVVTSPKHOVYSMUTypeSQPSUQMWUPQSBXDT",
                 "type": "attribute",
                 "isOptional": false,
                 "children": [],
@@ -144,7 +113,7 @@
               {
                 "column": 5,
                 "row": 17,
-                "name": "'Rate'",
+                "name": "OKZVVTSPKHOVYSMURateSQPSUQMWUPQSBXDT",
                 "type": "attribute",
                 "isOptional": false,
                 "children": [],
@@ -166,7 +135,7 @@
       {
         "column": 6,
         "row": 15,
-        "name": "'Functions'",
+        "name": "OKZVVTSPKHOVYSMUFunctionsSQPSUQMWUPQSBXDT",
         "type": "alternative",
         "isOptional": false,
         "children": [],
@@ -175,13 +144,13 @@
             "column": 6,
             "row": 18,
             "type": "custom",
-            "value": "'get'"
+            "value": "OKZVVTSPKHOVYSMUgetSQPSUQMWUPQSBXDT"
           },
           {
             "column": 6,
             "row": 19,
             "type": "custom",
-            "value": "'set'"
+            "value": "OKZVVTSPKHOVYSMUsetSQPSUQMWUPQSBXDT"
           }
         ]
       }
@@ -190,118 +159,33 @@
   },
   {
     "column": 0,
-    "row": 21,
-    "name": "'OldConfig'",
-    "type": "object",
-    "isOptional": false,
+    "row": 0,
+    "type": "rules",
     "children": [
       {
-        "column": 0,
-        "row": 22,
-        "name": "'Name'",
-        "type": "attribute",
-        "isOptional": false,
-        "children": [],
-        "dataTypes": [
-          {
-            "column": 0,
-            "row": 25,
-            "type": "predefined",
-            "value": "string"
-          }
-        ]
+        "name": {
+          "column": 0,
+          "row": 2,
+          "value": "OKZVVTSPKHOVYSMUSensorTypeSQPSUQMWUPQSBXDT"
+        },
+        "rule": {
+          "column": 1,
+          "row": 2,
+          "value": "'External' | 'Internal'"
+        }
       },
       {
-        "column": 1,
-        "row": 22,
-        "name": "'Sensors'",
-        "type": "array",
-        "isOptional": false,
-        "children": [
-          {
-            "column": 1,
-            "row": 23,
-            "name": "'Name'",
-            "type": "attribute",
-            "isOptional": false,
-            "children": [],
-            "dataTypes": [
-              {
-                "column": 1,
-                "row": 25,
-                "type": "predefined",
-                "value": "string"
-              }
-            ]
-          },
-          {
-            "column": 2,
-            "row": 23,
-            "name": "'Outputs'",
-            "type": "array",
-            "isOptional": false,
-            "children": [
-              {
-                "column": 2,
-                "row": 24,
-                "name": "'Type'",
-                "type": "attribute",
-                "isOptional": false,
-                "children": [],
-                "dataTypes": [
-                  {
-                    "column": 2,
-                    "row": 25,
-                    "type": "predefined",
-                    "value": "string"
-                  }
-                ]
-              },
-              {
-                "column": 3,
-                "row": 24,
-                "name": "'Rate'",
-                "type": "attribute",
-                "isOptional": false,
-                "children": [],
-                "dataTypes": [
-                  {
-                    "column": 3,
-                    "row": 25,
-                    "type": "predefined",
-                    "value": "int"
-                  }
-                ]
-              }
-            ],
-            "dataTypes": []
-          }
-        ],
-        "dataTypes": []
-      },
-      {
-        "column": 4,
-        "row": 22,
-        "name": "'Functions'",
-        "type": "alternative",
-        "isOptional": false,
-        "children": [],
-        "dataTypes": [
-          {
-            "column": 4,
-            "row": 25,
-            "type": "custom",
-            "value": "'get'"
-          },
-          {
-            "column": 4,
-            "row": 26,
-            "type": "custom",
-            "value": "'set'"
-          }
-        ]
+        "name": {
+          "column": 0,
+          "row": 9,
+          "value": "OKZVVTSPKHOVYSMUTemperature UnitSQPSUQMWUPQSBXDT"
+        },
+        "rule": {
+          "column": 1,
+          "row": 9,
+          "value": "'Celsius' | 'Fahrenheit'"
+        }
       }
-    ],
-    "dataTypes": []
+    ]
   }
 ]
