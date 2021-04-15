@@ -12,6 +12,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.github.lukelinkwalker.orchestrator.App;
+import com.github.lukelinkwalker.orchestrator.Util.Tuple;
 import com.github.lukelinkwalker.orchestrator.lspclient.messages.LSPMessage;
 import com.github.lukelinkwalker.orchestrator.lspclient.messages.PublishDiagnostics;
 import com.github.lukelinkwalker.orchestrator.lspclient.messages.PublishDiagnostics.DiagnosticParams.Diagnostics;
@@ -72,13 +73,22 @@ public class DumbLSPClient extends WebSocketClient {
 				for(int i = 0; i < PD.getParams().getDiagnostics().length; i += 1) {
 					Diagnostics diag = PD.getParams().getDiagnostics()[i];
 	
-					JsonObj errorCell = JsonSearch.find(App.Txt, diag.getRange().getStart().getCharacter());
+					Tuple<Tuple<Integer, Integer>, String> errorInfo = JsonSearch.find(App.Txt, diag.getRange().getStart().getCharacter());
+					
+					//JsonObj errorCell = JsonSearch.find(App.Txt, diag.getRange().getStart().getCharacter());
 					
 
+					//JsonObject error = new JsonObject();
+					//error.addProperty("column", errorCell.getColumn());
+					//error.addProperty("row", errorCell.getRow());
+					//error.addProperty("message", diag.getMessage());
+					
 					JsonObject error = new JsonObject();
-					error.addProperty("column", errorCell.getColumn());
-					error.addProperty("row", errorCell.getRow());
-					error.addProperty("message", diag.getMessage());
+					error.addProperty("column", errorInfo.getA().getA());
+					error.addProperty("row", errorInfo.getA().getB());
+					error.addProperty("message", errorInfo.getB());
+					
+					// Add error indeces
 					
 					errors.add(error);
 				}

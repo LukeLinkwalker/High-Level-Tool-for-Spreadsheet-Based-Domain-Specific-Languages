@@ -4,6 +4,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import com.github.lukelinkwalker.orchestrator.App;
 import com.github.lukelinkwalker.orchestrator.Util.Tuple;
@@ -13,6 +14,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class SheetTransformer {
+	public static String parse(Sheet sheet) {
+		if(sheet.isSGL()) {
+			return parseSGL(sheet);
+		}
+		
+		return parseSDSL(sheet);
+	}
+	
 	public static String parseSGL(Sheet sheet) {
 		JsonArray root = new JsonArray();
 		ArrayList<BoundingBox> tables = sheet.getTableRanges();
@@ -54,7 +63,7 @@ public class SheetTransformer {
 						JsonObject valueObj = new JsonObject();
 						valueObj.addProperty("column", columnStart + 1);
 						valueObj.addProperty("row", row);
-						valueObj.addProperty("value", JsonUtil.tokenWrap(rule.getData()));
+						valueObj.addProperty("value", rule.getData()); // JsonUtil.tokenWrap(rule.getData()));
 						
 						ruleObj.add("name", nameObj);
 						ruleObj.add("rule", valueObj);
@@ -121,10 +130,13 @@ public class SheetTransformer {
 			BoundingBox table1 = tables.get(i);
 			String tableName = sheet.getCell(table1.getX(), table1.getY()).getData();
 			System.out.println("Processing: " + table1.toString());
-			//System.out.println("Table name: " + tableName);
+			
+			// Clean table
+			tableName = tableName.replaceAll("[^a-zA-Z0-9]+"," ");
+			tableName = tableName.stripTrailing();
+			System.out.println("Table name: " + tableName);
 			
 			// Put out error due to skip? - Yes. Todo
-			System.out.println(tableName);
 			if(App.M.checkIfExists(tableName) == false) {
 				continue;
 			}
@@ -142,7 +154,8 @@ public class SheetTransformer {
 			int rowEnd = table1.getY() + table1.getHeight();
 			int columnStart = table1.getX();
 			int columnEnd = table1.getX() + table1.getWidth();
-			
+
+			// Modify arrLayout based on break outs
 			ArrayList<ArrayList<String>> arrLayout = App.M.getArrayLayout(tableName);
 			
 			// Order cell data
@@ -166,7 +179,6 @@ public class SheetTransformer {
 			
 			// Create JSON objects
 			ArrayList<JsonObject> allObjects = new ArrayList<>();
-			ArrayList<ArrayList<JsonObject>> orderedJsonObjects = new ArrayList<>();
 			for(int row = 0; row < orderedCellData.size(); row += 1) {
 				ArrayList<Tuple<Integer, CellData>> CDs = orderedCellData.get(row);
 				ArrayList<JsonObject> Objects = new ArrayList<>();
@@ -177,263 +189,123 @@ public class SheetTransformer {
 					JsonObject value = new JsonObject();
 					value.addProperty("column", CD.getB().getColumn());
 					value.addProperty("row", CD.getB().getRow());
-					value.addProperty("value", CD.getB().getName());
+					
+					int normalizedColumn = CD.getB().getColumn() - table1.getX();
+					
+					switch(attributes.get(normalizedColumn).getDataType()) {
+						case "alternative":
+							value.addProperty("value", JsonUtil.tokenWrap(CD.getB().getName()));
+							break;
+						case "int":
+							value.addProperty("value", Integer.parseInt(CD.getB().getName()));
+							break;
+						case "float":
+							value.addProperty("value", Float.parseFloat(CD.getB().getName()));
+							break;
+						case "string":
+							value.addProperty("value", JsonUtil.tokenWrap(CD.getB().getName()));
+							break;
+						case "boolean":
+							value.addProperty("value", Boolean.parseBoolean(CD.getB().getName()));
+							break;
+					}
 					
 					JsonObject container = new JsonObject();
 					container.add(App.M.getAttribute(tableName, CD.getA()).getName(), value);
 					
-					//System.out.println(value);
-					
 					Objects.add(value);
 					allObjects.add(value);
 				}
-				
-				orderedJsonObjects.add(Objects);
 			}
 			
-			// Tmp objects to list
-			//ArrayList<JsonObject> allObjects = new ArrayList<>();
-			//for(int row = 0; row < orderedJsonObjects.size(); i += 1) {
-			//	ArrayList<JsonObject> Objects = orderedJsonObjects.get(row);
-			//	System.out.println("Test!");
-			//	for(int object = 0; object < Objects.size(); object += 1) {
-			//		allObjects.add(Objects.get(object));
-			//	}
-			//}
-			
-			//// Merge JSON objects
-			//for(int row = 0; row < orderedJsonObjects.size(); i += 1) {
-			//	ArrayList<JsonObject> Objects = orderedJsonObjects.get(row);
-			//	
-			//	for(int object = 0; object < Objects.size(); object += 1) {
-			//		
-			//	}
-			//}
-			
-			
-			
-			// Create Final Objects
-			JsonObject currRoot = null;
-			for(int index = 0; index < allObjects.size(); index += 1) {
-				JsonObject obj = allObjects.get(index);
-				System.out.println(obj);
+			// Merge JSON objects
+			HashMap<String, JsonObject> tmpObjRef = new HashMap<>();
+			for(int index = 0; index < attributes.size(); index += 1) {
+				String listName = arrLayout.get(index).get(arrLayout.get(index).size() - 1);
 				
-				int normalizedColumn = obj.get("column").getAsInt() - table1.getX();
-				
-				if(normalizedColumn == 0) {
-					System.out.println("New object!");
-					
-					JsonObject objectRoot = new JsonObject();
-					objectRoot.add("Name", obj);
-					table.add(objectRoot);
-					currRoot = objectRoot;
-					
-					//table.add(objectRoot);
-					//
-					//for(int headerColumn = 0; headerColumn < arrLayout.size(); headerColumn += 1) {
-					//	ArrayList<String> arrays = arrLayout.get(headerColumn);
-					//	
-					//	JsonArray arr = null;
-					//	for(int headerRow = 0; headerRow < arrays.size(); headerRow += 1) {
-					//		boolean exists = objectRoot.has(arrays.get(headerRow));
-					//		
-					//		if(exists == false) {
-					//			objectRoot
-					//		}
-					//		
-					//		JsonElement ele = objectRoot.get(arrays.get(headerRow));
-					//		arr = objectRoot.get(arrays.get(headerRow)).getAsJsonArray();
-					//	}
-					//}
-				} else {
-					
+				if(App.M.isFirstAttribute(tableName, index) == true) {
+					tmpObjRef.put(JsonUtil.tokenStrip(listName), null);
+					System.out.println(JsonUtil.tokenStrip(listName));
 				}
 			}
 			
-			//HashMap<String, JsonObject> mapOfObjects = new HashMap<>();
-			//
-			//// Needs to be updated to get from header dynamically
-			//int[] arrLevels = new int[] { 0, 1, 2, 2, 3, 3, 0 };
-			//HashMap<Integer, String> lists = new HashMap<>();
-			//lists.put(1, "Sensors");
-			//lists.put(2, "Inputs");
-			//lists.put(3, "Outputs");
-			//
-			//int rowStart = table1.getY() + depth;
-			//int rowEnd = table1.getY() + table1.getHeight();
-			//int columnStart = table1.getX();
-			//int columnEnd = table1.getX() + table1.getWidth();
-			//
-			//// Organize cell data
-			//ArrayList<ArrayList<Tuple<Integer, ArrayList<CellData>>>> rows = new ArrayList<>();
-			//for(int row = rowStart; row < rowEnd; row += 1) {
-			//	ArrayList<Tuple<Integer, ArrayList<CellData>>> rowEntries = new ArrayList<>();
-			//	ArrayList<CellData> currentEntry = new ArrayList<>();
-			//	int currentDepth = -1;
-			//	
-			//	for(int column = columnStart; column < columnEnd; column += 1) {
-			//		if(sheet.getCell(column, row) != null) {
-			//			Cell cell = sheet.getCell(column, row);
-			//			CellData CD = parseCellData(cell.getData(), cell.getColumn(), cell.getRow());
-			//			// Needs to be dynamic -> use tableName
-			//			CD.setCellName(App.M.getAttribute(tableName, column).getName());
-			//			
-			//			if(currentDepth == -1 || currentDepth == arrLevels[column]) {
-			//				currentEntry.add(CD);
-			//				currentDepth = arrLevels[column];
-			//			} else {
-			//				rowEntries.add(new Tuple<>(currentDepth, currentEntry));
-			//				currentDepth = arrLevels[column];
-			//				currentEntry = new ArrayList<CellData>();
-			//				currentEntry.add(CD);
-			//			}
-			//		}
-			//	}
-			//	
-			//	rowEntries.add(new Tuple<>(currentDepth, currentEntry));
-			//	rows.add(rowEntries);
-			//	
-			//	//System.out.println("Row entries: " + rowEntries.size());
-			//	//for(int k = 0; k < rowEntries.size(); k += 1) {
-			//		//System.out.println("Entry " + k + " : " + rowEntries.get(k).getA() + " - " + rowEntries.get(k).getB().size());
-			//	//}
-			//}
-			//
-			//// Convert to JSON objects
-			//ArrayList<ArrayList<Tuple<Integer, JsonObject>>> objectRows = new ArrayList<>();
-			//			
-			//for(int row = 0; row < rows.size(); row += 1) {
-			//	ArrayList<Tuple<Integer, ArrayList<CellData>>> entries = rows.get(row);
-			//	ArrayList<Tuple<Integer, JsonObject>> objects = new ArrayList<>();
-			//	
-			//	for(int entry = 0; entry < entries.size(); entry += 1) {
-			//		Tuple<Integer, ArrayList<CellData>> object = entries.get(entry);
-			//		
-			//		JsonObject obj = new JsonObject();
-			//		
-			//		for(int cell = 0; cell < object.getB().size(); cell += 1) {
-			//			// Needs to be dynamic "Config" -> tableName
-			//			JsonObj attr = App.M.getAttribute(tableName, object.getB().get(cell).getCellName());
-			//			//System.out.println(attr.getName() + " -> " + attr.getDataType());
-			//			
-			//			JsonObject tmp = new JsonObject();
-			//			tmp.addProperty("column", object.getB().get(cell).getColumn());
-			//			tmp.addProperty("row", object.getB().get(cell).getRow());
-			//			
-			//			switch(attr.getDataType()) {
-			//				case "alternative":
-			//					tmp.addProperty("value", "'" + object.getB().get(cell).getName() + "'");
-			//					break;
-			//				case "Int":
-			//					tmp.addProperty("value", Integer.parseInt(object.getB().get(cell).getName()));
-			//					break;
-			//				case "String":
-			//					tmp.addProperty("value", "'" + object.getB().get(cell).getName() + "'");
-			//					break;
-			//				case "Boolean":
-			//					tmp.addProperty("value", Boolean.parseBoolean(object.getB().get(cell).getName()));
-			//					break;
-			//			}
-			//			
-			//			obj.add(object.getB().get(cell).getCellName(), tmp);
-			//		}
-			//		
-			//		objects.add(new Tuple<>(object.getA(), obj));
-			//	}
-			//	
-			//	
-			//	objectRows.add(objects);
-			//}
-			//
-			//// Merge JSON objects
-			//for(int row = 0; row < objectRows.size(); row += 1) {
-			//	ArrayList<Tuple<Integer, JsonObject>> objects = objectRows.get(row);
-			//	//System.out.println("Row: " + row + "  (" + objects.size() + ")");
-			//	
-			//	for(int object = 0; object < objects.size(); object += 1) {
-			//		Tuple<Integer, JsonObject> jsonEntry = objects.get(object);
-			//		// Store to handle objects at same level ?
-			//		JsonObject parent = findJsonParent(objectRows, objects, row, object, objects.get(object).getA());
-			//		System.out.println(jsonEntry.getA() + " : " + jsonEntry.getB().toString().toString() + " with " + parent);
-			//		
-			//		
-			//		if(parent != null) {
-			//			if(jsonEntry.getA() == 0) {
-			//				for(String key : jsonEntry.getB().keySet()) {
-			//					parent.add(key, jsonEntry.getB().get(key));
-			//				}
-			//			} else {
-			//				String listKey = lists.get(jsonEntry.getA());
-			//				JsonArray arr = null;
-			//				
-			//				if(parent.get(listKey) == null) {
-			//					parent.add(listKey, new JsonArray());
-			//				}
-			//				
-			//				arr = parent.get(listKey).getAsJsonArray();
-			//				arr.add(jsonEntry.getB());
-			//			}
-			//		} else {
-			//			table.add(jsonEntry.getB());
-			//		}
-			//	}
-			//}
+			for(int index = 0; index < allObjects.size(); index += 1) {
+				JsonObject obj = allObjects.get(index);
+				int normalizedColumn = obj.get("column").getAsInt() - table1.getX();
+				
+				System.out.println(obj);
+				
+				boolean isFirst = App.M.isFirstAttribute(tableName, normalizedColumn);
+				String listName = JsonUtil.tokenStrip(arrLayout.get(normalizedColumn).get(arrLayout.get(normalizedColumn).size() - 1));
+				
+				// Create List Objects
+				if(isFirst) {
+					if(arrLayout.get(normalizedColumn).size() == 1) {
+						JsonObject newObj = new JsonObject();
+						table.add(newObj);
+						tmpObjRef.put(listName, newObj);
+					} else {
+						ArrayList<String> lists = arrLayout.get(normalizedColumn);
+						String prevListName = JsonUtil.tokenStrip(lists.get(lists.size() - 2));
+						
+						JsonObject tmpRoot = tmpObjRef.get(prevListName);
+						JsonObject newObj = new JsonObject();
+						
+						if(tmpRoot.get(JsonUtil.tokenStrip(lists.get(lists.size() - 1))) == null) {
+							// Create list and add new object
+							JsonArray jArr = new JsonArray();
+							newObj.add("List", jArr);
+							jArr.add(new JsonObject());
+							
+							if(tmpRoot.get("List") == null) {
+								tmpRoot.add(JsonUtil.tokenStrip(lists.get(lists.size() - 1)), newObj);
+							} else {
+								JsonArray tmpRootArray = tmpRoot.get("List").getAsJsonArray();
+								tmpRootArray.get(tmpRootArray.size() - 1).getAsJsonObject().add(JsonUtil.tokenStrip(lists.get(lists.size() - 1)), newObj);
+							}
+						} else {
+							// Add new object
+							tmpRoot = tmpObjRef.get(prevListName);
+							JsonArray tmpArr = tmpRoot.get(listName).getAsJsonObject().get("List").getAsJsonArray();
+							tmpArr.add(newObj);
+						}
+						
+						tmpObjRef.put(listName, newObj);
+						
+					}
+					
+					boolean reset = false;
+					for(String key : tmpObjRef.keySet()) {
+						if(reset == true) {
+							tmpObjRef.put(listName, null);
+							System.out.println("Resetting");
+						} else {
+							if(tmpObjRef.get(key) != null) {
+								if(tmpObjRef.get(key).equals(listName)) {
+									reset = true;
+								}								
+							}
+						}
+					}
+				}
+				
+				// Add Entry
+				System.out.println("name : " + listName);
+				
+				if(arrLayout.get(normalizedColumn).size() == 1) {
+					tmpObjRef.get(listName).add(attributes.get(normalizedColumn).getNameOnly(), obj);
+				} else {
+					if(tmpObjRef.get(listName).get("List") == null) {
+						tmpObjRef.get(listName).add(attributes.get(normalizedColumn).getNameOnly(), obj);
+					} else {
+						JsonArray tmpArr = tmpObjRef.get(listName).get("List").getAsJsonArray();
+						tmpArr.get(tmpArr.size() - 1).getAsJsonObject().add(attributes.get(normalizedColumn).getNameOnly(), obj);
+					}
+				}
+			}
 		}
 		
 		return root.toString().toString();
-	}
-	
-	private static JsonObject findJsonParent(
-			ArrayList<ArrayList<Tuple<Integer, JsonObject>>> objectRows,
-			ArrayList<Tuple<Integer, JsonObject>> objects,
-			int rowIndex,
-			int objectIndex,
-			int arrLevel
-			) {
-		
-		JsonObject result = null;
-		int matchedArrLevel = -1;
-		
-		// Same line
-		for(int object = 0; object < objectIndex; object += 1) {
-			if(objects.get(object).getA() == arrLevel || objects.get(object).getA() == (arrLevel - 1)) {
-				if(matchedArrLevel == -1) {
-					result = objects.get(object).getB();
-					matchedArrLevel = objects.get(object).getA();
-				} else if(matchedArrLevel < objects.get(object).getA()) {
-					result = objects.get(object).getB();
-				}
-			}
-		}
-		
-		if(result != null) {
-			return result;
-		}
-
-		// Upper line
-		for(int offset = 1; offset < objectRows.size(); offset += 1) {
-			if(result != null) {
-				break;
-			}
-			
-			if(rowIndex - offset < 0) {
-				break;
-			}
-			
-			ArrayList<Tuple<Integer, JsonObject>> higherObjects = objectRows.get(rowIndex - offset);
-			
-			for(int object = 0; object < higherObjects.size(); object += 1) {
-				if(higherObjects.get(object).getA() == arrLevel) {
-					break;
-				}
-				
-				if(higherObjects.get(object).getA() == (arrLevel - 1)) {
-					result = higherObjects.get(object).getB();
-				}
-			}
-		}
-		
-		return result;
 	}
 	
 	private static ArrayList<Cell> getCellParents(Sheet sheet, BoundingBox table, int childColumn, int childRow) {
@@ -449,11 +321,6 @@ public class SheetTransformer {
 		
 		Collections.reverse(result);
 		return result;
-	}
-	
-	private static JsonObject getJsonParent(ArrayList<ArrayList<JsonObject>> objects, int row, int index) {
-		JsonObject root = objects.get(row).get(index);
-		return null;
 	}
 	
 	private static JsonObject getJsonParent(JsonObject root, Sheet sheet, BoundingBox table, int tableIndex, int childColumn, int childRow) {
@@ -481,42 +348,11 @@ public class SheetTransformer {
 		return parent;
 	}
 	
-	//private static JsonObject getJsonParent(JsonArray root, Sheet sheet, BoundingBox table, int tableIndex, int childColumn, int childRow) {
-	//	JsonObject parent = root.get(tableIndex).getAsJsonObject();
-	//	
-	//	ArrayList<Cell> parents = getCellParents(sheet, table, childColumn, childRow);
-	//	parents.remove(0);
-	//	
-	//	for(int i = 0; i < parents.size(); i += 1) {
-	//		CellData CD = parseCellData(parents.get(i).getData(), parents.get(i).getColumn(), parents.get(i).getRow());
-	//		JsonArray children = parent.get("children").getAsJsonArray();
-	//		JsonObject obj = findJsonObject(children, CD.getName());
-	//		
-	//		if(obj == null) {
-	//			break;
-	//		}
-	//		
-	//		if(!obj.get("type").getAsString().equals("type")) {
-	//			parent = obj;				
-	//		}
-	//	}
-	//	
-	//	return parent;
-	//}
-	
 	private static JsonObject findJsonObject(JsonArray arr, String name) {
 		JsonObject obj = null;
 		
 		for(int i = 0; i < arr.size(); i += 1) {
 			JsonObj tmp = new Gson().fromJson(arr.get(i).getAsJsonObject(), JsonObj.class);
-			//JsonObject tmp = arr.get(i).getAsJsonObject();
-			//System.out.println(tmp);
-			
-			//System.out.println("Name test: " + tmp.getNameOnly()); //tmp.get("name").getAsString());
-			//if(tmp.get("name").getAsString().equals(name)) {
-			//	obj = tmp;
-			//	break;
-			//}
 			
 			if(tmp.getNameOnly().equals(name)) {
 				obj = arr.get(i).getAsJsonObject();
@@ -530,16 +366,4 @@ public class SheetTransformer {
 	private static CellData parseCellData(String input, int column, int row) {
 		return new CellData(input, column, row);
 	}
-	
-	private static boolean checkIfExists(int[] arr, int limit, int value) {
-		for(int i = 0; i < limit; i += 1) {
-			if(arr[i] == value) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
-	
 }
