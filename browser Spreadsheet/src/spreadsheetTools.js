@@ -73,7 +73,9 @@ export function createError(errorCellIndexes, errorLineIndexes, errorMessage) {
 
 export function createErrorUnderline(cell, errorLineIndexes) {
     let cellText = spreadsheet.getCellText(cell)
-    let textWithError = cellText.substring(errorLineIndexes[0], errorLineIndexes[1])
+    //TODO: Refactor after errorLineIndexes work on server.
+    let textWithError = cellText
+    // let textWithError = cellText.substring(errorLineIndexes[0], errorLineIndexes[1])
     let textWithRedLine = '<span class="errorLine">' + textWithError + '</span>'
 
     $(cell).html($(cell).html().replace(textWithError, textWithRedLine))
