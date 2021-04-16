@@ -11,11 +11,21 @@ public class JsonSearch {
 		int arrayCounter = 0;
 		
 		for(int i = position; i > 0; i -= 1) {
+			if(JSON.charAt(i) == '}') {
+				objectCounter += 1;
+			}
+			
 			if(JSON.charAt(i) == '{') {
-				start = i;
-				break;
+				if(objectCounter == 0) {
+					start = i;
+					break;
+				} else {
+					objectCounter -= 1;
+				}
 			}
 		}
+		
+		objectCounter = 0;
 		
 		for(int i = start + 1; i < JSON.length(); i += 1) {
 			if(end != -1) {
@@ -41,11 +51,47 @@ public class JsonSearch {
 					break;
 			}
 		}
-
-		JsonObj obj = new Gson().fromJson(JSON.substring(start, end + 1), JsonObj.class);
-		Tuple<Integer, Integer> posResult = new Tuple<>(obj.getColumn(), obj.getRow());
 		
+		if(start == -1) {
+			return new Tuple<>(
+					new Tuple<Integer, Integer>(
+							0, 
+							0
+					), 
+					"Empty"
+				);
+		}
 		
-		return new Tuple<>(posResult, JSON.substring(start, end + 1));
+		String json = JSON.substring(start, end + 1);
+		
+		return new Tuple<>(
+				new Tuple<Integer, Integer>(
+						getFirstColumn(json), 
+						getFirstRow(json)
+				), 
+				json
+			);
+	}
+	
+	private static int getFirstColumn(String str) {
+		if(str.indexOf("\"column\":") == -1) {
+			return -1;
+		}
+		
+		String tmp = str.substring(str.indexOf("\"column\":") + 9);
+		tmp = tmp.substring(0, tmp.indexOf(','));
+		
+		return Integer.parseInt(tmp);
+	}
+	
+	private static int getFirstRow(String str) {		
+		if(str.indexOf("\"row\":") == -1) {
+			return -1;
+		}
+		
+		String tmp = str.substring(str.indexOf("\"row\":") + 6);
+		tmp = tmp.substring(0, tmp.indexOf(','));
+		
+		return Integer.parseInt(tmp);
 	}
 }
