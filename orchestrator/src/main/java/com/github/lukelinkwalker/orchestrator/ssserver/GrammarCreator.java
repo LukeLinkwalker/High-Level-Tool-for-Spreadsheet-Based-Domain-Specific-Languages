@@ -4,28 +4,12 @@ import com.github.lukelinkwalker.orchestrator.App;
 import com.github.lukelinkwalker.orchestrator.Util.StringUtilities;
 import com.google.gson.*;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.StringJoiner;
 
 public class GrammarCreator {
     private static StringBuilder model;
     private static StringBuilder tables;
     private static int tablesInitialLength;
-
-//    public static void main(String[] args) {
-//        Gson gson = new Gson();
-//        Reader reader = null;
-//        try {
-//            reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        JsonArray ssModel = gson.fromJson(reader, JsonArray.class);
-//        System.out.println(createGrammar(ssModel));
-//    }
 
     public static String createGrammar() {
         JsonArray ssModel = App.SSS.getSsModel();
@@ -77,7 +61,7 @@ public class GrammarCreator {
     }
 
     private static StringBuilder printObject(JsonObject jsonObject, String parentName) {
-        String name = StringUtilities.removeSingleQuotes(jsonObject.get("name").getAsString());
+        String name = StringUtilities.removeTokensFromString(jsonObject.get("name").getAsString());
         boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
         JsonArray children = jsonObject.getAsJsonArray("children");
         String prefix = "\n" + parentName + name + ":\n   '{'";
@@ -105,7 +89,7 @@ public class GrammarCreator {
     }
 
     private static StringBuilder printArray(JsonObject jsonObject, String parentName) {
-        String name = StringUtilities.removeSingleQuotes(jsonObject.get("name").getAsString());
+        String name = StringUtilities.removeTokensFromString(jsonObject.get("name").getAsString());
         boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
         JsonArray children = jsonObject.getAsJsonArray("children");
         String prefix = "\n" + parentName + name + ":\n   '{'";
@@ -149,7 +133,7 @@ public class GrammarCreator {
     }
 
     private static StringBuilder printAlternative(JsonObject jsonObject, String parentName) {
-        String name = StringUtilities.removeSingleQuotes(jsonObject.get("name").getAsString());
+        String name = StringUtilities.removeTokensFromString(jsonObject.get("name").getAsString());
         boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
         JsonArray dataTypes = jsonObject.get("dataTypes").getAsJsonArray();
 
@@ -158,9 +142,10 @@ public class GrammarCreator {
 
         for (JsonElement jsonElement : dataTypes) {
             String dataType = jsonElement.getAsJsonObject().get("value").getAsString();
-            //TODO: Done quickly.
-            if (!(dataType.equals("string") || dataType.equals("int") || dataType.equals("float") ||
-                    dataType.equals("boolean"))) dataType = StringUtilities.removeSingleQuotes(dataType);
+            //TODO: Test this, as it might give an error at some point.
+//            if (!(dataType.equals("int") || dataType.equals("float") ||
+//                    dataType.equals("boolean"))) dataType = StringUtilities.removeTokensFromString(dataType);
+            if (dataType.equals("string")) dataType = StringUtilities.removeTokensFromString(dataType);
             dataType = replaceWhiteSpaceWithUnderscore(dataType);
             sj.add("value" + dataType + " = " + dataType);
         }
@@ -188,7 +173,7 @@ public class GrammarCreator {
 
     private static StringBuilder printAttribute(JsonObject jsonObject) {
         StringBuilder sb = new StringBuilder();
-        String name = StringUtilities.removeSingleQuotes(jsonObject.get("name").getAsString());
+        String name = StringUtilities.removeTokensFromString(jsonObject.get("name").getAsString());
         boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
 
         JsonObject dataTypeObject = jsonObject.get("dataTypes").getAsJsonArray().get(0).getAsJsonObject();
@@ -248,7 +233,7 @@ public class GrammarCreator {
                 .append("   '{'\n")
                 .append("      '\"column\"' ':' column = INT ','\n")
                 .append("      '\"row\"' ':' row = INT ','\n")
-                .append("      '\"name\"' ':' '\"' name = [").append(name).append("|STRING] '\"'\n")
+                .append("      '\"name\"' ':' name = [").append(name).append("|STRING]\n")
                 .append("   '}'\n")
                 .append(";\n");
 
@@ -256,8 +241,8 @@ public class GrammarCreator {
     }
 
     private static String insertDefaultTerminalRules() {
-        return "\nterminal STRING: '\"' \"'\" ( '\\\\' . /* 'b'|'t'|'n'|'f'|'r'|'u'|'\"'|\"'\"|'\\\\' " +
-                "*/ | !('\\\\'|\"'\") )* \"'\" '\"';\n" +
+        return
+                "\nterminal STRING: '\"OKZVVTSPKHOVYSMU' -> 'SQPSUQMWUPQSBXDT\"';\n" +
                 "\nterminal INT returns ecore::EInt: ('0'..'9')+;\n" +
                 "\nterminal FLOAT: '-'? INT? '.' INT (('E'|'e') '-'? INT)?;\n" +
                 "\nterminal BOOLEAN: 'true' | 'false';\n" +
@@ -277,9 +262,9 @@ public class GrammarCreator {
         sb.append(")?");
     }
 
-
     private static String wrapInDoubleQuotesBasedOnDataType(String dataType, String string) {
-        if (dataType.equals("INT") || dataType.equals("FLOAT") || dataType.equals("BOOLEAN")) return string;
+        if (dataType.equals("STRING") | dataType.equals("INT") || dataType.equals("FLOAT") ||
+                dataType.equals("BOOLEAN")) return string;
         else return "'\"' " + string + " '\"' ";
     }
 
