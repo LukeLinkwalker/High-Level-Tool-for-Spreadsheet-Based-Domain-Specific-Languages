@@ -60,7 +60,7 @@ public class TableCreator {
                 String type = jsonElement.getAsJsonObject().get("type").getAsString();
 
                 if (!type.equals("rules")) {
-                    String objectName = StringUtilities.removeSingleQuotes(jsonElement.getAsJsonObject().get("name")
+                    String objectName = StringUtilities.removeTokensFromString(jsonElement.getAsJsonObject().get("name")
                             .getAsString());
 
                     if (name.equals(objectName)) return jsonElement.getAsJsonObject();
@@ -106,7 +106,7 @@ public class TableCreator {
     }
 
     private static void sendTextCommandForHeaderNamesForAppropriateCells(JsonObject jsonObject, int startColumn, int startRow) {
-        String name = StringUtilities.removeSingleQuotes(jsonObject.get("name").getAsString());
+        String name = StringUtilities.removeTokensFromString(jsonObject.get("name").getAsString());
         int column = jsonObject.get("column").getAsInt() + startColumn;
         int row = jsonObject.get("row").getAsInt() + startRow;
         String type = jsonObject.get("type").getAsString();
@@ -140,7 +140,7 @@ public class TableCreator {
             else {
                 String typeOfDataType = dataType.get("type").getAsString();
                 value = dataType.get("value").getAsString();
-                if (typeOfDataType.equals("custom")) value = StringUtilities.removeSingleQuotes(value);
+                if (typeOfDataType.equals("custom")) value = StringUtilities.removeTokensFromString(value);
             }
 
             App.SSS.sendNotification("set-text", new Object[] {column, row, value});
@@ -153,7 +153,7 @@ public class TableCreator {
     }
 
     private static void sendMergeCommandForAppropriateCells(JsonObject jsonObject, String tableName, int endCellColumn, int startColumn, int startRow) {
-        String name = StringUtilities.removeSingleQuotes(jsonObject.get("name").getAsString());
+        String name = StringUtilities.removeTokensFromString(jsonObject.get("name").getAsString());
         JsonArray children = jsonObject.get("children").getAsJsonArray();
 
         if (name.equals(tableName)) {
