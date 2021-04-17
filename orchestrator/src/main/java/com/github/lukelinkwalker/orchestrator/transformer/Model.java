@@ -191,23 +191,17 @@ public class Model {
 		return count;
 	}
 
-	public int getDepth(String header) {
+	public int getDepth(String header, boolean includeTypes) {
 		JsonObj tmp = headerMap.get(header);
 		
 		if(tmp == null) {
 			return -1;
 		}
 		
-		return getDepth(headerMap.get(header), 1);
-	}
-	
-	public int getDepthWithTypes(String header) {
-		JsonObj tmp = headerMap.get(header);
-		
-		if(tmp == null) {
-			return -1;
+		if(includeTypes) {
+			return getDepth(headerMap.get(header), 1) + 1;
 		}
-		
+
 		return getDepth(headerMap.get(header), 1);
 	}
 	
