@@ -158,8 +158,8 @@ public class SheetTransformer {
 			// Modify attributes based on break outs
 			List<JsonObj> attributes = App.M.getAttributes(tableName);
 			
-			// Order cell data
-			ArrayList<ArrayList<Tuple<Integer, CellData>>> orderedCellData = new ArrayList<>();
+			// Create JSON objects
+			ArrayList<JsonObject> allObjects = new ArrayList<>();
 			for(int row = rowStart; row < rowEnd; row += 1) {
 				ArrayList<Tuple<Integer, CellData>> CDs = new ArrayList<>();
 				
@@ -167,55 +167,32 @@ public class SheetTransformer {
 					Cell cell = sheet.getCell(column, row);
 					
 					if(cell != null) {
-						CellData cellData = parseCellData(cell.getData(), cell.getColumn(), cell.getRow());
-						System.out.println("Column: " + column);
-						cellData.setCellName(attributes.get(column).getName());
-						CDs.add(new Tuple(column, cellData));
-						//System.out.println(cellData.getColumn() + " | " + cellData.getRow() + " -> " + cellData.getName() + " in " + arrLayout.get(column).get(arrLayout.get(column).size() - 1));						
+						JsonObject value = new JsonObject();
+						value.addProperty("column", cell.getColumn());
+						value.addProperty("row", cell.getRow());
+						
+						int normalizedColumn = cell.getColumn() - table1.getX();
+						
+						switch(attributes.get(normalizedColumn).getDataType()) {
+							case "alternative":
+								value.addProperty("value", JsonUtil.tokenWrap(cell.getData()));
+								break;
+							case "int":
+								value.addProperty("value", Integer.parseInt(cell.getData()));
+								break;
+							case "float":
+								value.addProperty("value", Float.parseFloat(cell.getData()));
+								break;
+							case "string":
+								value.addProperty("value", JsonUtil.tokenWrap(cell.getData()));
+								break;
+							case "boolean":
+								value.addProperty("value", Boolean.parseBoolean(cell.getData()));
+								break;
+						}
+						
+						allObjects.add(value);
 					}
-				}
-				
-				orderedCellData.add(CDs);
-			}
-			
-			// Create JSON objects
-			ArrayList<JsonObject> allObjects = new ArrayList<>();
-			for(int row = 0; row < orderedCellData.size(); row += 1) {
-				ArrayList<Tuple<Integer, CellData>> CDs = orderedCellData.get(row);
-				ArrayList<JsonObject> Objects = new ArrayList<>();
-				
-				for(int cell = 0; cell < CDs.size(); cell += 1) {
-					Tuple<Integer, CellData> CD = CDs.get(cell);
-					
-					JsonObject value = new JsonObject();
-					value.addProperty("column", CD.getB().getColumn());
-					value.addProperty("row", CD.getB().getRow());
-					
-					int normalizedColumn = CD.getB().getColumn() - table1.getX();
-					
-					switch(attributes.get(normalizedColumn).getDataType()) {
-						case "alternative":
-							value.addProperty("value", JsonUtil.tokenWrap(CD.getB().getName()));
-							break;
-						case "int":
-							value.addProperty("value", Integer.parseInt(CD.getB().getName()));
-							break;
-						case "float":
-							value.addProperty("value", Float.parseFloat(CD.getB().getName()));
-							break;
-						case "string":
-							value.addProperty("value", JsonUtil.tokenWrap(CD.getB().getName()));
-							break;
-						case "boolean":
-							value.addProperty("value", Boolean.parseBoolean(CD.getB().getName()));
-							break;
-					}
-					
-					JsonObject container = new JsonObject();
-					container.add(App.M.getAttribute(tableName, CD.getA()).getName(), value);
-					
-					Objects.add(value);
-					allObjects.add(value);
 				}
 			}
 			
@@ -233,24 +210,22 @@ public class SheetTransformer {
 				JsonObject obj = allObjects.get(index);
 				int normalizedColumn = obj.get("column").getAsInt() - table1.getX();
 				
-				int arrLayoutSize = arrLayout.get(normalizedColumn).size();
+				ArrayList<String> currListStructure = arrLayout.get(normalizedColumn);
 				
 				String prevListName = "";
-				if(arrLayoutSize > 1) {
-					prevListName = JsonUtil.tokenStrip(arrLayout.get(normalizedColumn).get(arrLayoutSize - 2));
+				if(currListStructure.size() > 1) {
+					prevListName = JsonUtil.tokenStrip(currListStructure.get(currListStructure.size() - 2));
 				}
-				String currListName = JsonUtil.tokenStrip(arrLayout.get(normalizedColumn).get(arrLayoutSize - 1));
+				String currListName = JsonUtil.tokenStrip(currListStructure.get(currListStructure.size() - 1));
 				
 				JsonElement tmpElement = null;
 				JsonArray tmpArray = null;
 				JsonObject tmpObject = null;
 				
 				if(App.M.isFirstAttribute(tableName, normalizedColumn)) {
-					if(arrLayoutSize == 1) {
-						JsonObject newObject = new JsonObject();
-						table.add(newObject);
-						tmpElement = tmpObjRef.get(currListName);
-						tmpObjRef.put(currListName, newObject);
+					if(currListStructure.size() == 1) {
+						table.add(new JsonObject());
+						tmpObjRef.put(currListName, table.get(table.size() - 1));
 					} else {
 						tmpElement = tmpObjRef.get(prevListName);
 						
