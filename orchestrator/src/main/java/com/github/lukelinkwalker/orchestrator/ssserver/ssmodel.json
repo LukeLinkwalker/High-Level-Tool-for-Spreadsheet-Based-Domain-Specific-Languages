@@ -1,122 +1,156 @@
 [
   {
     "column": 0,
-    "row": 0,
-    "name": "'Config'",
+    "row": 14,
+    "name": "OKZVVTSPKHOVYSMUConfigSQPSUQMWUPQSBXDT",
     "type": "array",
-    "isOptional":false,
-    "children":[
+    "isOptional": false,
+    "children": [
       {
-        "column":0,
-        "row":1,
-        "name":"'Name'",
-        "type":"attribute",
-        "isOptional":false,
-        "children":[],
-        "dataTypes":[
+        "column": 0,
+        "row": 15,
+        "name": "OKZVVTSPKHOVYSMUNameSQPSUQMWUPQSBXDT",
+        "type": "attribute",
+        "isOptional": false,
+        "children": [],
+        "dataTypes": [
           {
-            "column":0,
-            "row":4,
-            "type" : "predefined",
+            "column": 0,
+            "row": 18,
+            "type": "predefined",
             "value": "string"
           }
         ]
       },
       {
-        "column":1,
-        "row":1,
-        "name":"'Sensors'",
-        "type":"array",
-        "isOptional":false,
-        "children":[
+        "column": 1,
+        "row": 15,
+        "name": "OKZVVTSPKHOVYSMUSensorsSQPSUQMWUPQSBXDT",
+        "type": "array",
+        "isOptional": false,
+        "children": [
           {
-            "column":1,
-            "row":2,
-            "name":"'Name'",
-            "type":"attribute",
-            "isOptional":false,
-            "children":[],
-            "dataTypes":[
+            "column": 1,
+            "row": 16,
+            "name": "OKZVVTSPKHOVYSMUNameSQPSUQMWUPQSBXDT",
+            "type": "attribute",
+            "isOptional": false,
+            "children": [],
+            "dataTypes": [
               {
-                "column":1,
-                "row":4,
-                "type" : "predefined",
+                "column": 1,
+                "row": 18,
+                "type": "predefined",
                 "value": "string"
               }
             ]
           },
           {
-            "column":4,
-            "row":2,
-            "name":"'Outputs'",
-            "type":"array",
-            "isOptional":false,
-            "children":[
+            "column": 2,
+            "row": 16,
+            "name": "OKZVVTSPKHOVYSMUInputsSQPSUQMWUPQSBXDT",
+            "type": "array",
+            "isOptional": false,
+            "children": [
               {
-                "column":4,
-                "row":3,
-                "name":"'Type'",
-                "type":"attribute",
-                "isOptional":false,
-                "children":[],
-                "dataTypes":[
+                "column": 2,
+                "row": 17,
+                "name": "OKZVVTSPKHOVYSMUSourceSQPSUQMWUPQSBXDT",
+                "type": "attribute",
+                "isOptional": false,
+                "children": [],
+                "dataTypes": [
                   {
-                    "column":4,
-                    "row":4,
-                    "type" : "predefined",
-                    "value":"string"
+                    "column": 2,
+                    "row": 18,
+                    "type": "predefined",
+                    "value": "string"
                   }
                 ]
               },
               {
-                "column":5,
-                "row":3,
-                "name":"'Rate'",
-                "type":"attribute",
-                "isOptional":false,
-                "children":[],
-                "dataTypes":[
+                "column": 3,
+                "row": 17,
+                "name": "OKZVVTSPKHOVYSMURateSQPSUQMWUPQSBXDT",
+                "type": "attribute",
+                "isOptional": false,
+                "children": [],
+                "dataTypes": [
                   {
-                    "column":5,
-                    "row":4,
-                    "type" : "predefined",
-                    "value":"int"
+                    "column": 3,
+                    "row": 18,
+                    "type": "predefined",
+                    "value": "int"
                   }
                 ]
               }
             ],
-            "dataTypes":[]
-          }
-
-        ],
-        "dataTypes":[]
-      },
-      {
-        "column":6,
-        "row":1,
-        "name":"'Functions'",
-        "type":"alternative",
-        "isOptional":false,
-        "children":[],
-        "dataTypes":[
-          {
-            "column":6,
-            "row":4,
-            "type" : "custom",
-            "value": "'Get'"
+            "dataTypes": []
           },
           {
-            "column":6,
-            "row":5,
-            "type" : "custom",
-            "value":"'Set'"
+            "column": 4,
+            "row": 16,
+            "name": "OKZVVTSPKHOVYSMUOutputsSQPSUQMWUPQSBXDT",
+            "type": "array",
+            "isOptional": false,
+            "children": [
+              {
+                "column": 4,
+                "row": 17,
+                "name": "OKZVVTSPKHOVYSMUTypeSQPSUQMWUPQSBXDT",
+                "type": "attribute",
+                "isOptional": false,
+                "children": [],
+                "dataTypes": [
+                  {
+                    "column": 4,
+                    "row": 18,
+                    "type": "predefined",
+                    "value": "string"
+                  }
+                ]
+              },
+              {
+                "column": 5,
+                "row": 17,
+                "name": "OKZVVTSPKHOVYSMURateSQPSUQMWUPQSBXDT",
+                "type": "attribute",
+                "isOptional": false,
+                "children": [],
+                "dataTypes": [
+                  {
+                    "column": 5,
+                    "row": 18,
+                    "type": "predefined",
+                    "value": "float"
+                  }
+                ]
+              }
+            ],
+            "dataTypes": []
+          }
+        ],
+        "dataTypes": []
+      },
+      {
+        "column": 6,
+        "row": 15,
+        "name": "OKZVVTSPKHOVYSMUFunctionsSQPSUQMWUPQSBXDT",
+        "type": "attribute",
+        "isOptional": false,
+        "children": [],
+        "dataTypes": [
+          {
+            "column": 6,
+            "row": 18,
+            "type": "predefined",
+            "value": "string"
           }
         ]
       }
     ],
-    "dataTypes":[]
-  }
-,
+    "dataTypes": []
+  },
   {
     "column": 0,
     "row": 0,
@@ -126,24 +160,24 @@
         "name": {
           "column": 0,
           "row": 2,
-          "value": "'Get'"
+          "value": "OKZVVTSPKHOVYSMUSensorTypeSQPSUQMWUPQSBXDT"
         },
         "rule": {
           "column": 1,
           "row": 2,
-          "value": "Get: 'Get()';"
+          "value": "Get: 'External' | 'Internal';"
         }
       },
       {
         "name": {
           "column": 0,
-          "row": 3,
-          "value": "'Set'"
+          "row": 9,
+          "value": "OKZVVTSPKHOVYSMUTemperature UnitSQPSUQMWUPQSBXDT"
         },
         "rule": {
           "column": 1,
-          "row": 3,
-          "value": "Set: 'Set' '(' value = INT ')';"
+          "row": 9,
+          "value": "Set: 'Celsius' | 'Fahrenheit';"
         }
       }
     ]

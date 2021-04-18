@@ -1,6 +1,10 @@
 package com.github.lukelinkwalker.orchestrator.ssserver;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import com.github.lukelinkwalker.orchestrator.App;
 import com.github.lukelinkwalker.orchestrator.ssserver.messages.*;
@@ -272,6 +276,20 @@ public class SSServer extends WebSocketServer {
 	}
 
 	public JsonArray getSsModel() {
+		return ssModel;
+	}
+
+	//TODO: Remove after testing
+	public JsonArray getSsModelTest() {
+		Gson gson = new Gson();
+		Reader reader = null;
+		try {
+			reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		JsonArray ssModel = gson.fromJson(reader, JsonArray.class);
+
 		return ssModel;
 	}
 }

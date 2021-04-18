@@ -98,9 +98,7 @@ public class GrammarCreator {
         StringBuilder sb = new StringBuilder();
         StringBuilder assignment = new StringBuilder();
 
-        //TODO: Upper is without list, lower with. Make decision later.
-//        sb.append("\n      '\"").append(name).append("\"' ':' '['\n");
-        sb.append("\n      '\"").append(name).append("\"' ':' '{'\n         '\"List\"' ':' '['\n");
+        sb.append("\n      '\"").append(name).append("\"' ':' '['\n");
         model.append(printTable(name, parentName));
 
         assignment.append(makeFirstLetterLowerCase(name)).append(" += ").append(parentName).append(name)
@@ -118,10 +116,7 @@ public class GrammarCreator {
                     .append("Reference)*))");
         }
 
-        //TODO: Upper is without list, lower with. Make decision later.
-//        sb.append("         ").append(assignment).append("\n      ']'");
-        sb.append("         ").append(assignment).append("\n         ']'\n      '}'");
-
+        sb.append("         ").append(assignment).append("\n      ']'");
         int indexBeforeIterating = model.length();
 
         for (JsonElement jsonElement : children) stringJoiner.add(print(jsonElement.getAsJsonObject(),

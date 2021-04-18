@@ -19,28 +19,31 @@ public class TableCreator {
             success = false;
         }
         else {
-            int[] tableHeaderAreaIndexes = getTableHeaderAreaIndexes(tableObject, column, row);
+            int rootColumn = tableObject.get("column").getAsInt();
+            int rootRow = tableObject.get("row").getAsInt();
+
+            int[] tableHeaderAreaIndexes = getTableHeaderAreaIndexes(tableObject, column, row, rootColumn, rootRow);
             int[] tableDataAreaIndexes = getTableDataAreaIndexes(tableHeaderAreaIndexes);
 
-            sendMergeCommandForAppropriateCells(tableObject, tableName, tableHeaderAreaIndexes[2], column, row);
-            sendBoldTextCommandForAppropriateCells(tableObject, column, row);
+            sendMergeCommandForAppropriateCells(tableObject, tableName, tableHeaderAreaIndexes[2], column, row,
+                    rootColumn, rootRow);
+            sendBoldTextCommandForAppropriateCells(tableObject, column, row, rootColumn, rootRow);
             sendBlackBorderCommandForRangeOfCells(tableHeaderAreaIndexes);
             sendBlackBorderCommandForRangeOfCells(tableDataAreaIndexes);
             sendSetAsHeaderCommandForAppropriateCells(tableHeaderAreaIndexes);
             sendSetAsDataCommandForAppropriateCells(tableDataAreaIndexes);
-            sendTextCommandForHeaderNamesForAppropriateCells(tableObject, column, row);
-            sendTextAndItalicCommandForTypesForAppropriateCells(tableObject, column, row);
+            sendTextCommandForHeaderNamesForAppropriateCells(tableObject, column, row, rootColumn, rootRow);
+            sendTextAndItalicCommandForTypesForAppropriateCells(tableObject, column, row, rootColumn, rootRow);
         }
 
         return success;
     }
 
-    private static int[] getTableHeaderAreaIndexes(JsonObject tableObject, int column, int row) {
-        int startCellColumn = tableObject.get("column").getAsInt() + column;
-        int startCellRow = tableObject.get("row").getAsInt() + row;
-        int[] endCellIndexes = findEndCellIndexes(tableObject, column, row);
+    private static int[] getTableHeaderAreaIndexes(JsonObject tableObject, int column, int row, int rootColumn,
+            int rootRow) {
+        int[] endCellIndexes = findEndCellIndexes(tableObject, column, row, rootColumn, rootRow);
 
-        return new int[] {startCellColumn, startCellRow, endCellIndexes[0], endCellIndexes[1]};
+        return new int[] {column, row, endCellIndexes[0], endCellIndexes[1]};
     }
 
     private static int[] getTableDataAreaIndexes(int[] headerArea) {
@@ -53,7 +56,10 @@ public class TableCreator {
     }
 
     private static JsonObject findTableJsonObject(String name) {
-        JsonArray ssModel = App.SSS.getSsModel();
+        //TODO: Remove after testing
+//        JsonArray ssModel = App.SSS.getSsModel();
+        JsonArray ssModel = App.SSS.getSsModelTest();
+
 
         if (ssModel != null) {
             for (JsonElement jsonElement : ssModel) {
@@ -71,15 +77,15 @@ public class TableCreator {
         return null;
     }
 
-    private static int[] findEndCellIndexes(JsonObject jsonObject, int column, int row) {
-        int endCellColumn = jsonObject.get("column").getAsInt() + column;
-        int endCellRow = jsonObject.get("row").getAsInt() + row;
+    private static int[] findEndCellIndexes(JsonObject jsonObject, int column, int row, int rootColumn, int rootRow) {
+        int endCellColumn = jsonObject.get("column").getAsInt() + column - rootColumn;
+        int endCellRow = jsonObject.get("row").getAsInt() + row - rootRow;
 
         //+1 to add row for datatypes
         int[] biggestEndCellIndexes = new int[] {endCellColumn, endCellRow + 1};
 
         for (JsonElement jsonElement : jsonObject.get("children").getAsJsonArray()) {
-            int[] thisCellIndexes = findEndCellIndexes(jsonElement.getAsJsonObject(), column, row);
+            int[] thisCellIndexes = findEndCellIndexes(jsonElement.getAsJsonObject(), column, row, rootColumn, rootRow);
 
             if (thisCellIndexes[0] > biggestEndCellIndexes[0]) biggestEndCellIndexes[0] = thisCellIndexes[0];
             if (thisCellIndexes[1] > biggestEndCellIndexes[1]) biggestEndCellIndexes[1] = thisCellIndexes[1];
@@ -97,7 +103,10 @@ public class TableCreator {
 
         if (tableObject == null) return null;
         else {
-            int[] tableHeaderAreaIndexes = getTableHeaderAreaIndexes(tableObject, column, row);
+            int rootColumn = tableObject.get("column").getAsInt();
+            int rootRow = tableObject.get("row").getAsInt();
+
+            int[] tableHeaderAreaIndexes = getTableHeaderAreaIndexes(tableObject, column, row, rootColumn, rootRow);
             int[] tableDataAreaIndexes = getTableDataAreaIndexes(tableHeaderAreaIndexes);
 
             return new int[] {tableHeaderAreaIndexes[0], tableHeaderAreaIndexes[1], tableDataAreaIndexes[2],
@@ -105,10 +114,11 @@ public class TableCreator {
         }
     }
 
-    private static void sendTextCommandForHeaderNamesForAppropriateCells(JsonObject jsonObject, int startColumn, int startRow) {
+    private static void sendTextCommandForHeaderNamesForAppropriateCells(JsonObject jsonObject, int startColumn,
+            int startRow, int rootColumn, int rootRow) {
         String name = StringUtilities.removeTokensFromString(jsonObject.get("name").getAsString());
-        int column = jsonObject.get("column").getAsInt() + startColumn;
-        int row = jsonObject.get("row").getAsInt() + startRow;
+        int column = jsonObject.get("column").getAsInt() + startColumn - rootColumn;
+        int row = jsonObject.get("row").getAsInt() + startRow - rootRow;
         String type = jsonObject.get("type").getAsString();
         boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
 
@@ -120,11 +130,13 @@ public class TableCreator {
         App.SSS.sendNotification("set-text", new Object[] {column, row, name});
 
         for (JsonElement child : children) {
-            sendTextCommandForHeaderNamesForAppropriateCells(child.getAsJsonObject(), startColumn, startRow);
+            sendTextCommandForHeaderNamesForAppropriateCells(child.getAsJsonObject(), startColumn, startRow, rootColumn,
+                    rootRow);
         }
     }
 
-    private static void sendTextAndItalicCommandForTypesForAppropriateCells(JsonObject jsonObject, int startColumn, int startRow) {
+    private static void sendTextAndItalicCommandForTypesForAppropriateCells(JsonObject jsonObject, int startColumn,
+            int startRow, int rootColumn, int rootRow) {
         JsonArray dataTypes = jsonObject.get("dataTypes").getAsJsonArray();
         JsonArray children = jsonObject.get("children").getAsJsonArray();
 
@@ -132,8 +144,8 @@ public class TableCreator {
             String type = jsonObject.get("type").getAsString();
             JsonObject dataType = dataTypes.get(0).getAsJsonObject();
 
-            int column = dataType.get("column").getAsInt() + startColumn;
-            int row = dataType.get("row").getAsInt() + startRow;
+            int column = dataType.get("column").getAsInt() + startColumn - rootColumn;
+            int row = dataType.get("row").getAsInt() + startRow - rootRow;
             String value;
 
             if (type.equals("alternative")) value = "alternative";
@@ -148,17 +160,19 @@ public class TableCreator {
         }
 
         for (JsonElement child : children) {
-            sendTextAndItalicCommandForTypesForAppropriateCells(child.getAsJsonObject(), startColumn, startRow);
+            sendTextAndItalicCommandForTypesForAppropriateCells(child.getAsJsonObject(), startColumn, startRow,
+                    rootColumn, rootRow);
         }
     }
 
-    private static void sendMergeCommandForAppropriateCells(JsonObject jsonObject, String tableName, int endCellColumn, int startColumn, int startRow) {
+    private static void sendMergeCommandForAppropriateCells(JsonObject jsonObject, String tableName, int endCellColumn,
+            int startColumn, int startRow, int rootColumn, int rootRow) {
         String name = StringUtilities.removeTokensFromString(jsonObject.get("name").getAsString());
         JsonArray children = jsonObject.get("children").getAsJsonArray();
 
         if (name.equals(tableName)) {
-            int column = jsonObject.get("column").getAsInt() + startColumn;
-            int row = jsonObject.get("row").getAsInt() + startRow;
+            int column = jsonObject.get("column").getAsInt() + startColumn - rootColumn;
+            int row = jsonObject.get("row").getAsInt() + startRow - rootRow;
 
             App.SSS.sendNotification("merge", new Object[] {column, row, endCellColumn, row});
         }
@@ -167,20 +181,20 @@ public class TableCreator {
             JsonArray childrenWithoutThis = children.deepCopy();
             childrenWithoutThis.remove(child);
 
-            int column = child.getAsJsonObject().get("column").getAsInt() + startColumn;
-            int row = child.getAsJsonObject().get("row").getAsInt() + startRow;
+            int column = child.getAsJsonObject().get("column").getAsInt() + startColumn - rootColumn;
+            int row = child.getAsJsonObject().get("row").getAsInt() + startRow - rootRow;
             JsonObject closestChild = null;
             int closestChildColumn;
 
             for (JsonElement otherChild : childrenWithoutThis) {
-                int otherColumn = otherChild.getAsJsonObject().get("column").getAsInt() + startColumn;
+                int otherColumn = otherChild.getAsJsonObject().get("column").getAsInt() + startColumn - rootColumn;
                 int distanceFromChildAndOtherChild = otherColumn - column;
 
                 if (closestChild == null) {
                     if (distanceFromChildAndOtherChild > 0) closestChild = otherChild.getAsJsonObject();
                 }
                 else {
-                    closestChildColumn = closestChild.get("column").getAsInt() + startColumn;
+                    closestChildColumn = closestChild.get("column").getAsInt() + startColumn - rootColumn;
                     int distanceFromChildAndClosetsChild = closestChildColumn - column;
 
                     if (distanceFromChildAndOtherChild > 0 && distanceFromChildAndOtherChild <
@@ -191,26 +205,29 @@ public class TableCreator {
             if (closestChild == null) {
                 if (column != endCellColumn) {
                     App.SSS.sendNotification("merge", new Object[] {column, row, endCellColumn, row});
-                    sendMergeCommandForAppropriateCells(child.getAsJsonObject(), tableName, endCellColumn, startColumn, startRow);
+                    sendMergeCommandForAppropriateCells(child.getAsJsonObject(), tableName, endCellColumn, startColumn,
+                            startRow, rootColumn, rootRow);
                 }
             }
             else {
-                closestChildColumn = closestChild.get("column").getAsInt() + startColumn;
+                closestChildColumn = closestChild.get("column").getAsInt() + startColumn - rootColumn;
 
                 if (closestChildColumn > column + 1) {
                     App.SSS.sendNotification("merge", new Object[] {column, row, closestChildColumn - 1, row});
-                    sendMergeCommandForAppropriateCells(child.getAsJsonObject(), tableName, closestChildColumn - 1, startColumn, startRow);
+                    sendMergeCommandForAppropriateCells(child.getAsJsonObject(), tableName,
+                            closestChildColumn - 1, startColumn, startRow, rootColumn, rootRow);
                 }
             }
         }
     }
 
-    private static void sendBoldTextCommandForAppropriateCells(JsonObject jsonObject, int startColumn, int startRow) {
+    private static void sendBoldTextCommandForAppropriateCells(JsonObject jsonObject, int startColumn, int startRow,
+            int rootColumn, int rootRow) {
         List<JsonObject> headerCellsExceptAttributes = findHeaderCellsExceptAttributes(jsonObject);
 
         for (JsonObject cell : headerCellsExceptAttributes) {
-            int column = cell.get("column").getAsInt() + startColumn;
-            int row = cell.get("row").getAsInt() + startRow;
+            int column = cell.get("column").getAsInt() + startColumn - rootColumn;
+            int row = cell.get("row").getAsInt() + startRow - rootRow;
             App.SSS.sendNotification("bold-text", new Object[] {column, row});
         }
     }
