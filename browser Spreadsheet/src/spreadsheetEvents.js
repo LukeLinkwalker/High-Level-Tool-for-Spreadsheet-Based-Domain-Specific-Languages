@@ -82,7 +82,7 @@ export function onCellInput(cell) {
     tools.hideAndClearAllErrors()
     inputBar.val(cellText)
     client.sendChange(cell)
-    if (globals.spreadsheetType === 'sdsl') client.requestCheckIfTextIsATableName(cellText, cellIndexes[0], cellIndexes[1])
+    client.requestCheckIfTextIsATableName(cellText, cellIndexes[0], cellIndexes[1], globals.spreadsheetType)
 }
 
 export function onCellClick(cell) {

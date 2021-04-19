@@ -182,6 +182,7 @@ function handleCheckIfTextIsATableName(params) {
     let tableNameExists = params[3]
     let column = params[1]
     let row = params[2]
+    let spreadsheetType = params[4]
     let cell = spreadsheet.getCellFromIndexes(column, row)
     let infoBox = spreadsheet.getInfoBox(cell)
     let infoBoxShown = $(cell).hasClass('infoBoxShown')
@@ -191,17 +192,18 @@ function handleCheckIfTextIsATableName(params) {
 
     if (cellType === 'normal' && tableNameExists && !infoBoxShown) {
         let tableName = params[0]
-        tools.createTableCodeCompletionForInfoBox(tableName, column, row)
+        tools.createTableCodeCompletionForInfoBox(tableName, column, row, spreadsheetType)
     }
 }
 
 function handleGetInitialTableRange(params) {
     let tableRange = params[1]
+    let spreadsheetType = params[2]
 
     if (tableRange === null) alert('A table with this name does not exist!')
     else {
         let tableName = params[0]
-        tools.createTable(tableName, tableRange)
+        tools.createTable(tableName, tableRange, spreadsheetType)
     }
 }
 
@@ -267,24 +269,27 @@ export function sendChange(cell) {
     if (debug) console.log("Send change: " + JSON.stringify(object));
 }
 
-export function requestCheckIfTextIsATableName(cellText, column, row) {
-    let data = { sheetName: globals.spreadsheetName, cellText: cellText, column: column, row: row }
+export function requestCheckIfTextIsATableName(cellText, column, row, spreadsheetType) {
+    let data = { sheetName: globals.spreadsheetName, cellText: cellText, column: column, row: row,
+        spreadsheetType: spreadsheetType }
     let message = { method: 'check-if-text-is-a-table-name', id: id, data: JSON.stringify(data) }
 
     socket.send(JSON.stringify(message))
     id++
 }
 
-export function requestGetInitialTableRange(tableName, column, row) {
-    let data = { sheetName: globals.spreadsheetName, tableName: tableName, column: column, row: row }
+export function requestGetInitialTableRange(tableName, column, row, spreadsheetType) {
+    let data = { sheetName: globals.spreadsheetName, tableName: tableName, column: column, row: row,
+        spreadsheetType: spreadsheetType }
     let message = { method: 'get-initial-table-range', id: id, data: JSON.stringify(data) }
 
     socket.send(JSON.stringify(message))
     id++
 }
 
-export function requestCreateTable(tableName, column, row) {
-    let data = { sheetName: globals.spreadsheetName, tableName: tableName, column: column, row: row}
+export function requestCreateTable(tableName, column, row, spreadsheetType) {
+    let data = { sheetName: globals.spreadsheetName, tableName: tableName, column: column, row: row,
+        spreadsheetType: spreadsheetType }
     let message = { method: 'create-table', id: id, data: JSON.stringify(data) }
 
     socket.send(JSON.stringify(message))

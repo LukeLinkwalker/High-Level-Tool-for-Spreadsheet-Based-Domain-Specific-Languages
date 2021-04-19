@@ -152,7 +152,7 @@ export function clearCell(cell) {
     spreadsheet.setCellText(cell, '')
 }
 
-export function createTable(tableName, tableRange) {
+export function createTable(tableName, tableRange, spreadsheetType) {
     let startCell = spreadsheet.getCellFromIndexes(tableRange[0], tableRange[1])
     let endCell = spreadsheet.getCellFromIndexes(tableRange[2], tableRange[3])
     let tableRangeCells = spreadsheet.getCellsInRange(startCell, endCell)
@@ -164,7 +164,7 @@ export function createTable(tableName, tableRange) {
 
     if (allTableCellsAreEmpty) {
         tableRangeCells.forEach((cellInRange) => spreadsheet.addTableNameToCell(cellInRange, tableNameForCells))
-        client.requestCreateTable(tableName, tableRange[0], tableRange[1])
+        client.requestCreateTable(tableName, tableRange[0], tableRange[1], spreadsheetType)
     }
     else alert('Cannot create table as some of the cells are not empty! ')
 }
@@ -259,7 +259,7 @@ function createDataCellInNewRow(cell, tableName) {
     setCenterText(cell)
 }
 
-export function createTableCodeCompletionForInfoBox(tableName, column, row) {
+export function createTableCodeCompletionForInfoBox(tableName, column, row, spreadsheetType) {
     let cell = spreadsheet.getCellFromIndexes(column, row)
     let infoBox = spreadsheet.getInfoBox(cell)
     let infoBoxText = 'Create ' + tableName + ' table? Press enter to create it.'
@@ -272,7 +272,7 @@ export function createTableCodeCompletionForInfoBox(tableName, column, row) {
 
     $(cell).on('keydown',(e) => {
         if (e.which === 13) {
-            client.requestGetInitialTableRange(tableName, column, row)
+            client.requestGetInitialTableRange(tableName, column, row, spreadsheetType)
         }
     })
 }
