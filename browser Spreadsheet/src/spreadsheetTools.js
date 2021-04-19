@@ -88,9 +88,12 @@ export function createErrorUnderline(cell) {
     // $(cell).html($(cell).html().replace(textWithError, textWithRedLine))
     // $(cellTextDiv).html($(cell).html().replace(textWithError, textWithRedLine))
 
-    let caret = spreadsheet.getCaretPosition(cellTextDiv)
-    $(cellTextDiv).html(textWithErrorUnderline)
-    spreadsheet.setCaretPosition(cellTextDiv, caret)
+    if ($(cellTextDiv).is(":focus")) {
+        let caret = spreadsheet.getCaretPosition(cellTextDiv)
+
+        $(cellTextDiv).html(textWithErrorUnderline)
+        spreadsheet.setCaretPosition(cellTextDiv, caret)
+    } else $(cellTextDiv).html(textWithErrorUnderline)
 }
 
 export function hideAndClearAllErrors() {
