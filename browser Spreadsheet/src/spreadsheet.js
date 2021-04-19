@@ -320,7 +320,15 @@ export function getCellText(cell) {
 }
 
 export function setCellText(cell, value) {
-    $(getCellTextDiv(cell)).text(value)
+    let cellTextDiv = getCellTextDiv(cell)
+
+    if ($(cellTextDiv).is(":focus")) {
+        let caret = getCaretPosition(cellTextDiv)
+
+        $(getCellTextDiv(cell)).text(value)
+        setCaretPosition(cellTextDiv, caret)
+    }
+    else $(getCellTextDiv(cell)).text(value)
 
     if (cell === globals.editingCell) {
         let inputBar = $('#input-bar')
@@ -480,4 +488,45 @@ export function findBrokenOutTableCells(cell) {
 
 export function findTableHeader(cell) {
     return getAllCellsFromTableCellIsIn(cell)[0]
+}
+
+export function getCaretPosition(element) {
+    let position = 0
+    let isSupported = typeof window.getSelection !== 'undefined'
+
+    if (isSupported) {
+        let selection = window.getSelection()
+
+        if (selection.rangeCount !== 0) {
+            let range = window.getSelection().getRangeAt(0)
+            let preCaretRange = range.cloneRange()
+
+            preCaretRange.selectNodeContents(element)
+            preCaretRange.setEnd(range.endContainer, range.endOffset)
+
+            position = preCaretRange.toString().length
+        }
+    }
+    return position
+}
+
+export function setCaretPosition(element, position){
+    for (let node of element.childNodes){
+        if (node.nodeType === 3) {
+            if (node.length >= position) {
+                let range = document.createRange()
+                let selection = window.getSelection()
+
+                range.setStart(node, position)
+                range.collapse(true)
+                selection.removeAllRanges()
+                selection.addRange(range)
+                return -1
+            } else position -= node.length
+        } else {
+            position = setCaretPosition(node, position);
+            if (position === -1) return -1
+        }
+    }
+    return position
 }

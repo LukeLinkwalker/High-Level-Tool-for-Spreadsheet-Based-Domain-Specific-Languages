@@ -1,7 +1,6 @@
 import * as spreadsheet from './spreadsheet.js'
 import * as tools from './spreadsheetTools.js'
 import * as globals from './spreadsheetGlobalVariables.js'
-import * as events from './spreadsheetEvents.js'
 
 let id = 1
 let updateCounter = 10_000_000;
@@ -26,26 +25,6 @@ socket.addEventListener('open', function(event) {
     socket.send(JSON.stringify(omsg));
 
     //TODO: Remove after testing
-    // let cell00 = spreadsheet.getCellFromIndexes(0, 0)
-    // let cell10 = spreadsheet.getCellFromIndexes(1, 0)
-    // let cell20 = spreadsheet.getCellFromIndexes(2, 0)
-    // let cell30 = spreadsheet.getCellFromIndexes(3, 0)
-    // let cell40 = spreadsheet.getCellFromIndexes(4, 0)
-    // let cell01 = spreadsheet.getCellFromIndexes(0, 1)
-    // let cell11 = spreadsheet.getCellFromIndexes(1, 1)
-    // let cell21 = spreadsheet.getCellFromIndexes(2, 1)
-    // let cell31 = spreadsheet.getCellFromIndexes(3, 1)
-    // let cell41 = spreadsheet.getCellFromIndexes(4, 1)
-    // let cell12 = spreadsheet.getCellFromIndexes(1, 2)
-    // let cell22 = spreadsheet.getCellFromIndexes(2, 2)
-    // let cell32 = spreadsheet.getCellFromIndexes(3, 2)
-    // let cell23 = spreadsheet.getCellFromIndexes(2, 3)
-    // let cell33 = spreadsheet.getCellFromIndexes(3, 3)
-    // let cell04 = spreadsheet.getCellFromIndexes(0, 4)
-    // let cell14 = spreadsheet.getCellFromIndexes(1, 4)
-    // let cell24 = spreadsheet.getCellFromIndexes(2, 4)
-    // let cell34 = spreadsheet.getCellFromIndexes(3, 4)
-    // let cell44 = spreadsheet.getCellFromIndexes(4, 4)
 
     let cell00 = spreadsheet.getCellFromIndexes(0, 0)
     let cell10 = spreadsheet.getCellFromIndexes(1, 0)
@@ -81,48 +60,48 @@ socket.addEventListener('open', function(event) {
     let cell65 = spreadsheet.getCellFromIndexes(6, 5)
 
 
-    spreadsheet.setCellText(cell00, 'array : Config')
-    sendChange(cell00)
-    spreadsheet.setCellText(cell01, 'attribute : Name')
-    sendChange(cell01)
-    spreadsheet.setCellText(cell11, 'array : Sensors')
-    sendChange(cell11)
-    spreadsheet.setCellText(cell61, 'attribute : Functions')
-    sendChange(cell61)
-    spreadsheet.setCellText(cell12, 'attribute : Name')
-    sendChange(cell12)
-    spreadsheet.setCellText(cell22, 'array : Inputs')
-    sendChange(cell22)
-    spreadsheet.setCellText(cell42, 'array : Outputs')
-    sendChange(cell42)
-    spreadsheet.setCellText(cell23, 'attribute : Source')
-    sendChange(cell23)
-    spreadsheet.setCellText(cell33, 'attribute : Rate')
-    sendChange(cell33)
-    spreadsheet.setCellText(cell43, 'attribute : Type')
-    sendChange(cell43)
-    spreadsheet.setCellText(cell53, 'attribute : Rate')
-    sendChange(cell53)
-    spreadsheet.setCellText(cell04, 'type : String')
-    sendChange(cell04)
-    spreadsheet.setCellText(cell14, 'type : String')
-    sendChange(cell14)
-    spreadsheet.setCellText(cell24, 'type : String')
-    sendChange(cell24)
-    spreadsheet.setCellText(cell34, 'type : int')
-    sendChange(cell34)
-    spreadsheet.setCellText(cell44, 'type : String')
-    sendChange(cell44)
-    spreadsheet.setCellText(cell54, 'type : float')
-    sendChange(cell54)
-    spreadsheet.setCellText(cell64, 'type : string')
-    sendChange(cell64)
-    tools.mergeCells([cell00, cell10, cell20, cell30, cell40, cell50, cell60])
-    tools.mergeCells([cell11, cell21, cell31, cell41, cell51])
-    tools.mergeCells([cell22, cell32])
-    tools.mergeCells([cell42, cell52])
+    // spreadsheet.setCellText(cell00, 'array : Config')
+    // sendChange(cell00)
+    // spreadsheet.setCellText(cell01, 'attribute : Name')
+    // sendChange(cell01)
+    // spreadsheet.setCellText(cell11, 'array : Sensors')
+    // sendChange(cell11)
+    // spreadsheet.setCellText(cell61, 'attribute : Functions')
+    // sendChange(cell61)
+    // spreadsheet.setCellText(cell12, 'attribute : Name')
+    // sendChange(cell12)
+    // spreadsheet.setCellText(cell22, 'array : Inputs')
+    // sendChange(cell22)
+    // spreadsheet.setCellText(cell42, 'array : Outputs')
+    // sendChange(cell42)
+    // spreadsheet.setCellText(cell23, 'attribute : Source')
+    // sendChange(cell23)
+    // spreadsheet.setCellText(cell33, 'attribute : Rate')
+    // sendChange(cell33)
+    // spreadsheet.setCellText(cell43, 'attribute : Type')
+    // sendChange(cell43)
+    // spreadsheet.setCellText(cell53, 'attribute : Rate')
+    // sendChange(cell53)
+    // spreadsheet.setCellText(cell04, 'type : String')
+    // sendChange(cell04)
+    // spreadsheet.setCellText(cell14, 'type : String')
+    // sendChange(cell14)
+    // spreadsheet.setCellText(cell24, 'type : String')
+    // sendChange(cell24)
+    // spreadsheet.setCellText(cell34, 'type : int')
+    // sendChange(cell34)
+    // spreadsheet.setCellText(cell44, 'type : String')
+    // sendChange(cell44)
+    // spreadsheet.setCellText(cell54, 'type : float')
+    // sendChange(cell54)
+    // spreadsheet.setCellText(cell64, 'type : string')
+    // sendChange(cell64)
+    // tools.mergeCells([cell00, cell10, cell20, cell30, cell40, cell50, cell60])
+    // tools.mergeCells([cell11, cell21, cell31, cell41, cell51])
     // tools.mergeCells([cell22, cell32])
-    requestBuild()
+    // tools.mergeCells([cell42, cell52])
+    // // tools.mergeCells([cell22, cell32])
+    // requestBuild()
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -145,7 +124,7 @@ socket.addEventListener('open', function(event) {
     //events.onCreateTableButtonClick()
 
     // spreadsheet.setCellText(cell00sdsl, 'Hej med dig')
-    // tools.createError([0, 0], [1, 5], 'Error, write Config')
+    // tools.createError(0, 0, 'Error, write Config')
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +174,7 @@ function handleErrors(errors) {
     for(let i = 0; i < errors.length; i++) {
         //tools.createError(errors[i].cellIndexes, errors[i].lineIndexes, errors[i].message)
         console.log("Error @ " + errors[i].column + " | " + errors[i].row + " -> " + errors[i].message);
-        tools.createError(errors[i].column, errors[i].row,  errors[i].message)
+        tools.createError(errors[i].column, errors[i].row, errors[i].message)
     }
 }
 
@@ -217,13 +196,12 @@ function handleCheckIfTextIsATableName(params) {
 }
 
 function handleGetInitialTableRange(params) {
-    if (params[3] === null) alert('A table with this name does not exist!')
+    let tableRange = params[1]
+
+    if (tableRange === null) alert('A table with this name does not exist!')
     else {
         let tableName = params[0]
-        let column = params[1]
-        let row = params[2]
-
-        tools.createTable(tableName, column, row, params[3])
+        tools.createTable(tableName, tableRange)
     }
 }
 

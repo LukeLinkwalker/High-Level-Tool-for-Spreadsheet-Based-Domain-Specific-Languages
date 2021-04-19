@@ -61,30 +61,36 @@ export function setBlackBorder(cell) {
 export function removeBlackBorder(cell) {
     $(cell).removeClass('blackBorder')
 }
-//TODO: Refactor after errorLineIndexes work on server.
 
+//TODO: Refactor after errorLineIndexes work on server.
 // export function createError(errorCellIndexes, errorLineIndexes, errorMessage) {
 export function createError(errorCellColumn, errorCellRow, errorMessage) {
     let cell = spreadsheet.getCellFromIndexes(errorCellColumn, errorCellRow)
     let errorBox = spreadsheet.getErrorBox(cell)
-    console.log(cell)
+
     spreadsheet.insertNewMessageInErrorBox(errorBox, errorMessage)
     //TODO: Refactor after errorLineIndexes work on server.
     // createErrorUnderline(cell, errorLineIndexes)
     createErrorUnderline(cell)
     $(cell).addClass('error')
 }
-//TODO: Refactor after errorLineIndexes work on server.
 
+//TODO: Refactor after errorLineIndexes work on server.
 // export function createErrorUnderline(cell, errorLineIndexes) {
 export function createErrorUnderline(cell) {
-        let cellText = spreadsheet.getCellText(cell)
+    let cellText = spreadsheet.getCellText(cell)
     //TODO: Refactor after errorLineIndexes work on server.
     let textWithError = cellText
     // let textWithError = cellText.substring(errorLineIndexes[0], errorLineIndexes[1])
-    let textWithRedLine = '<span class="errorLine">' + textWithError + '</span>'
+    let textWithErrorUnderline = '<span class="errorLine">' + textWithError + '</span>'
+    let cellTextDiv = spreadsheet.getCellTextDiv(cell)
 
-    $(cell).html($(cell).html().replace(textWithError, textWithRedLine))
+    // $(cell).html($(cell).html().replace(textWithError, textWithRedLine))
+    // $(cellTextDiv).html($(cell).html().replace(textWithError, textWithRedLine))
+
+    let caret = spreadsheet.getCaretPosition(cellTextDiv)
+    $(cellTextDiv).html(textWithErrorUnderline)
+    spreadsheet.setCaretPosition(cellTextDiv, caret)
 }
 
 export function hideAndClearAllErrors() {
@@ -143,7 +149,7 @@ export function clearCell(cell) {
     spreadsheet.setCellText(cell, '')
 }
 
-export function createTable(tableName, column, row, tableRange) {
+export function createTable(tableName, tableRange) {
     let startCell = spreadsheet.getCellFromIndexes(tableRange[0], tableRange[1])
     let endCell = spreadsheet.getCellFromIndexes(tableRange[2], tableRange[3])
     let tableRangeCells = spreadsheet.getCellsInRange(startCell, endCell)
