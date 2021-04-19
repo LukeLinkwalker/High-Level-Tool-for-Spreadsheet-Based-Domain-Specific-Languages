@@ -26,8 +26,7 @@ export function onCellMouseDown(cell) {
     let cellType = spreadsheet.getCellType(cell)
     let hasBoldText = $(cellTextDiv).hasClass('bold')
 
-    globals.setMouseDown(true)
-
+    if (cellType !== 'header') globals.setMouseDown(true)
     if (cellType === 'header' && hasBoldText) {
         let breakoutTableCells = spreadsheet.getBreakoutTableCells(cell)
 
@@ -50,6 +49,17 @@ export function onCellMouseUp(cell) {
 export function onCellMouseEnter(cell) {
     if (globals.moveBreakoutTableActivated) tools.showBreakoutTableOutline(cell)
     if ($(cell).hasClass('error')) tools.showErrorMessage(cell)
+
+    if (globals.editingCell !== cell && globals.mouseDown) {
+        globals.setSelectedEndCell(cell)
+
+        let startCellIndexes = spreadsheet.getCellIndexes(globals.selectedStartCell)
+        let endCellIndexes = spreadsheet.getCellIndexes(globals.selectedEndCell)
+
+        spreadsheet.findSelectedCells(startCellIndexes, endCellIndexes)
+        tools.clearMarkedCells()
+        tools.markCells()
+    }
 }
 
 export function onCellMouseLeave(cell) {
@@ -61,6 +71,7 @@ export function onCellTextDivFocus(cellTextDiv) {
     let cell = spreadsheet.getCellFromCellTextDiv(cellTextDiv)
     let inputBar = $('#input-bar')
 
+    if (globals.cellsMarked) tools.clearMarkedCells()
     globals.setEditingCell(cell)
     globals.setSelectedStartCell(cell)
     globals.setSelectedCells([cell])
