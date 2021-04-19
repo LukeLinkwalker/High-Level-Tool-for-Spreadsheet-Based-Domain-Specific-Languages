@@ -242,7 +242,7 @@ public class SSServer extends WebSocketServer {
 
 		SSResponse response = new SSResponse(msg);
 		response.setCode(200);
-		response.setParams(new Object[] {tableName, column, row, tableRange});
+		response.setParams(new Object[] {tableName, tableRange});
 		broadcast(gson.toJson(response));
 
 		System.out.println("Getting initial table range");
