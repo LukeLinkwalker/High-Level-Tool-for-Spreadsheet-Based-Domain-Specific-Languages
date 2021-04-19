@@ -11,8 +11,8 @@ import java.util.List;
 
 public class TableCreator {
 
-    public static boolean initializeCreateTable(String tableName, int column, int row) {
-        JsonObject tableObject = findTableJsonObject(tableName);
+    public static boolean initializeCreateTable(String tableName, int column, int row, String spreadsheetType) {
+        JsonObject tableObject = findTableJsonObject(tableName, spreadsheetType);
         boolean success = true;
 
         if (tableObject == null) {
@@ -55,11 +55,14 @@ public class TableCreator {
         return new int[] {startCellColumn, startCellRow, endCellColumn, endCellRow};
     }
 
-    private static JsonObject findTableJsonObject(String name) {
+    private static JsonObject findTableJsonObject(String name, String spreadsheetType) {
         //TODO: Remove after testing
 //        JsonArray ssModel = App.SSS.getSsModel();
-        JsonArray ssModel = App.SSS.getSsModelTest();
+//        JsonArray ssModel = App.SSS.getSDSLSSModelTest();
+        JsonArray ssModel;
 
+        if (spreadsheetType.equals("sgl")) ssModel = App.SSS.getSGLSSModel();
+        else ssModel = App.SSS.getSDSLSSModelTest();
 
         if (ssModel != null) {
             for (JsonElement jsonElement : ssModel) {
@@ -94,12 +97,12 @@ public class TableCreator {
         return biggestEndCellIndexes;
     }
 
-    public static boolean checkIfTextIsATableName(String cellText) {
-        return findTableJsonObject(cellText) != null;
+    public static boolean checkIfTextIsATableName(String cellText, String spreadsheetType) {
+        return findTableJsonObject(cellText, spreadsheetType) != null;
     }
 
-    public static int[] getInitialTableRangeResponse(String name, int column, int row) {
-        JsonObject tableObject = findTableJsonObject(name);
+    public static int[] getInitialTableRangeResponse(String name, int column, int row, String spreadsheetType) {
+        JsonObject tableObject = findTableJsonObject(name, spreadsheetType);
 
         if (tableObject == null) return null;
         else {

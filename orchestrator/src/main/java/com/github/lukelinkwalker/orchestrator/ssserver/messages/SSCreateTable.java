@@ -5,6 +5,7 @@ public class SSCreateTable {
     private String tableName;
     private int column;
     private int row;
+    private String spreadsheetType;
 
     public String getSheetName() {
         return sheetName;
@@ -36,5 +37,13 @@ public class SSCreateTable {
 
     public void setRow(int row) {
         this.row = row;
+    }
+
+    public String getSpreadsheetType() {
+        return spreadsheetType;
+    }
+
+    public void setSpreadsheetType(String spreadsheetType) {
+        this.spreadsheetType = spreadsheetType;
     }
 }

@@ -1,0 +1,44 @@
+[
+  {
+    "column": 0,
+    "row": 0,
+    "name": "OKZVVTSPKHOVYSMURulesSQPSUQMWUPQSBXDT",
+    "type": "array",
+    "isOptional": false,
+    "children": [
+      {
+        "column": 0,
+        "row": 1,
+        "name": "OKZVVTSPKHOVYSMUNameSQPSUQMWUPQSBXDT",
+        "type": "attribute",
+        "isOptional": false,
+        "children": [],
+        "dataTypes": [
+          {
+            "column": 0,
+            "row": 2,
+            "type": "predefined",
+            "value": "string"
+          }
+        ]
+      },
+      {
+        "column": 1,
+        "row": 1,
+        "name": "OKZVVTSPKHOVYSMURuleSQPSUQMWUPQSBXDT",
+        "type": "attribute",
+        "isOptional": false,
+        "children": [],
+        "dataTypes": [
+          {
+            "column": 1,
+            "row": 2,
+            "type": "predefined",
+            "value": "string"
+          }
+        ]
+      }
+    ],
+    "dataTypes": []
+  }
+]

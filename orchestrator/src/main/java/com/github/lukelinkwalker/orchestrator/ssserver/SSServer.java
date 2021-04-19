@@ -223,11 +223,12 @@ public class SSServer extends WebSocketServer {
 		String cellText = ssCheckIfTextIsATableName.getCellText();
 		int column = ssCheckIfTextIsATableName.getColumn();
 		int row = ssCheckIfTextIsATableName.getRow();
-		boolean tableNameExists = TableCreator.checkIfTextIsATableName(cellText);
+		String spreadsheetType = ssCheckIfTextIsATableName.getSpreadsheetType();
+		boolean tableNameExists = TableCreator.checkIfTextIsATableName(cellText, spreadsheetType);
 
 		SSResponse response = new SSResponse(msg);
 		response.setCode(200);
-		response.setParams(new Object[] {cellText, column, row, tableNameExists});
+		response.setParams(new Object[] {cellText, column, row, tableNameExists, spreadsheetType});
 
 		broadcast(gson.toJson(response));
 		System.out.println("Getting table names");
@@ -238,11 +239,12 @@ public class SSServer extends WebSocketServer {
 		String tableName = ssGetInitialTableRange.getTableName();
 		int column = ssGetInitialTableRange.getColumn();
 		int row = ssGetInitialTableRange.getRow();
-		int[] tableRange = TableCreator.getInitialTableRangeResponse(tableName, column, row);
+		String spreadsheetType = ssGetInitialTableRange.getSpreadsheetType();
+		int[] tableRange = TableCreator.getInitialTableRangeResponse(tableName, column, row, spreadsheetType);
 
 		SSResponse response = new SSResponse(msg);
 		response.setCode(200);
-		response.setParams(new Object[] {tableName, tableRange});
+		response.setParams(new Object[] {tableName, tableRange, spreadsheetType});
 		broadcast(gson.toJson(response));
 
 		System.out.println("Getting initial table range");
@@ -253,7 +255,8 @@ public class SSServer extends WebSocketServer {
 		String tableName = ssCreateTable.getTableName();
 		int column = ssCreateTable.getColumn();
 		int row = ssCreateTable.getRow();
-		boolean success = TableCreator.initializeCreateTable(tableName, column, row);
+		String spreadsheetType = ssCreateTable.getSpreadsheetType();
+		boolean success = TableCreator.initializeCreateTable(tableName, column, row, spreadsheetType);
 
 		SSResponse response = new SSResponse(msg);
 		if (success) response.setCode(200);
@@ -280,16 +283,29 @@ public class SSServer extends WebSocketServer {
 	}
 
 	//TODO: Remove after testing
-	public JsonArray getSsModelTest() {
+	public JsonArray getSDSLSSModelTest() {
 		Gson gson = new Gson();
 		Reader reader = null;
+
 		try {
 			reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		JsonArray ssModel = gson.fromJson(reader, JsonArray.class);
 
-		return ssModel;
+		return gson.fromJson(reader, JsonArray.class);
+	}
+
+	public JsonArray getSGLSSModel() {
+		Gson gson = new Gson();
+		Reader reader = null;
+
+		try {
+			reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/sglSSModel.json"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return gson.fromJson(reader, JsonArray.class);
 	}
 }

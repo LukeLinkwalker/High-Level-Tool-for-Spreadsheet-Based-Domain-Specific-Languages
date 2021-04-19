@@ -4,6 +4,7 @@ public class SSCheckIfTextIsATableName {
     private String cellText;
     private int column;
     private int row;
+    private String spreadsheetType;
 
     public String getCellText() {
         return cellText;
@@ -27,5 +28,13 @@ public class SSCheckIfTextIsATableName {
 
     public void setRow(int row) {
         this.row = row;
+    }
+
+    public String getSpreadsheetType() {
+        return spreadsheetType;
+    }
+
+    public void setSpreadsheetType(String spreadsheetType) {
+        this.spreadsheetType = spreadsheetType;
     }
 }
