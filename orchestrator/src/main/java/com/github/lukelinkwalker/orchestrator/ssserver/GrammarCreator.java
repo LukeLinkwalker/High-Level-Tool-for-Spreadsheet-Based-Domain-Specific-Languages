@@ -51,7 +51,7 @@ public class GrammarCreator {
             case "attribute":
                 return printAttribute(jsonObject);
             case "rules":
-                printRuleTable(jsonObject);
+                printRules(jsonObject);
                 break;
             default:
                 break;
@@ -137,7 +137,7 @@ public class GrammarCreator {
 
         for (JsonElement jsonElement : dataTypes) {
             String dataType = jsonElement.getAsJsonObject().get("value").getAsString();
-            //TODO: Test this, as it might give an error at some point.
+            //TODO: Test this, as it might give an error at some point. Probably when using custom types.
 //            if (!(dataType.equals("int") || dataType.equals("float") ||
 //                    dataType.equals("boolean"))) dataType = StringUtilities.removeTokensFromString(dataType);
             if (dataType.equals("string")) dataType = StringUtilities.removeTokensFromString(dataType);
@@ -198,7 +198,7 @@ public class GrammarCreator {
         sb.append("\n").append(name).append("Table:\n")
                 .append("   {").append(name).append("Table}\n")
                 .append("   '{'\n")
-                .append("      '\"Name\"' ':' '\"").append(objectName).append("\"' ','\n")
+                .append("      '\"Name\"' ':' '\"").append(name).append("\"' ','\n")
                 .append("      '\"Table\"' ':' '['\n")
                 .append("           ").append(makeFirstLetterLowerCase(objectName)).append(" += ").append(name).append("? (',' ")
                     .append(makeFirstLetterLowerCase(objectName)).append(" += ").append(name).append(")*\n")
@@ -209,7 +209,7 @@ public class GrammarCreator {
         return sb;
     }
 
-    private static void printRuleTable(JsonObject jsonObject) {
+    private static void printRules(JsonObject jsonObject) {
         JsonArray children = jsonObject.getAsJsonArray("children");
 
         for (JsonElement child : children) {
