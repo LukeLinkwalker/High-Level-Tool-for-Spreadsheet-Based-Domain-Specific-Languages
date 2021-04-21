@@ -22,13 +22,19 @@ public class Sheet {
 	}
 	
 	public void addData(int column, int row, int width, String data) {
-		Cell cell = new Cell();
-		cell.setColumn(column);
-		cell.setRow(row);
-		cell.setData(data);
-		
-		for(int i = 0; i < width; i += 1) {
-			cells[column + i][row] = cell;
+		if(data.isEmpty()) {
+			for(int i = 0; i < width; i += 1) {
+				cells[column + i][row] = null;
+			}
+		} else {
+			Cell cell = new Cell();
+			cell.setColumn(column);
+			cell.setRow(row);
+			cell.setData(data);
+			
+			for(int i = 0; i < width; i += 1) {
+				cells[column + i][row] = cell;
+			}
 		}
 	}
 	
