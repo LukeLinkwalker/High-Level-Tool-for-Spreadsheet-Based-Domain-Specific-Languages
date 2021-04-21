@@ -8,8 +8,7 @@ export function onInputBarInput(inputBar) {
     let inputBarText = $(inputBar).val()
 
     tools.hideAndClearAllErrors()
-    spreadsheet.setCellText(globals.editingCell, inputBarText)
-    client.sendChange(globals.editingCell)
+    spreadsheet.setCellText(globals.editingCell, inputBarText, true)
 }
 
 export function onInputBarFocus() {

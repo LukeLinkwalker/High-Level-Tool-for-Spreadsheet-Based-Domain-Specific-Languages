@@ -1,5 +1,6 @@
 import * as globals from './spreadsheetGlobalVariables.js'
 import * as setup from './spreadsheetSetup.js'
+import * as client from './ssclient.js'
 
 export function createSpreadsheet() {
     globals.setColumnSize(30)
@@ -319,7 +320,7 @@ export function getCellText(cell) {
     return $(getCellTextDiv(cell)).text()
 }
 
-export function setCellText(cell, value) {
+export function setCellText(cell, value, sendChange) {
     let cellTextDiv = getCellTextDiv(cell)
 
     if ($(cellTextDiv).is(":focus")) {
@@ -334,6 +335,8 @@ export function setCellText(cell, value) {
         let inputBar = $('#input-bar')
         inputBar.val(value)
     }
+
+    if (sendChange) client.sendChange(cell)
 }
 
 export function getCellFromCellTextDiv(cellTextDiv) {

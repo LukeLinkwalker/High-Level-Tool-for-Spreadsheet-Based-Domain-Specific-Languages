@@ -211,8 +211,7 @@ function handleSetText(params) {
     let cell = spreadsheet.getCellFromIndexes(params[0], params[1])
     let text = params[2]
 
-    spreadsheet.setCellText(cell, text)
-    sendChange(cell)
+    spreadsheet.setCellText(cell, text, true)
 }
 
 function handleMerge(params) {

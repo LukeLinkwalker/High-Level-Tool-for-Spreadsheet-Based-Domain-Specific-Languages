@@ -12,10 +12,8 @@ export function mergeCells(cells) {
 
     cells.slice(1).forEach((cell) => {
         $(cell).css('display', 'none')
-        spreadsheet.setCellText(cell, '')
+        spreadsheet.setCellText(cell, '', true)
     })
-
-    client.sendChange(spreadsheet.getCellFromIndexes(leftmostCellIndexes[0], leftmostCellIndexes[1]));
 }
 
 export function demergeCell(cell) {
@@ -110,7 +108,7 @@ export function hideAndClearAllErrors() {
 
 export function removeErrorUnderline(cell) {
     let cellText = spreadsheet.getCellText(cell)
-    spreadsheet.setCellText(cell, cellText)
+    spreadsheet.setCellText(cell, cellText, false)
 }
 
 export function showErrorMessage(cell) {
@@ -150,7 +148,7 @@ export function clearCell(cell) {
     spreadsheet.removeCellFromTable(cell)
     spreadsheet.removeBreakoutReferenceToOriginalTable(cell)
     spreadsheet.removeMarkAsBrokenOut(cell)
-    spreadsheet.setCellText(cell, '')
+    spreadsheet.setCellText(cell, '', true)
 }
 
 export function createTable(tableName, tableRange, spreadsheetType) {
@@ -444,7 +442,7 @@ export function copyCell(oldCell, newCell, newHeader) {
     $(newCell).prop('colspan', $(oldCell).prop('colspan'))
     $(newCell).css('display', $(oldCell).css('display'))
     $(newDiv).attr('class', $(oldDiv).attr('class'))
-    spreadsheet.setCellText(newCell, spreadsheet.getCellText(oldCell))
+    spreadsheet.setCellText(newCell, spreadsheet.getCellText(oldCell), true)
     $(newCell).removeClass(oldTableName)
     $(newCell).addClass(newTableName)
 
@@ -494,7 +492,7 @@ export function copyCellsAndClearOldCells(breakoutOutlineCells, breakoutHeader, 
                 let newBreakoutHeaderText = spreadsheet.getCellText(newBreakoutHeader)
                 let newBreakoutHeaderNewText = oldTableHeaderText + ' -> ' + newBreakoutHeaderText
 
-                spreadsheet.setCellText(newBreakoutHeader, newBreakoutHeaderNewText)
+                spreadsheet.setCellText(newBreakoutHeader, newBreakoutHeaderNewText, true)
             }
         }
     }
