@@ -659,7 +659,7 @@ export function moveOrBreakoutCells(cell) {
 
     if (width < 2) {
         removeBreakoutTableOutline(cell)
-        alert('Cannot break out table as it only has 1 column!')
+        if (cell !== breakoutHeader) alert('Cannot break out table as it only has 1 column!')
     }
     else {
         let breakoutOutlineCells = spreadsheet.getBreakoutOutlineCells(cell)

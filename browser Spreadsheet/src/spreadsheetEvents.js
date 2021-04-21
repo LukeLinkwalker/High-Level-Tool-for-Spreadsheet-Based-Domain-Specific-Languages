@@ -37,15 +37,14 @@ export function onCellMouseDown(cell) {
 }
 
 export function onCellMouseUp(cell) {
-    if (globals.moveBreakoutTableActivated && cell !== globals.breakoutTableCells[0]) {
+    if (globals.moveBreakoutTableActivated) {
         if (spreadsheet.checkHeaderCellIsHeaderForWholeTable(globals.breakoutTableCells[0]) ||
-            spreadsheet.checkTableHasNameAttribute(globals.breakoutTableCells)) tools.moveOrBreakoutCells(cell)
+                spreadsheet.checkTableHasNameAttribute(globals.breakoutTableCells)) tools.moveOrBreakoutCells(cell)
         else {
-            alert('Cannot breakout table as it doesn\'t have a name attribute')
+            if (cell !== globals.breakoutTableCells[0]) alert('Cannot breakout table as it doesn\'t have a name attribute')
             tools.removeBreakoutTableOutline(cell)
         }
     }
-    else tools.removeBreakoutTableOutline(cell)
 
     globals.setMouseDown(false)
     globals.setMoveBreakoutTableActivated(false)
