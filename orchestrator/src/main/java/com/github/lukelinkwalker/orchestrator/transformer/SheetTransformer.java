@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import com.github.lukelinkwalker.orchestrator.App;
+import com.github.lukelinkwalker.orchestrator.Util.StringUtilities;
 import com.github.lukelinkwalker.orchestrator.Util.Tuple;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -132,14 +133,17 @@ public class SheetTransformer {
 			BoundingBox table1 = tables.get(i);
 			String tableName = sheet.getCell(table1.getX(), table1.getY()).getData();
 			
-			Tuple<String, String> tableInfo = parseTableName(tableName);
-			if(tableInfo.getA() != null) {
-				if(mapOfBreakouts.containsKey(tableInfo.getA())) {
-					mapOfBreakouts.get(tableInfo.getA()).add(tableInfo.getB());
+			String[] tableInfo = parseTableName(tableName);
+			if(tableInfo != null) {
+				String firstElement = StringUtilities.stripTrailingSpecials(tableInfo[0]);
+				String lastElement = StringUtilities.stripTrailingSpecials(tableInfo[tableInfo.length - 1]);
+				
+				if(mapOfBreakouts.containsKey(firstElement)) {
+					mapOfBreakouts.get(firstElement).add(lastElement);
 				} else {
 					ArrayList<String> tmpList = new ArrayList<>();
-					tmpList.add(tableInfo.getB());
-					mapOfBreakouts.put(tableInfo.getA(), tmpList);
+					tmpList.add(lastElement);
+					mapOfBreakouts.put(firstElement, tmpList);
 				}
 			}
 		}
@@ -147,39 +151,58 @@ public class SheetTransformer {
 		for(int i = 0; i < tables.size(); i += 1) {
 			BoundingBox table1 = tables.get(i);
 			String tableName = sheet.getCell(table1.getX(), table1.getY()).getData();
+			
 			System.out.println("Processing: " + table1.toString());
 			
 			// Clean table
-			tableName = tableName.replaceAll("[^a-zA-Z0-9]+"," ");
-			tableName = tableName.stripTrailing();
-			System.out.println("Table name: " + tableName);
+			tableName = StringUtilities.stripTrailingSpecials(tableName);
+			System.out.println("Table name: " + tableName + " (" + tableName.length() + ")");
 			
 			// Put out error due to skip? - Yes. Todo
-			if(App.M.checkIfExists(tableName) == false) {
-				continue;
+			// if(App.M.checkIfExists(tableName) == false) {
+			// 	continue;
+			// }
+
+			// Build Table Name
+			String[] tableNameParts = parseTableName(tableName);
+			StringBuilder SB = new StringBuilder();
+			for(String str : tableNameParts) {
+				SB.append(StringUtilities.stripTrailingSpecials(JsonUtil.tokenStrip(str)));
 			}
 			
 			JsonObject base = new JsonObject();
 			JsonArray table = new JsonArray();
-			base.addProperty("Name", tableName);
+			base.addProperty("Name", SB.toString());
 			base.add("Table", table);
 			root.add(base);
 			
-			int rowStart = table1.getY() + App.M.getDepth(tableName, true); 
+			// Structure objects
+			ArrayList<ArrayList<String>> arrLayout = null;
+			List<JsonObj> attributes = null;
+			int headerDepth = 0;
+			
+			// Modify arrLayout and attributes
+			if(App.M.checkIfExists(tableName) == true) {
+				// Modifed and unmodified tables
+				arrLayout = App.M.getArrayLayout(tableName, mapOfBreakouts.get(tableName));
+				attributes = App.M.getAttributes(tableName, mapOfBreakouts.get(tableName));
+				headerDepth = App.M.getDepth(tableName, true, mapOfBreakouts.get(tableName));
+			} else {
+				// Broken out tables
+				JsonObj arr = App.M.getArray(
+						StringUtilities.stripTrailingSpecials(tableNameParts[0]), 
+						StringUtilities.stripTrailingSpecials(tableNameParts[1])
+								);
+				
+				arrLayout = App.M.getArrayLayout(arr);
+				attributes = App.M.getAttributes(arr, null);
+				headerDepth = App.M.getDepth(arr, true, null);
+			}
+			
+			int rowStart = table1.getY() + headerDepth; 
 			int rowEnd = table1.getY() + table1.getHeight();
 			int columnStart = table1.getX();
 			int columnEnd = table1.getX() + table1.getWidth();
-			
-			// Modify arrLayout based on break outs
-			ArrayList<ArrayList<String>> arrLayout = App.M.getArrayLayout(tableName);
-			
-			// Modify attributes based on break outs
-			List<JsonObj> attributes = App.M.getAttributes(tableName);
-			
-			// Modify arrLayout and attributes
-			if(mapOfBreakouts.containsKey(tableName)) {
-				
-			}
 			
 			// Create JSON objects
 			ArrayList<JsonObject> allObjects = new ArrayList<>();
@@ -200,9 +223,13 @@ public class SheetTransformer {
 			for(int index = 0; index < attributes.size(); index += 1) {
 				String listName = arrLayout.get(index).get(arrLayout.get(index).size() - 1);
 				
-				if(App.M.isFirstAttribute(tableName, index) == true) {
+				if(App.M.isFirstAttribute(attributes, arrLayout, index) == true) {
 					tmpObjRef.put(JsonUtil.tokenStrip(listName), null);
 				}
+				
+				//if(App.M.isFirstAttribute(tableName, index) == true) {
+				//	tmpObjRef.put(JsonUtil.tokenStrip(listName), null);
+				//}
 			}
 			
 			// Merge JSON objects
@@ -222,7 +249,8 @@ public class SheetTransformer {
 				JsonArray tmpArray = null;
 				JsonObject tmpObject = null;
 				
-				if(App.M.isFirstAttribute(tableName, normalizedColumn)) {
+				//if(App.M.isFirstAttribute(tableName, normalizedColumn)) {
+				if(App.M.isFirstAttribute(attributes, arrLayout, normalizedColumn) == true) {
 					if(currListStructure.size() == 1) {
 						table.add(new JsonObject());
 						tmpObjRef.put(currListName, table.get(table.size() - 1));
@@ -322,15 +350,11 @@ public class SheetTransformer {
 		return new CellData(input, column, row);
 	}
 	
-	private static Tuple<String, String> parseTableName(String str) {
-		Tuple<String, String> result = new Tuple<String, String>(null, null);
-		
-		if(str.contains("-")) {
-			String[] parts = str.split("-");
-			result.setA(parts[0]);
-			result.setB(parts[1]);
+	private static String[] parseTableName(String str) {
+		if(str.contains(" -> ")) {
+			return str.split(" -> ");
 		}
 		
-		return result;
+		return new String[] { str };
 	}
 }

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.github.lukelinkwalker.orchestrator.Util.FileReader;
+import com.github.lukelinkwalker.orchestrator.Util.StringUtilities;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 
@@ -60,9 +61,48 @@ public class Model {
 		
 		JsonObj root = headerMap.get(headerIdentifier);
 		
-		attributes = getAttributes(root);
+		attributes = getAttributes(root, new ArrayList<String>());
 		
 		return Collections.unmodifiableList(attributes);
+	}
+	
+	public List<JsonObj> getAttributes(String headerIdentifier, ArrayList<String> excluded) {
+		ArrayList<JsonObj> attributes = new ArrayList<>();
+		
+		if(headerMap.containsKey(headerIdentifier) == false) {
+			return null;
+		}
+		
+		JsonObj root = headerMap.get(headerIdentifier);
+		
+		attributes = getAttributes(root, excluded);
+		
+		return Collections.unmodifiableList(attributes);
+	}
+	
+	public ArrayList<JsonObj> getAttributes(JsonObj root, ArrayList<String> excluded) {
+		ArrayList<JsonObj> result = new ArrayList<>();
+		
+		if(root.getType().equals("attribute") || root.getType().equals("alternative")) {
+			result.add(root);
+		}
+		
+		if(excluded == null) {
+			excluded = new ArrayList<>();
+		}
+		
+		if(root.getChildren() != null && root.getChildren().length > 0) {
+			for(JsonObj header : root.getChildren()) {
+				if(excluded.contains(header.getNameOnly()) == false) {
+					result.addAll(getAttributes(header, excluded));					
+				} else {
+					JsonObj newHeader = header.getAsModifiedArray();
+					result.addAll(getAttributes(newHeader, excluded));
+				}
+			}
+		}
+		
+		return result;
 	}
 	
 	public boolean isFirstAttribute(String headerIdentifier, int column) {
@@ -87,28 +127,57 @@ public class Model {
 		return false;
 	}
 	
+	public boolean isFirstAttribute(List<JsonObj> attributes, ArrayList<ArrayList<String>> arrays, int column) {
+		ArrayList<String> visited = new ArrayList<>();
+		
+		String listName = arrays.get(column).get(arrays.get(column).size() - 1);
+		for(int i = 0; i < attributes.size(); i += 1) {
+			String tmpListName = arrays.get(i).get(arrays.get(i).size() - 1);
+			
+			if(listName.equals(tmpListName) == true) {
+				if(i == column) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
 	public String getListName(String headerIdentifier, int column) {
 		ArrayList<ArrayList<String>> lists = getArrayLayout(headerIdentifier);
 		return lists.get(column).get(lists.get(column).size() - 1);
 	}
-	
-	public ArrayList<JsonObj> getAttributes(JsonObj root) {
-		ArrayList<JsonObj> result = new ArrayList<>();
+
+	public ArrayList<ArrayList<String>> getArrayLayout(String headerIdentifier) {
+		ArrayList<ArrayList<String>> attributes = new ArrayList<>();
 		
-		if(root.getType().equals("attribute") || root.getType().equals("alternative")) {
-			result.add(root);
+		if(headerMap.containsKey(headerIdentifier) == false) {
+			return null;
 		}
 		
-		if(root.getChildren() != null && root.getChildren().length > 0) {
-			for(JsonObj header : root.getChildren()) {
-				result.addAll(getAttributes(header));
-			}
-		}
+		ArrayList<String> arrays = new ArrayList<>();
 		
-		return result;
+		JsonObj root = headerMap.get(headerIdentifier);
+		
+		attributes = getArrayLayout(root, copyList(arrays), new ArrayList<String>());
+		
+		return attributes;
 	}
 	
-	public ArrayList<ArrayList<String>> getArrayLayout(String headerIdentifier) {
+	public ArrayList<ArrayList<String>> getArrayLayout(JsonObj root) {
+		ArrayList<ArrayList<String>> attributes = new ArrayList<>();
+
+		ArrayList<String> arrays = new ArrayList<>();
+
+		attributes = getArrayLayout(root, copyList(arrays), new ArrayList<String>());
+		
+		return attributes;
+	}
+	
+	public ArrayList<ArrayList<String>> getArrayLayout(String headerIdentifier, ArrayList<String> excluded) {
 		ArrayList<ArrayList<String>> attributes = new ArrayList<>();
 		
 		if(headerMap.containsKey(headerIdentifier) == false) {
@@ -120,12 +189,12 @@ public class Model {
 		
 		JsonObj root = headerMap.get(headerIdentifier);
 		
-		attributes = getArrayLayout(root, copyList(arrays));
+		attributes = getArrayLayout(root, copyList(arrays), excluded);
 		
 		return attributes;
 	}
 	
-	private ArrayList<ArrayList<String>> getArrayLayout(JsonObj root, ArrayList<String> arrays) {
+	private ArrayList<ArrayList<String>> getArrayLayout(JsonObj root, ArrayList<String> arrays, ArrayList<String> excluded) {
 		ArrayList<ArrayList<String>> result = new ArrayList<>();
 		
 		if(root.getType().equals("array")) {
@@ -138,7 +207,12 @@ public class Model {
 		
 		if(root.getChildren() != null && root.getChildren().length > 0) {
 			for(JsonObj header : root.getChildren()) {
-				result.addAll(getArrayLayout(header, copyList(arrays)));
+				if(excluded.contains(header.getNameOnly()) == false) {
+					result.addAll(getArrayLayout(header, copyList(arrays), excluded));
+				} else {
+					JsonObj newHeader = header.getAsModifiedArray();
+					result.addAll(getArrayLayout(newHeader, copyList(arrays), excluded));
+				}
 			}
 		}
 		
@@ -160,7 +234,7 @@ public class Model {
 	}
 	
 	private JsonObj getArray(JsonObj root, String arrayIdentifier) {
-		if(root.getType().equals("array") && root.getName().equals(arrayIdentifier)) {
+		if(root.getType().equals("array") && root.getNameOnly().equals(arrayIdentifier)) {
 			return root;
 		}
 		
@@ -191,21 +265,41 @@ public class Model {
 		return count;
 	}
 
-	public int getDepth(String header, boolean includeTypes) {
+	public int getDepth(JsonObj root, boolean includeTypes, ArrayList<String> excluded) {
+		if(root == null) {
+			return -1;
+		}
+		
+		if(excluded == null) {
+			excluded = new ArrayList<>();
+		}
+		
+		if(includeTypes) {
+			return getDepth(root, 1, excluded) + 1;
+		}
+
+		return getDepth(root, 1, excluded);
+	}
+	
+	public int getDepth(String header, boolean includeTypes, ArrayList<String> excluded) {
 		JsonObj tmp = headerMap.get(header);
 		
 		if(tmp == null) {
 			return -1;
 		}
 		
+		if(excluded == null) {
+			excluded = new ArrayList<>();
+		}
+		
 		if(includeTypes) {
-			return getDepth(headerMap.get(header), 1) + 1;
+			return getDepth(headerMap.get(header), 1, excluded) + 1;
 		}
 
-		return getDepth(headerMap.get(header), 1);
+		return getDepth(headerMap.get(header), 1, excluded);
 	}
 	
-	private int getDepth(JsonObj obj, int depth) {
+	private int getDepth(JsonObj obj, int depth, ArrayList<String> excluded) {
 		int maxDepth = 0;
 		
 		if(obj.getChildren().length == 0) {
@@ -213,9 +307,19 @@ public class Model {
 		}
 		
 		for(int i = 0; i < obj.getChildren().length; i += 1) {
-			int tmpDepth = getDepth(obj.getChildren()[i], depth + 1);
-			if(tmpDepth > maxDepth) {
-				maxDepth = tmpDepth;
+			JsonObj child = obj.getChildren()[i];
+			
+			if(excluded.contains(child.getNameOnly()) == false) {
+				int tmpDepth = getDepth(child, depth + 1, excluded);
+				if(tmpDepth > maxDepth) {
+					maxDepth = tmpDepth;
+				}
+			} else {
+				JsonObj newChild = child.getAsModifiedArray();
+				int tmpDepth = getDepth(newChild, depth + 1, excluded);
+				if(tmpDepth > maxDepth) {
+					maxDepth = tmpDepth;
+				}
 			}
 		}
 		

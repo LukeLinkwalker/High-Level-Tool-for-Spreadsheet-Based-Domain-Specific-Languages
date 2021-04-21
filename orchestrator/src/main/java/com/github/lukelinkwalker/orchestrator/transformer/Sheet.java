@@ -11,6 +11,14 @@ public class Sheet {
 	private ArrayList<BoundingBox> tables;
 	private boolean isSGL;
 	
+	public static Sheet newSGL() {
+		return new Sheet(true);
+	}
+	
+	public static Sheet newSDSL() {
+		return new Sheet(false);
+	}
+	
 	public Sheet(boolean isSGL) {
 		cells = new Cell[1000][1000];
 		tables = new ArrayList<>();
