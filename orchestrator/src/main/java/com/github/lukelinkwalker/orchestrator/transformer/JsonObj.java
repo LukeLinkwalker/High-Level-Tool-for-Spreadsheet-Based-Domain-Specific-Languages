@@ -65,6 +65,34 @@ public class JsonObj {
 		return dataTypes[0].getValue();
 	}
 	
+	public JsonObj getAsModifiedArray() {
+		JsonObj modifiedArray = new JsonObj();
+		modifiedArray.setColumn(getColumn());
+		modifiedArray.setRow(getRow());
+		modifiedArray.setName(JsonUtil.tokenWrap(getNameOnly()));
+		modifiedArray.setType("array");
+		modifiedArray.setOptional(false);
+		
+		JsonObj newChild = new JsonObj();
+		newChild.setColumn(getColumn());
+		newChild.setRow(getRow() + 1);
+		newChild.setName(JsonUtil.tokenWrap("Name"));
+		newChild.setType("attribute");
+		newChild.setOptional(false);
+		newChild.setChildren(new JsonObj[] {});
+		
+		JsonType modifiedJsonType = new JsonType();
+		modifiedJsonType.setColumn(getColumn());
+		modifiedJsonType.setRow(getRow() + 2);
+		modifiedJsonType.setValue("string");
+		
+		newChild.setDataTypes(new JsonType[] { modifiedJsonType });
+		
+		modifiedArray.setChildren(new JsonObj[] { newChild });
+		
+		return modifiedArray;
+	}
+	
 	@Override
 	public String toString() {
 		return "JsonObj [column=" + column + ", row=" + row + ", name=" + name + ", type=" + type + ", isOptional="

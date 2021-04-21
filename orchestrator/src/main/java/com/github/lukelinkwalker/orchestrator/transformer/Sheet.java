@@ -11,6 +11,14 @@ public class Sheet {
 	private ArrayList<BoundingBox> tables;
 	private boolean isSGL;
 	
+	public static Sheet newSGL() {
+		return new Sheet(true);
+	}
+	
+	public static Sheet newSDSL() {
+		return new Sheet(false);
+	}
+	
 	public Sheet(boolean isSGL) {
 		cells = new Cell[1000][1000];
 		tables = new ArrayList<>();
@@ -22,13 +30,19 @@ public class Sheet {
 	}
 	
 	public void addData(int column, int row, int width, String data) {
-		Cell cell = new Cell();
-		cell.setColumn(column);
-		cell.setRow(row);
-		cell.setData(data);
-		
-		for(int i = 0; i < width; i += 1) {
-			cells[column + i][row] = cell;
+		if(data.isEmpty()) {
+			for(int i = 0; i < width; i += 1) {
+				cells[column + i][row] = null;
+			}
+		} else {
+			Cell cell = new Cell();
+			cell.setColumn(column);
+			cell.setRow(row);
+			cell.setData(data);
+			
+			for(int i = 0; i < width; i += 1) {
+				cells[column + i][row] = cell;
+			}
 		}
 	}
 	

@@ -28,4 +28,9 @@ public class JsonType {
 	public void setValue(String value) {
 		this.value = value;
 	}
+
+	@Override
+	public String toString() {
+		return "JsonType [column=" + column + ", row=" + row + ", value=" + value + "]";
+	}
 }

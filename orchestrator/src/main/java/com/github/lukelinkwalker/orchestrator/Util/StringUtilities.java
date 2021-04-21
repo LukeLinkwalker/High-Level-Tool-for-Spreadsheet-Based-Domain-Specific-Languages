@@ -5,6 +5,22 @@ public class StringUtilities {
         return string.substring(16, string.length() - 16);
     }
     
+    public static String stripTrailingSpecials(String str) {
+    	int limit = str.length() - 1;
+    	
+    	for(int i = str.length() - 1; i > 0; i -= 1) {
+    		char c = str.charAt(i);
+    		
+    		if(c == ' ' || Character.isLetter(c) == false) {
+    			limit -= 1;
+    		} else {
+    			break;
+    		}
+    	}
+    	
+    	return str.substring(0, limit + 1).stripTrailing();
+    }
+    
     public static boolean isInteger(String str) {
     	for(int i = 0; i < str.length(); i += 1) {
     		char c = str.charAt(i);
