@@ -79,16 +79,28 @@ public class Cell {
 				result.addProperty("value", JsonUtil.tokenWrap(data));
 				break;
 			case "int":
-				result.addProperty("value", Integer.parseInt(data));
+				if(this.isType(type) == true) {
+					result.addProperty("value", Integer.parseInt(data));
+				} else {
+					result.addProperty("value", data);
+				}
 				break;
 			case "float":
-				result.addProperty("value", Float.parseFloat(data));
+				if(this.isType(type) == true) {
+					result.addProperty("value", Float.parseFloat(data));
+				} else {
+					result.addProperty("value", data);
+				}
 				break;
 			case "string":
 				result.addProperty("value", JsonUtil.tokenWrap(data));
 				break;
 			case "boolean":
-				result.addProperty("value", Boolean.parseBoolean(data));
+				if(this.isType(type) == true) {
+					result.addProperty("value", Boolean.parseBoolean(data));
+				} else {
+					result.addProperty("value", data);
+				}
 				break;
 		}
 		

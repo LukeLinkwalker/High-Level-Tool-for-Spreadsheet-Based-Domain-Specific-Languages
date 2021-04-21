@@ -190,9 +190,7 @@ public class SheetTransformer {
 					if(cell != null) {
 						int normalizedColumn = cell.getColumn() - table1.getX();
 						String type = attributes.get(normalizedColumn).getDataType();
-						if(cell.isType(type)) {
-							allObjects.add(cell.getAsJsonObject(type));							
-						}
+						allObjects.add(cell.getAsJsonObject(type));	
 					}
 				}
 			}
