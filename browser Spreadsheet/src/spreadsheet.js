@@ -582,7 +582,7 @@ export function getBreakoutReferenceCell(cell) {
     let breakoutCells = $('.' + breakoutReference).get()
     let rows = getTableCellsAsRows(breakoutCells)
     let firstRow = rows[1]
-    let nameAttributeHeaderBreakoutTable = firstRow.filter((cell) => spreadsheet.getCellText(cell).toLowerCase() ===
+    let nameAttributeHeaderBreakoutTable = firstRow.filter((cell) => getCellText(cell).toLowerCase() ===
         'name')
     let firstDataCellBreakoutTable = findFirstDataCellForHeaderCell(nameAttributeHeaderBreakoutTable)
     let firstDataCellBreakoutTableIndexes = getCellIndexes(firstDataCellBreakoutTable)

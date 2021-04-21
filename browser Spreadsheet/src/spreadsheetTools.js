@@ -488,6 +488,13 @@ export function copyCellsAndClearOldCells(breakoutOutlineCells, breakoutHeader, 
                 breakoutOutlineCells.forEach((cell) => $(cell).addClass(referenceToOriginalTable))
                 insertNameColumnWhenBreakingOut(copyOfBreakOutTableCells, oldTableHeader)
                 cleanupTableAfterInsertingNameColumnWhenBreakingOut(copyOfBreakOutTableCells[0], oldTableHeader)
+
+                let oldTableHeaderText = spreadsheet.getCellText(oldTableHeader)
+                let newBreakoutHeader = breakoutOutlineCells[0]
+                let newBreakoutHeaderText = spreadsheet.getCellText(newBreakoutHeader)
+                let newBreakoutHeaderNewText = oldTableHeaderText + ' -> ' + newBreakoutHeaderText
+
+                spreadsheet.setCellText(newBreakoutHeader, newBreakoutHeaderNewText)
             }
         }
     }
@@ -675,4 +682,12 @@ export function highlightCellAndBreakoutReferenceCell(cell, cellTextDiv) {
     $(cellTextDiv).css('outline', 'none')
     $(breakoutReferenceCell).addClass('breakoutHighlight')
     $(cell).addClass('breakoutHighlight')
+}
+
+export function removeHighlightCellAndBreakoutReferenceCell(cell, cellTextDiv) {
+    let breakoutReferenceCell = spreadsheet.getBreakoutReferenceCell(cell)
+
+    $(cellTextDiv).css('outline', '')
+    $(breakoutReferenceCell).removeClass('breakoutHighlight')
+    $(cell).removeClass('breakoutHighlight')
 }

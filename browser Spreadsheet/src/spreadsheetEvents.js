@@ -30,18 +30,23 @@ export function onCellMouseDown(cell) {
     if (cellType === 'header' && hasBoldText) {
         let breakoutTableCells = spreadsheet.getBreakoutTableCells(cell)
 
-        if (spreadsheet.checkHeaderCellIsHeaderForWholeTable(cell) || spreadsheet.checkTableHasNameAttribute(breakoutTableCells)) {
-
-            globals.setMoveBreakoutTableActivated(true)
-            globals.setBreakoutTableCells(breakoutTableCells)
-            tools.showBreakoutTableOutline(cell)
-        }
-        else alert('Cannot breakout table as it doesn\'t have a name attribute')
+        globals.setMoveBreakoutTableActivated(true)
+        globals.setBreakoutTableCells(breakoutTableCells)
+        tools.showBreakoutTableOutline(cell)
     }
 }
 
 export function onCellMouseUp(cell) {
-    if (globals.moveBreakoutTableActivated) tools.moveOrBreakoutCells(cell)
+    if (globals.moveBreakoutTableActivated && cell !== globals.breakoutTableCells[0]) {
+        if (spreadsheet.checkHeaderCellIsHeaderForWholeTable(globals.breakoutTableCells[0]) ||
+            spreadsheet.checkTableHasNameAttribute(globals.breakoutTableCells)) tools.moveOrBreakoutCells(cell)
+        else {
+            alert('Cannot breakout table as it doesn\'t have a name attribute')
+            tools.removeBreakoutTableOutline(cell)
+        }
+    }
+    else tools.removeBreakoutTableOutline(cell)
+
     globals.setMouseDown(false)
     globals.setMoveBreakoutTableActivated(false)
 }
@@ -71,7 +76,6 @@ export function onCellTextDivFocus(cellTextDiv) {
     let cell = spreadsheet.getCellFromCellTextDiv(cellTextDiv)
     let inputBar = $('#input-bar')
 
-    //TODO
     if (spreadsheet.getIsBrokenOut(cell)) tools.highlightCellAndBreakoutReferenceCell(cell, cellTextDiv)
 
     if (globals.cellsMarked) tools.clearMarkedCells()
@@ -86,6 +90,7 @@ export function onCellTextDivFocusout(cellTextDiv) {
     let infoBox = spreadsheet.getInfoBox(cell)
 
     tools.hideCreateTableCodeCompletionForInfoBox(infoBox, cell)
+    if (spreadsheet.getIsBrokenOut(cell)) tools.removeHighlightCellAndBreakoutReferenceCell(cell, cellTextDiv)
 }
 
 export function onCellInput(cell) {
