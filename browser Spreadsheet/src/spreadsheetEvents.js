@@ -71,6 +71,9 @@ export function onCellTextDivFocus(cellTextDiv) {
     let cell = spreadsheet.getCellFromCellTextDiv(cellTextDiv)
     let inputBar = $('#input-bar')
 
+    //TODO
+    if (spreadsheet.getIsBrokenOut(cell)) tools.highlightCellAndBreakoutReferenceCell(cell, cellTextDiv)
+
     if (globals.cellsMarked) tools.clearMarkedCells()
     globals.setEditingCell(cell)
     globals.setSelectedStartCell(cell)

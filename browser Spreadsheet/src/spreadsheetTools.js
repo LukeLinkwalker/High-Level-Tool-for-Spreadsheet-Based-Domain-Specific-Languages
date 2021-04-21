@@ -149,6 +149,7 @@ export function clearCell(cell) {
     removeBlackBorder(cell)
     spreadsheet.removeCellFromTable(cell)
     spreadsheet.removeBreakoutReferenceToOriginalTable(cell)
+    spreadsheet.removeMarkAsBrokenOut(cell)
     spreadsheet.setCellText(cell, '')
 }
 
@@ -516,6 +517,7 @@ export function insertNameColumnWhenBreakingOut(copyOfBreakoutTableCells, tableH
         if (boCellIndexes[0] === nameAttributeCellIndexes[0] && boCellIndexes[1] !== breakoutHeaderIndexes[1]) {
             let newCell = spreadsheet.getCellFromIndexes(breakoutHeaderIndexes[0], boCellIndexes[1])
             copyCell(boCell, newCell, tableHeader)
+            if (spreadsheet.getCellType(newCell) === 'data') spreadsheet.markAsBrokenOut(newCell)
         }
     })
 
@@ -664,4 +666,13 @@ export function moveOrBreakoutCells(cell) {
         copyCellsAndClearOldCells(breakoutOutlineCells, globals.breakoutTableCells[0], isBreakingOut)
         spreadsheet.setFocusOnCell(breakoutOutlineCells[0])
     }
+}
+
+//TODO
+export function highlightCellAndBreakoutReferenceCell(cell, cellTextDiv) {
+    let breakoutReferenceCell = spreadsheet.getBreakoutReferenceCell(cell)
+
+    $(cellTextDiv).css('outline', 'none')
+    $(breakoutReferenceCell).addClass('breakoutHighlight')
+    $(cell).addClass('breakoutHighlight')
 }
