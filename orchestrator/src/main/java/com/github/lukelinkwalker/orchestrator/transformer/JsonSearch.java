@@ -11,6 +11,13 @@ public class JsonSearch {
 		int arrayCounter = 0;
 		
 		for(int i = position; i > 0; i -= 1) {
+			//if(JSON.charAt(i) == '"') {
+			//	if(objectCounter == 0) {
+			//		start = i;
+			//		break;
+			//	}
+			//}
+			
 			if(JSON.charAt(i) == '}') {
 				objectCounter += 1;
 			}
@@ -71,6 +78,23 @@ public class JsonSearch {
 				), 
 				json
 			);
+	}
+	
+	public static Tuple<Integer, Integer> getCharPositions(String obj, int charBegin, int charEnd) {
+		Tuple<Integer, Integer> result = new Tuple<>();
+		result.setA(-1);
+		result.setB(-1);
+		
+		String str = obj.toString();
+		
+		if(str.contains("name\":")) {
+			System.out.println("name !!!");
+		} 
+		else if (str.contains("value\":")) {
+			System.out.println("value !!!");
+		}
+		
+		return result;
 	}
 	
 	private static int getFirstColumn(String str) {

@@ -63,7 +63,7 @@ public class SheetTransformer {
 						JsonObject valueObj = new JsonObject();
 						valueObj.addProperty("column", columnStart + 1);
 						valueObj.addProperty("row", row);
-						valueObj.addProperty("value", rule.getData()); // JsonUtil.tokenWrap(rule.getData()));
+						valueObj.addProperty("value", rule.getData());
 						
 						ruleObj.add("name", nameObj);
 						ruleObj.add("rule", valueObj);
@@ -104,7 +104,7 @@ public class SheetTransformer {
 			}
 		}
 		
-		// Move rules table or insert if no rules defined
+		// Move rules table or insert empty table if no rules are defined
 		int index = JsonUtil.indexOf(root, "type", "rules");
 		if(index != -1) {
 			JsonObject obj = root.get(index).getAsJsonObject();
@@ -125,6 +125,24 @@ public class SheetTransformer {
 	public static String parseSDSL(Sheet sheet) {
 		JsonArray root = new JsonArray();
 		ArrayList<BoundingBox> tables = sheet.getTableRanges();
+		
+		// Prepare list of breakouts
+		HashMap<String, ArrayList<String>> mapOfBreakouts = new HashMap<>();
+		for(int i = 0; i < tables.size(); i += 1) {
+			BoundingBox table1 = tables.get(i);
+			String tableName = sheet.getCell(table1.getX(), table1.getY()).getData();
+			
+			Tuple<String, String> tableInfo = parseTableName(tableName);
+			if(tableInfo.getA() != null) {
+				if(mapOfBreakouts.containsKey(tableInfo.getA())) {
+					mapOfBreakouts.get(tableInfo.getA()).add(tableInfo.getB());
+				} else {
+					ArrayList<String> tmpList = new ArrayList<>();
+					tmpList.add(tableInfo.getB());
+					mapOfBreakouts.put(tableInfo.getA(), tmpList);
+				}
+			}
+		}
 		
 		for(int i = 0; i < tables.size(); i += 1) {
 			BoundingBox table1 = tables.get(i);
@@ -151,52 +169,35 @@ public class SheetTransformer {
 			int rowEnd = table1.getY() + table1.getHeight();
 			int columnStart = table1.getX();
 			int columnEnd = table1.getX() + table1.getWidth();
-
+			
 			// Modify arrLayout based on break outs
 			ArrayList<ArrayList<String>> arrLayout = App.M.getArrayLayout(tableName);
 			
 			// Modify attributes based on break outs
 			List<JsonObj> attributes = App.M.getAttributes(tableName);
 			
+			// Modify arrLayout and attributes
+			if(mapOfBreakouts.containsKey(tableName)) {
+				
+			}
+			
 			// Create JSON objects
 			ArrayList<JsonObject> allObjects = new ArrayList<>();
 			for(int row = rowStart; row < rowEnd; row += 1) {
-				ArrayList<Tuple<Integer, CellData>> CDs = new ArrayList<>();
-				
 				for(int column = columnStart; column < columnEnd; column += 1) {
 					Cell cell = sheet.getCell(column, row);
 					
 					if(cell != null) {
-						JsonObject value = new JsonObject();
-						value.addProperty("column", cell.getColumn());
-						value.addProperty("row", cell.getRow());
-						
 						int normalizedColumn = cell.getColumn() - table1.getX();
-						
-						switch(attributes.get(normalizedColumn).getDataType()) {
-							case "alternative":
-								value.addProperty("value", JsonUtil.tokenWrap(cell.getData()));
-								break;
-							case "int":
-								value.addProperty("value", Integer.parseInt(cell.getData()));
-								break;
-							case "float":
-								value.addProperty("value", Float.parseFloat(cell.getData()));
-								break;
-							case "string":
-								value.addProperty("value", JsonUtil.tokenWrap(cell.getData()));
-								break;
-							case "boolean":
-								value.addProperty("value", Boolean.parseBoolean(cell.getData()));
-								break;
+						String type = attributes.get(normalizedColumn).getDataType();
+						if(cell.isType(type)) {
+							allObjects.add(cell.getAsJsonObject(type));							
 						}
-						
-						allObjects.add(value);
 					}
 				}
 			}
 			
-			// Merge JSON objects
+			// Setup list reference map
 			HashMap<String, JsonElement> tmpObjRef = new HashMap<>();
 			for(int index = 0; index < attributes.size(); index += 1) {
 				String listName = arrLayout.get(index).get(arrLayout.get(index).size() - 1);
@@ -206,6 +207,7 @@ public class SheetTransformer {
 				}
 			}
 			
+			// Merge JSON objects
 			for(int index = 0; index < allObjects.size(); index += 1) {
 				JsonObject obj = allObjects.get(index);
 				int normalizedColumn = obj.get("column").getAsInt() - table1.getX();
@@ -320,5 +322,17 @@ public class SheetTransformer {
 	
 	private static CellData parseCellData(String input, int column, int row) {
 		return new CellData(input, column, row);
+	}
+	
+	private static Tuple<String, String> parseTableName(String str) {
+		Tuple<String, String> result = new Tuple<String, String>(null, null);
+		
+		if(str.contains("-")) {
+			String[] parts = str.split("-");
+			result.setA(parts[0]);
+			result.setB(parts[1]);
+		}
+		
+		return result;
 	}
 }
