@@ -190,9 +190,9 @@ public class SheetTransformer {
 			} else {
 				// Broken out tables
 				JsonObj arr = App.M.getArray(
-						StringUtilities.stripTrailingSpecials(tableNameParts[0]), 
-						StringUtilities.stripTrailingSpecials(tableNameParts[1])
-								);
+					StringUtilities.stripTrailingSpecials(tableNameParts[0]), 
+					StringUtilities.stripTrailingSpecials(tableNameParts[1])
+				);
 				
 				arrLayout = App.M.getArrayLayout(arr);
 				attributes = App.M.getAttributes(arr, null);

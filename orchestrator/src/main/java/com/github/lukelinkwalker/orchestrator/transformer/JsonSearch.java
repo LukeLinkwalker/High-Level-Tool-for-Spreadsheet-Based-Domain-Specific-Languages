@@ -11,24 +11,18 @@ public class JsonSearch {
 		int arrayCounter = 0;
 		
 		for(int i = position; i > 0; i -= 1) {
-			//if(JSON.charAt(i) == '"') {
-			//	if(objectCounter == 0) {
-			//		start = i;
-			//		break;
-			//	}
-			//}
-			
 			if(JSON.charAt(i) == '}') {
 				objectCounter += 1;
 			}
 			
 			if(JSON.charAt(i) == '{') {
-				if(objectCounter == 0) {
+				objectCounter -= 1;
+				
+				if(objectCounter <= 0) {
 					start = i;
 					break;
-				} else {
-					objectCounter -= 1;
 				}
+
 			}
 		}
 		
