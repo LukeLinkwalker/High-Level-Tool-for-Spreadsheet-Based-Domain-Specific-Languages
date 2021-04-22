@@ -288,7 +288,7 @@ public class SSServer extends WebSocketServer {
 		Reader reader = null;
 
 		try {
-			reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
+			reader = Files.newBufferedReader(Paths.get("src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -301,7 +301,7 @@ public class SSServer extends WebSocketServer {
 		Reader reader = null;
 
 		try {
-			reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/sglSSModel.json"));
+			reader = Files.newBufferedReader(Paths.get("src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/sglSSModel.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -58,10 +58,6 @@ socket.addEventListener('open', function(event) {
     let cell54 = spreadsheet.getCellFromIndexes(5, 4)
     let cell64 = spreadsheet.getCellFromIndexes(6, 4)
 
-    tools.mergeCells([cell00, cell10, cell20, cell30, cell40, cell50, cell60])
-    tools.mergeCells([cell11, cell21, cell31, cell41, cell51])
-    tools.mergeCells([cell22, cell32])
-    tools.mergeCells([cell42, cell52])
     spreadsheet.setCellText(cell00, 'array : Config')
     sendChange(cell00)
     spreadsheet.setCellText(cell01, 'attribute : Name')
@@ -98,6 +94,14 @@ socket.addEventListener('open', function(event) {
     sendChange(cell54)
     spreadsheet.setCellText(cell64, 'type : string')
     sendChange(cell64)
+
+
+    tools.mergeCells([cell00, cell10, cell20, cell30, cell40, cell50, cell60])
+    tools.mergeCells([cell11, cell21, cell31, cell41, cell51])
+    tools.mergeCells([cell22, cell32])
+    tools.mergeCells([cell42, cell52])
+
+
     // tools.mergeCells([cell00, cell10, cell20, cell30, cell40, cell50, cell60])
     // tools.mergeCells([cell11, cell21, cell31, cell41, cell51])
     // tools.mergeCells([cell22, cell32])
