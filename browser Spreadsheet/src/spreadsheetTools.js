@@ -7,14 +7,14 @@ export function mergeCells(cells) {
     let leftmostCellIndexes = spreadsheet.getCellIndexes(cells[0])
     let className = spreadsheet.createMergedCellsName(leftmostCellIndexes[0], leftmostCellIndexes[1])
 
-    $(cells[0]).attr('colspan', cells.length)
-    cells.forEach((cell) => $(cell).addClass(className))
-    client.sendChange(cells[0])
-
     cells.slice(1).forEach((cell) => {
         $(cell).css('display', 'none')
         spreadsheet.setCellText(cell, '', true)
     })
+
+    $(cells[0]).attr('colspan', cells.length)
+    cells.forEach((cell) => $(cell).addClass(className))
+    client.sendChange(cells[0])
 }
 
 export function demergeCell(cell) {
