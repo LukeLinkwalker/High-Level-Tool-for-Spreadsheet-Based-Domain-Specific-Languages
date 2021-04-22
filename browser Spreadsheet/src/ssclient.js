@@ -58,65 +58,60 @@ socket.addEventListener('open', function(event) {
     let cell54 = spreadsheet.getCellFromIndexes(5, 4)
     let cell64 = spreadsheet.getCellFromIndexes(6, 4)
 
-    spreadsheet.setCellText(cell00, 'array : Config')
-    sendChange(cell00)
-    spreadsheet.setCellText(cell01, 'attribute : Name')
-    sendChange(cell01)
-    spreadsheet.setCellText(cell11, 'array : Sensors')
-    sendChange(cell11)
-    spreadsheet.setCellText(cell61, 'attribute : Functions')
-    sendChange(cell61)
-    spreadsheet.setCellText(cell12, 'attribute : Name')
-    sendChange(cell12)
-    spreadsheet.setCellText(cell22, 'array : Inputs')
-    sendChange(cell22)
-    spreadsheet.setCellText(cell42, 'array : Outputs')
-    sendChange(cell42)
-    spreadsheet.setCellText(cell23, 'attribute : Source')
-    sendChange(cell23)
-    spreadsheet.setCellText(cell33, 'attribute : Rate')
-    sendChange(cell33)
-    spreadsheet.setCellText(cell43, 'attribute : Type')
-    sendChange(cell43)
-    spreadsheet.setCellText(cell53, 'attribute : Rate')
-    sendChange(cell53)
-    spreadsheet.setCellText(cell04, 'type : String')
-    sendChange(cell04)
-    spreadsheet.setCellText(cell14, 'type : String')
-    sendChange(cell14)
-    spreadsheet.setCellText(cell24, 'type : String')
-    sendChange(cell24)
-    spreadsheet.setCellText(cell34, 'type : int')
-    sendChange(cell34)
-    spreadsheet.setCellText(cell44, 'type : String')
-    sendChange(cell44)
-    spreadsheet.setCellText(cell54, 'type : float')
-    sendChange(cell54)
-    spreadsheet.setCellText(cell64, 'type : string')
-    sendChange(cell64)
-
-
-    tools.mergeCells([cell00, cell10, cell20, cell30, cell40, cell50, cell60])
-    tools.mergeCells([cell11, cell21, cell31, cell41, cell51])
-    tools.mergeCells([cell22, cell32])
-    tools.mergeCells([cell42, cell52])
-
-
-    // tools.mergeCells([cell00, cell10, cell20, cell30, cell40, cell50, cell60])
-    // tools.mergeCells([cell11, cell21, cell31, cell41, cell51])
-    // tools.mergeCells([cell22, cell32])
-    // tools.mergeCells([cell42, cell52])
-    requestBuild()
+    //spreadsheet.setCellText(cell00, 'array : Config')
+    //sendChange(cell00)
+    //spreadsheet.setCellText(cell01, 'attribute : Name')
+    //sendChange(cell01)
+    //spreadsheet.setCellText(cell11, 'array : Sensors')
+    //sendChange(cell11)
+    //spreadsheet.setCellText(cell61, 'attribute : Functions')
+    //sendChange(cell61)
+    //spreadsheet.setCellText(cell12, 'attribute : Name')
+    //sendChange(cell12)
+    //spreadsheet.setCellText(cell22, 'array : Inputs')
+    //sendChange(cell22)
+    //spreadsheet.setCellText(cell42, 'array : Outputs')
+    //sendChange(cell42)
+    //spreadsheet.setCellText(cell23, 'attribute : Source')
+    //sendChange(cell23)
+    //spreadsheet.setCellText(cell33, 'attribute : Rate')
+    //sendChange(cell33)
+    //spreadsheet.setCellText(cell43, 'attribute : Type')
+    //sendChange(cell43)
+    //spreadsheet.setCellText(cell53, 'attribute : Rate')
+    //sendChange(cell53)
+    //spreadsheet.setCellText(cell04, 'type : String')
+    //sendChange(cell04)
+    //spreadsheet.setCellText(cell14, 'type : String')
+    //sendChange(cell14)
+    //spreadsheet.setCellText(cell24, 'type : String')
+    //sendChange(cell24)
+    //spreadsheet.setCellText(cell34, 'type : int')
+    //sendChange(cell34)
+    //spreadsheet.setCellText(cell44, 'type : String')
+    //sendChange(cell44)
+    //spreadsheet.setCellText(cell54, 'type : float')
+    //sendChange(cell54)
+    //spreadsheet.setCellText(cell64, 'type : string')
+    //sendChange(cell64)
+//
+//
+    //tools.mergeCells([cell00, cell10, cell20, cell30, cell40, cell50, cell60])
+    //tools.mergeCells([cell11, cell21, cell31, cell41, cell51])
+    //tools.mergeCells([cell22, cell32])
+    //tools.mergeCells([cell42, cell52])
+//
+    //requestBuild()
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // close = { sheetName:"Hello" }
-    // cmsg = { method:"close-sheet", id:"0", data:JSON.stringify(close) };
-    // socket.send(JSON.stringify(cmsg));
-    //
-    // open = { sheetName:"Hello", isSGL:false }
-    // omsg = { method:"open-sheet", id:"1", data:JSON.stringify(open) };
-    // socket.send(JSON.stringify(omsg));
+    close = { sheetName:"Hello" }
+    cmsg = { method:"close-sheet", id:"0", data:JSON.stringify(close) };
+    socket.send(JSON.stringify(cmsg));
+
+    open = { sheetName:"Hello", isSGL:false }
+    omsg = { method:"open-sheet", id:"1", data:JSON.stringify(open) };
+    socket.send(JSON.stringify(omsg));
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
