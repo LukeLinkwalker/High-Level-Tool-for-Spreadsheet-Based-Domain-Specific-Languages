@@ -63,47 +63,55 @@ public class DumbLSPClient extends WebSocketClient {
 			if(msg.getMethod().equals("textDocument/publishDiagnostics")) {
 				PublishDiagnostics PD = new Gson().fromJson(message, PublishDiagnostics.class);
 				
-				System.out.println("Number of diagnostics: " + PD.getParams().getDiagnostics().length);
+				String dumbURI = "inmemory:/demo/" + incrementingID + ".hello";
 				
-				JsonObject errorMsg = new JsonObject();
-				errorMsg.addProperty("method", "diagnostic");
-				JsonArray errors = new JsonArray();
-				errorMsg.add("content", errors);
-				
-				for(int i = 0; i < PD.getParams().getDiagnostics().length; i += 1) {
-					Diagnostics diag = PD.getParams().getDiagnostics()[i];
-	
-					Tuple<Tuple<Integer, Integer>, String> errorInfo = JsonSearch.find(App.Txt, diag.getRange().getStart().getCharacter());
+				if(dumbURI.equals(PD.getParams().getUri()) == true) {
+					System.out.println("Number of diagnostics: " + PD.getParams().getDiagnostics().length);
 					
-					//JsonObj errorCell = JsonSearch.find(App.Txt, diag.getRange().getStart().getCharacter());
+					JsonObject errorMsg = new JsonObject();
+					errorMsg.addProperty("method", "diagnostic");
+					JsonArray errors = new JsonArray();
+					errorMsg.add("content", errors);
 					
-
-					//JsonObject error = new JsonObject();
-					//error.addProperty("column", errorCell.getColumn());
-					//error.addProperty("row", errorCell.getRow());
-					//error.addProperty("message", diag.getMessage());
-					
-					JsonObject error = new JsonObject();
-					
-					int column = errorInfo.getA().getA();
-					if(column == -1) {
-						column = 0;
+					for(int i = 0; i < PD.getParams().getDiagnostics().length; i += 1) {
+						Diagnostics diag = PD.getParams().getDiagnostics()[i];
+						
+						Tuple<Tuple<Integer, Integer>, String> errorInfo = JsonSearch.find(App.Txt, diag.getRange().getStart().getCharacter());
+						
+						//JsonObj errorCell = JsonSearch.find(App.Txt, diag.getRange().getStart().getCharacter());
+						
+						//JsonObject error = new JsonObject();
+						//error.addProperty("column", errorCell.getColumn());
+						//error.addProperty("row", errorCell.getRow());
+						//error.addProperty("message", diag.getMessage());
+						
+						JsonObject error = new JsonObject();
+						
+						int column = errorInfo.getA().getA();
+						if(column == -1) {
+							column = 0;
+						}
+						int row = errorInfo.getA().getB();
+						if(row == -1) {
+							row = 0;
+						}
+						
+						error.addProperty("column", column);
+						error.addProperty("row", row);
+						error.addProperty("message", diag.getMessage());
+						
+						// Add error indeces
+						
+						errors.add(error);
 					}
-					int row = errorInfo.getA().getB();
-					if(row == -1) {
-						row = 0;
-					}
 					
-					error.addProperty("column", column);
-					error.addProperty("row", row);
-					error.addProperty("message", diag.getMessage());
+					//System.out.println("Diagnostic document : " + PD.getParams().getUri());
+					//System.out.println("Dumb ID : " + dumbURI + " -> " + (dumbURI.equals(PD.getParams().getUri())));
+					//System.out.println("Number of errors : " + PD.getParams().getDiagnostics().length);
 					
-					// Add error indeces
-					
-					errors.add(error);
+					App.SSS.sendErrors(errorMsg);		
 				}
 				
-				App.SSS.sendErrors(errorMsg);
 			}
 			
 			//System.out.println("Diagnostic: " + message);
