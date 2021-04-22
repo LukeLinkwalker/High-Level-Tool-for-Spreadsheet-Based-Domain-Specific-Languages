@@ -21,9 +21,7 @@ import com.github.lukelinkwalker.orchestrator.document.Table;
 import com.github.lukelinkwalker.orchestrator.lspclient.DumbLSPClient;
 import com.github.lukelinkwalker.orchestrator.ssserver.SSServer;
 import com.github.lukelinkwalker.orchestrator.transformer.BoundingBox;
-import com.github.lukelinkwalker.orchestrator.transformer.Diff;
 import com.github.lukelinkwalker.orchestrator.transformer.JsonSearch;
-import com.github.lukelinkwalker.orchestrator.transformer.JsonTerminal;
 import com.github.lukelinkwalker.orchestrator.transformer.JsonObj;
 import com.github.lukelinkwalker.orchestrator.transformer.JsonTransformer;
 import com.github.lukelinkwalker.orchestrator.transformer.Model;
@@ -42,15 +40,19 @@ public class App
 	
     public static void main( String[] args ) throws URISyntaxException, InterruptedException, ParserConfigurationException, IOException, SAXException
     {
-//    	Tuple<Tuple<Integer, Integer>, String> error = JsonSearch.find("[{\"Name\":\"Config\",\"Table\":[{\"Name\":{\"column\":0,\"row\":4,\"value\":\"OKZVVTSPKHOVYSMUEUConfigSQPSUQMWUPQSBXDT\"},\"Sensors\":{\"List\":[{\"Name\":{\"column\":1,\"row\":4,\"value\":\"OKZVVTSPKHOVYSMUTemperatureSQPSUQMWUPQSBXDT\"},\"Inputs\":{\"List\":[{\"Source\":{\"column\":2,\"row\":4,\"value\":\"OKZVVTSPKHOVYSMUEnvironmentSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":3,\"row\":4,\"value\":50}}]},\"Outputs\":{\"List\":[{\"Type\":{\"column\":4,\"row\":5,\"value\":\"OKZVVTSPKHOVYSMUFahrenheitSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":5,\"row\":5,\"value\":1000.0}}]}},{\"Name\":{\"column\":1,\"row\":6,\"value\":\"OKZVVTSPKHOVYSMUPositionSQPSUQMWUPQSBXDT\"},\"Inputs\":{\"List\":[{\"Source\":{\"column\":2,\"row\":6,\"value\":\"OKZVVTSPKHOVYSMUSatelliteSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":3,\"row\":6,\"value\":50}},{\"Source\":{\"column\":2,\"row\":7,\"value\":\"OKZVVTSPKHOVYSMUMapSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":3,\"row\":7,\"value\":10000}}]},\"Outputs\":{\"List\":[{\"Type\":{\"column\":4,\"row\":6,\"value\":\"OKZVVTSPKHOVYSMURelativeSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":5,\"row\":6,\"value\":1000.0}},{\"Type\":{\"column\":4,\"row\":7,\"value\":\"OKZVVTSPKHOVYSMUAbsoluteSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":5,\"row\":7,\"value\":1000.0}}]}}]},\"Functions\":{\"column\":6,\"row\":4,\"value\":\"OKZVVTSPKHOVYSMUGetSQPSUQMWUPQSBXDT\"}},{\"Name\":{\"column\":0,\"row\":8,\"value\":\"OKZVVTSPKHOVYSMUUSConfigSQPSUQMWUPQSBXDT\"},\"Sensors\":{\"List\":[{\"Name\":{\"column\":1,\"row\":8,\"value\":\"OKZVVTSPKHOVYSMUTemperatureSQPSUQMWUPQSBXDT\"},\"Inputs\":{\"List\":[{\"Source\":{\"column\":2,\"row\":8,\"value\":\"OKZVVTSPKHOVYSMUEnvironmentSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":3,\"row\":8,\"value\":20}}]},\"Outputs\":{\"List\":[{\"Type\":{\"column\":4,\"row\":9,\"value\":\"OKZVVTSPKHOVYSMUFahrenheitSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":5,\"row\":9,\"value\":2000.0}}]}},{\"Name\":{\"column\":1,\"row\":10,\"value\":\"OKZVVTSPKHOVYSMUPositionSQPSUQMWUPQSBXDT\"},\"Inputs\":{\"List\":[{\"Source\":{\"column\":2,\"row\":10,\"value\":\"OKZVVTSPKHOVYSMUSatelliteSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":3,\"row\":10,\"value\":20}}]},\"Outputs\":{\"List\":[{\"Type\":{\"column\":4,\"row\":10,\"value\":\"OKZVVTSPKHOVYSMURelativeSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":5,\"row\":10,\"value\":2000.0}},{\"Type\":{\"column\":4,\"row\":11,\"value\":\"OKZVVTSPKHOVYSMUAbsoluteSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":5,\"row\":11,\"value\":2000.0}}]}}]},\"Functions\":{\"column\":6,\"row\":8,\"value\":\"OKZVVTSPKHOVYSMUGetSQPSUQMWUPQSBXDT\"}}]}]", 1072);
-//    	System.out.println(error.toString());
+    	//Tuple<Tuple<Integer, Integer>, String> error = JsonSearch.find("[{\"Name\":\"Config\",\"Table\":[{\"Name\":{\"column\":0,\"row\":4,\"value\":\"OKZVVTSPKHOVYSMUEUConfigSQPSUQMWUPQSBXDT\"},\"Sensors\":{\"List\":[{\"Name\":{\"column\":1,\"row\":4,\"value\":\"OKZVVTSPKHOVYSMUTemperatureSQPSUQMWUPQSBXDT\"},\"Inputs\":{\"List\":[{\"Source\":{\"column\":2,\"row\":4,\"value\":\"OKZVVTSPKHOVYSMUEnvironmentSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":3,\"row\":4,\"value\":50}}]},\"Outputs\":{\"List\":[{\"Type\":{\"column\":4,\"row\":5,\"value\":\"OKZVVTSPKHOVYSMUFahrenheitSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":5,\"row\":5,\"value\":1000.0}}]}},{\"Name\":{\"column\":1,\"row\":6,\"value\":\"OKZVVTSPKHOVYSMUPositionSQPSUQMWUPQSBXDT\"},\"Inputs\":{\"List\":[{\"Source\":{\"column\":2,\"row\":6,\"value\":\"OKZVVTSPKHOVYSMUSatelliteSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":3,\"row\":6,\"value\":50}},{\"Source\":{\"column\":2,\"row\":7,\"value\":\"OKZVVTSPKHOVYSMUMapSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":3,\"row\":7,\"value\":10000}}]},\"Outputs\":{\"List\":[{\"Type\":{\"column\":4,\"row\":6,\"value\":\"OKZVVTSPKHOVYSMURelativeSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":5,\"row\":6,\"value\":1000.0}},{\"Type\":{\"column\":4,\"row\":7,\"value\":\"OKZVVTSPKHOVYSMUAbsoluteSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":5,\"row\":7,\"value\":1000.0}}]}}]},\"Functions\":{\"column\":6,\"row\":4,\"value\":\"OKZVVTSPKHOVYSMUGetSQPSUQMWUPQSBXDT\"}},{\"Name\":{\"column\":0,\"row\":8,\"value\":\"OKZVVTSPKHOVYSMUUSConfigSQPSUQMWUPQSBXDT\"},\"Sensors\":{\"List\":[{\"Name\":{\"column\":1,\"row\":8,\"value\":\"OKZVVTSPKHOVYSMUTemperatureSQPSUQMWUPQSBXDT\"},\"Inputs\":{\"List\":[{\"Source\":{\"column\":2,\"row\":8,\"value\":\"OKZVVTSPKHOVYSMUEnvironmentSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":3,\"row\":8,\"value\":20}}]},\"Outputs\":{\"List\":[{\"Type\":{\"column\":4,\"row\":9,\"value\":\"OKZVVTSPKHOVYSMUFahrenheitSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":5,\"row\":9,\"value\":2000.0}}]}},{\"Name\":{\"column\":1,\"row\":10,\"value\":\"OKZVVTSPKHOVYSMUPositionSQPSUQMWUPQSBXDT\"},\"Inputs\":{\"List\":[{\"Source\":{\"column\":2,\"row\":10,\"value\":\"OKZVVTSPKHOVYSMUSatelliteSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":3,\"row\":10,\"value\":20}}]},\"Outputs\":{\"List\":[{\"Type\":{\"column\":4,\"row\":10,\"value\":\"OKZVVTSPKHOVYSMURelativeSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":5,\"row\":10,\"value\":2000.0}},{\"Type\":{\"column\":4,\"row\":11,\"value\":\"OKZVVTSPKHOVYSMUAbsoluteSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":5,\"row\":11,\"value\":2000.0}}]}}]},\"Functions\":{\"column\":6,\"row\":8,\"value\":\"OKZVVTSPKHOVYSMUGetSQPSUQMWUPQSBXDT\"}}]}]", 1072);
+    	//System.out.println(error.toString());
     	//System.out.println(JsonSearch.getCharPositions(error.getB(), charBegin, charEnd))
+    	
+    	Tuple<Tuple<Integer, Integer>, String> error = JsonSearch.find("[{\"Name\":\"Config\",\"Table\":[{\"Name\":{\"column\":1,\"row\":6,\"value\":\"OKZVVTSPKHOVYSMUDemoSQPSUQMWUPQSBXDT\"},\"Sensors\":[{\"Name\":{\"column\":2,\"row\":6,\"value\":\"OKZVVTSPKHOVYSMUtestSQPSUQMWUPQSBXDT\"},\"Inputs\":[{\"Source\":{\"column\":3,\"row\":6,\"value\":\"OKZVVTSPKHOVYSMUasdSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":4,\"row\":6,\"value\":\"asd\"}}],\"Outputs\":[{\"Type\":{\"column\":5,\"row\":6,\"value\":\"OKZVVTSPKHOVYSMUasdSQPSUQMWUPQSBXDT\"},\"Rate\":{\"column\":6,\"row\":6,\"value\":50.5}}]}],\"Functions\":{\"column\":7,\"row\":6,\"value\":\"OKZVVTSPKHOVYSMUtestSQPSUQMWUPQSBXDT\"}}]}]", 312);
+    	System.out.println(error.toString());
+    	//System.out.println(JsonSearch.getCharPositions(error.getB(), 572, 576));
     	
     	
 //    	LanguageLoader LL = new LanguageLoader();
 //
 //    	// Loading model
-    	M = new Model("orchestrator/GrammarExamples.ssmodel");
+    	M = new Model("GrammarExamples.ssmodel");
 
 //    	for(JsonObj header : attributes) {
 //    		System.out.println(header.getName() + " is " + header.getType() + " requiring type " + header.getDataTypes()[0].getValue()); // " and " + ((header.isOptional() == true ? "is optional" : "is not optional")));
@@ -81,6 +83,8 @@ public class App
     	// Connecting to LSP
     	DC = new DumbLSPClient(new URI("ws://localhost:4389"));
     	DC.connect();
+    	
+    	
     	
     	
     	
@@ -155,6 +159,45 @@ public class App
     	//
     	//System.out.println("Test: " + SheetTransformer.parseSGL(test));
 
+    	
+    	
+    	
+    	
+    	//Sheet test = Sheet.newSGL();
+    	//
+    	//test.addData(0, 0, 7, "array : Config");
+    	//
+    	//test.addData(0, 1, 1, "attribute : Name");
+    	//test.addData(1, 1, 5, "array : Sensors");
+    	//test.addData(6, 1, 1, "attribute : Functions");
+        //
+    	//test.addData(1, 2, 1, "attribute : Name");
+    	//test.addData(2, 2, 2, "array : Inputs");
+    	//test.addData(4, 2, 2, "array : Outputs");
+        //
+    	//test.addData(2, 3, 1, "attribute : Source");
+    	//test.addData(3, 3, 1, "attribute : Rate");
+    	//test.addData(4, 3, 1, "attribute : Type");
+    	//test.addData(5, 3, 1, "attribute : Rate");
+        //
+    	//test.addData(0, 4, 1, "type : String");
+    	//test.addData(1, 4, 1, "type : String");
+    	//test.addData(2, 4, 1, "type : String");
+    	//test.addData(3, 4, 1, "type : int");
+    	//test.addData(4, 4, 1, "type : String");
+    	//test.addData(5, 4, 1, "type : float");
+    	//test.addData(6, 4, 1, "type : String");
+        //
+    	//ArrayList<BoundingBox> tables = test.getTableRanges();
+    	//for(BoundingBox bb : tables) {
+    	//	System.out.println("Test: " + bb.toString());
+    	//}
+    	//
+    	//System.out.println("Test: " + SheetTransformer.parseSGL(test));
+    	
+    	
+    	
+    	
     	//Sheet test = new Sheet(false);
         //
     	//// Header
@@ -232,6 +275,66 @@ public class App
         ////test.addData(21, 21, 1, "mph");
         //
         //ArrayList<BoundingBox> tables = test.getTableRanges();
+        //System.out.println("Size: " + tables.size());
+    	//for(BoundingBox bb : tables) {
+    	//	System.out.println("Test: " + bb.toString());
+    	//}
+        //
+    	//String SDSL_JSON = SheetTransformer.parse(test);
+    	//System.out.println("SDSL : " + SDSL_JSON);
+    	
+    	
+    	
+    	
+    	
+    	
+    	
+    	//Sheet test = Sheet.newSDSL();
+    	//
+    	//test.addData(0, 0, 3, "Config [ ]");
+        //
+    	//test.addData(0, 1, 1, "Name");
+    	//test.addData(1, 1, 1, "Sensors [ ]");
+    	//test.addData(2, 1, 1, "Functions");
+    	//
+    	//test.addData(1, 2, 1, "Name");
+        //
+    	//test.addData(0, 3, 1, "string");
+    	//test.addData(1, 3, 1, "string");
+    	//test.addData(2, 3, 1, "string");
+        //
+    	//test.addData(0, 4, 1, "EUConfig");
+    	//test.addData(1, 4, 1, "demo");
+    	//test.addData(2, 4, 1, "Get");
+    	//
+    	//////////////////////////////////////////////////////////////
+    	//
+    	//test.addData(0, 6, 5, "Config  -> Sensors [ ]");
+        //
+    	//test.addData(0, 7, 1, "Name");
+    	//test.addData(1, 7, 2, "Inputs [ ]");
+    	//test.addData(3, 7, 1, "Outputs [ ]");
+        //
+    	//test.addData(1, 8, 1, "Source");
+    	//test.addData(2, 8, 1, "Rate");
+    	//test.addData(3, 8, 1, "Type");
+    	//test.addData(4, 8, 1, "Rate");
+        //
+    	//test.addData(0, 9, 1, "string");
+    	//test.addData(1, 9, 1, "string");
+    	//test.addData(2, 9, 1, "int");
+    	//test.addData(3, 9, 1, "string");
+    	//test.addData(4, 9, 1, "float");
+        //
+    	//test.addData(0, 10, 1, "test");
+    	//test.addData(1, 10, 1, "Temperature");
+    	//test.addData(2, 10, 1, "1000");
+    	//test.addData(3, 10, 1, "Celsius");
+    	//test.addData(4, 10, 1, "0.5");
+    	//
+    	///////////////////////////////////////////////////////////
+    	//
+    	//ArrayList<BoundingBox> tables = test.getTableRanges();
         //System.out.println("Size: " + tables.size());
     	//for(BoundingBox bb : tables) {
     	//	System.out.println("Test: " + bb.toString());
