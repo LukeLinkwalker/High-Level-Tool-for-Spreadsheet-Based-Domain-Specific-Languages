@@ -4,6 +4,10 @@ body {
     overflow: hidden;
 }
 
+u {
+    text-decoration: none;
+}
+
 #action-container {
     background-color: white;
     width: 100%;

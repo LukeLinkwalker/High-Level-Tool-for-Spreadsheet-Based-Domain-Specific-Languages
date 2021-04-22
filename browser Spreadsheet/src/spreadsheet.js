@@ -169,6 +169,17 @@ export function getTableName(cell) {
     return getSpecificClassFromCell(cell, 'table-cell-')
 }
 
+//TODO: Demo - not done
+export function createBreakoutDataCellReference(column, row) {
+    let cellID = createCellID(column, row)
+    return 'breakout-data-cell-reference-' + cellID
+}
+
+export function getBreakoutDataCellReference(cell) {
+    return getSpecificClassFromCell(cell, 'breakout-data-cell-reference-')
+}
+//////////////
+
 export function createBreakoutReferenceToOriginalTable(cell) {
     let tableHeader = findTableHeader(cell)
     let cellIndexes = getCellIndexes(tableHeader)
@@ -535,15 +546,15 @@ export function setCaretPosition(element, position){
 }
 
 export function markAsBrokenOut(cell) {
-    $(cell).addClass('brokenOut')
+    $(cell).addClass('brokenOutNameCell')
 }
 
 export function removeMarkAsBrokenOut(cell) {
-    $(cell).removeClass('brokenOut')
+    $(cell).removeClass('brokenOutNameCell')
 }
 
 export function getIsBrokenOut(cell) {
-    return $(cell).hasClass('brokenOut')
+    return $(cell).hasClass('brokenOutNameCell')
 }
 
 export function findNameAttributeHeaderInColumnForCell(cell) {

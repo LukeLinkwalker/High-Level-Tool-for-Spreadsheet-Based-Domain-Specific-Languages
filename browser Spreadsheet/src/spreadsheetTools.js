@@ -9,6 +9,7 @@ export function mergeCells(cells) {
 
     $(cells[0]).attr('colspan', cells.length)
     cells.forEach((cell) => $(cell).addClass(className))
+    client.sendChange(cells[0])
 
     cells.slice(1).forEach((cell) => {
         $(cell).css('display', 'none')
@@ -443,6 +444,7 @@ export function copyCell(oldCell, newCell, newHeader) {
     $(newCell).css('display', $(oldCell).css('display'))
     $(newDiv).attr('class', $(oldDiv).attr('class'))
     spreadsheet.setCellText(newCell, spreadsheet.getCellText(oldCell), true)
+    //TODO: Update tablename and update reference name
     $(newCell).removeClass(oldTableName)
     $(newCell).addClass(newTableName)
 
@@ -483,7 +485,21 @@ export function copyCellsAndClearOldCells(breakoutOutlineCells, breakoutHeader, 
 
             if (isBreakingOut) {
                 let referenceToOriginalTable = spreadsheet.createBreakoutReferenceToOriginalTable(oldTableHeader)
-                breakoutOutlineCells.forEach((cell) => $(cell).addClass(referenceToOriginalTable))
+                //TODO: Update - not done
+                let rows = spreadsheet.getTableCellsAsRows(breakoutOutlineCells)
+                let nameCell = rows[1].filter((cell) => spreadsheet.getCellText(cell).toLowerCase() === 'name')
+                let nameCellIndexes = spreadsheet.getCellIndexes(nameCell)
+
+                breakoutOutlineCells.forEach((cell) => {
+                    let cellIndexes = spreadsheet.getCellIndexes(cell)
+
+                    $(cell).addClass(referenceToOriginalTable)
+                    //TODO
+                    // if (cellIndexes[0] === nameCellIndexes[0] && spreadsheet.getCellType(cell) === 'data')
+                        //Der skal ske et eller andet her. Her kan jeg finde breakout cellerne, men skal lave et referencenavn
+                        //til de originale celler, men de har måske fået ny placering. så skal måske noget fra insertnamecolumn
+                })
+                ////////////
                 insertNameColumnWhenBreakingOut(copyOfBreakOutTableCells, oldTableHeader)
                 cleanupTableAfterInsertingNameColumnWhenBreakingOut(copyOfBreakOutTableCells[0], oldTableHeader)
 
