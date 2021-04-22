@@ -189,6 +189,11 @@ public class SheetTransformer {
 				headerDepth = App.M.getDepth(tableName, true, mapOfBreakouts.get(tableName));
 			} else {
 				// Broken out tables
+				if(tableNameParts.length < 2) {
+					// Put out error due to skip
+					continue;
+				}
+				
 				JsonObj arr = App.M.getArray(
 					StringUtilities.stripTrailingSpecials(tableNameParts[0]), 
 					StringUtilities.stripTrailingSpecials(tableNameParts[1])
