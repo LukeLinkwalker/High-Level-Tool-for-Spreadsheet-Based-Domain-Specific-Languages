@@ -149,6 +149,7 @@ export function clearCell(cell) {
     removeBlackBorder(cell)
     spreadsheet.removeCellFromTable(cell)
     spreadsheet.removeBreakoutReferenceToOriginalTable(cell)
+    spreadsheet.removeMarkAsBrokenOut(cell)
     spreadsheet.setCellText(cell, '')
 }
 
@@ -487,6 +488,13 @@ export function copyCellsAndClearOldCells(breakoutOutlineCells, breakoutHeader, 
                 breakoutOutlineCells.forEach((cell) => $(cell).addClass(referenceToOriginalTable))
                 insertNameColumnWhenBreakingOut(copyOfBreakOutTableCells, oldTableHeader)
                 cleanupTableAfterInsertingNameColumnWhenBreakingOut(copyOfBreakOutTableCells[0], oldTableHeader)
+
+                let oldTableHeaderText = spreadsheet.getCellText(oldTableHeader)
+                let newBreakoutHeader = breakoutOutlineCells[0]
+                let newBreakoutHeaderText = spreadsheet.getCellText(newBreakoutHeader)
+                let newBreakoutHeaderNewText = oldTableHeaderText + ' -> ' + newBreakoutHeaderText
+
+                spreadsheet.setCellText(newBreakoutHeader, newBreakoutHeaderNewText)
             }
         }
     }
@@ -516,6 +524,7 @@ export function insertNameColumnWhenBreakingOut(copyOfBreakoutTableCells, tableH
         if (boCellIndexes[0] === nameAttributeCellIndexes[0] && boCellIndexes[1] !== breakoutHeaderIndexes[1]) {
             let newCell = spreadsheet.getCellFromIndexes(breakoutHeaderIndexes[0], boCellIndexes[1])
             copyCell(boCell, newCell, tableHeader)
+            if (spreadsheet.getCellType(newCell) === 'data') spreadsheet.markAsBrokenOut(newCell)
         }
     })
 
@@ -664,4 +673,21 @@ export function moveOrBreakoutCells(cell) {
         copyCellsAndClearOldCells(breakoutOutlineCells, globals.breakoutTableCells[0], isBreakingOut)
         spreadsheet.setFocusOnCell(breakoutOutlineCells[0])
     }
+}
+
+//TODO
+export function highlightCellAndBreakoutReferenceCell(cell, cellTextDiv) {
+    let breakoutReferenceCell = spreadsheet.getBreakoutReferenceCell(cell)
+
+    $(cellTextDiv).css('outline', 'none')
+    $(breakoutReferenceCell).addClass('breakoutHighlight')
+    $(cell).addClass('breakoutHighlight')
+}
+
+export function removeHighlightCellAndBreakoutReferenceCell(cell, cellTextDiv) {
+    let breakoutReferenceCell = spreadsheet.getBreakoutReferenceCell(cell)
+
+    $(cellTextDiv).css('outline', '')
+    $(breakoutReferenceCell).removeClass('breakoutHighlight')
+    $(cell).removeClass('breakoutHighlight')
 }

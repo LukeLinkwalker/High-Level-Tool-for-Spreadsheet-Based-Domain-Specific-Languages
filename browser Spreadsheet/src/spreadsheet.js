@@ -530,3 +530,63 @@ export function setCaretPosition(element, position){
     }
     return position
 }
+
+export function markAsBrokenOut(cell) {
+    $(cell).addClass('brokenOut')
+}
+
+export function removeMarkAsBrokenOut(cell) {
+    $(cell).removeClass('brokenOut')
+}
+
+export function getIsBrokenOut(cell) {
+    return $(cell).hasClass('brokenOut')
+}
+
+export function findNameAttributeHeaderInColumnForCell(cell) {
+    let nextCell = cell
+    let nextCellType = getCellType(nextCell)
+    let nextCellText = getCellText(nextCell)
+
+    while (!(nextCellType === 'header' && nextCellText.toLowerCase() === 'name')) {
+        let nextCellIndexes = getCellIndexes(nextCell)
+        nextCell = getCellFromIndexes(nextCellIndexes[0], nextCellIndexes[1] - 1)
+        nextCellType = getCellType(nextCell)
+        nextCellText = getCellText(nextCell)
+    }
+
+    return nextCell
+}
+
+export function findFirstDataCellForHeaderCell(cell) {
+    let nextCell = cell
+    let nextCellType = getCellType(cell)
+
+    while (nextCellType !== 'data') {
+        let nextCellIndexes = getCellIndexes(nextCell)
+        nextCell = getCellFromIndexes(nextCellIndexes[0], nextCellIndexes[1] + 1)
+        nextCellType = getCellType(nextCell)
+    }
+
+    return nextCell
+}
+
+export function getBreakoutReferenceCell(cell) {
+    let cellIndexes = getCellIndexes(cell)
+    let nameAttributeHeaderOriginalTable = findNameAttributeHeaderInColumnForCell(cell)
+    let firstDataCellOriginalTable = findFirstDataCellForHeaderCell(nameAttributeHeaderOriginalTable)
+    let firstDataCellOriginalTableIndexes = getCellIndexes(firstDataCellOriginalTable)
+    let rowDifferenceFromNameAttributeHeader = cellIndexes[1] - firstDataCellOriginalTableIndexes[1]
+
+    let breakoutReference = createBreakoutReferenceToOriginalTable(cell)
+    let breakoutCells = $('.' + breakoutReference).get()
+    let rows = getTableCellsAsRows(breakoutCells)
+    let firstRow = rows[1]
+    let nameAttributeHeaderBreakoutTable = firstRow.filter((cell) => getCellText(cell).toLowerCase() ===
+        'name')
+    let firstDataCellBreakoutTable = findFirstDataCellForHeaderCell(nameAttributeHeaderBreakoutTable)
+    let firstDataCellBreakoutTableIndexes = getCellIndexes(firstDataCellBreakoutTable)
+
+    return  getCellFromIndexes(firstDataCellBreakoutTableIndexes[0],
+        firstDataCellBreakoutTableIndexes[1] + rowDifferenceFromNameAttributeHeader)
+}
