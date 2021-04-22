@@ -226,9 +226,11 @@ public class GrammarCreator {
 
         sb.append("\n").append(name).append("Reference:\n")
                 .append("   '{'\n")
-                .append("      '\"column\"' ':' column = INT ','\n")
-                .append("      '\"row\"' ':' row = INT ','\n")
-                .append("      '\"name\"' ':' name = [").append(name).append("|STRING]\n")
+                .append("      '\"Name\"' ':' '{'\n")
+                .append("         '\"column\"' ':' column = INT ','\n")
+                .append("         '\"row\"' ':' row = INT ','\n")
+                .append("         '\"value\"' ':' name = [").append(name).append("|STRING]\n")
+                .append("      '}'\n")
                 .append("   '}'\n")
                 .append(";\n");
 
