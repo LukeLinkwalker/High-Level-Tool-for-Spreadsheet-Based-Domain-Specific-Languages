@@ -158,23 +158,12 @@ public class SheetTransformer {
 			tableName = StringUtilities.stripTrailingSpecials(tableName);
 			System.out.println("Table name: " + tableName + " (" + tableName.length() + ")");
 			
-			// Put out error due to skip? - Yes. Todo
-			// if(App.M.checkIfExists(tableName) == false) {
-			// 	continue;
-			// }
-
 			// Build Table Name
 			String[] tableNameParts = parseTableName(tableName);
 			StringBuilder SB = new StringBuilder();
 			for(String str : tableNameParts) {
 				SB.append(StringUtilities.stripTrailingSpecials(JsonUtil.tokenStrip(str)));
 			}
-			
-			JsonObject base = new JsonObject();
-			JsonArray table = new JsonArray();
-			base.addProperty("Name", SB.toString());
-			base.add("Table", table);
-			root.add(base);
 			
 			// Structure objects
 			ArrayList<ArrayList<String>> arrLayout = null;
@@ -204,6 +193,14 @@ public class SheetTransformer {
 				headerDepth = App.M.getDepth(arr, true, null);
 			}
 			
+			// Add base element to output
+			JsonObject base = new JsonObject();
+			JsonArray table = new JsonArray();
+			base.addProperty("Name", SB.toString());
+			base.add("Table", table);
+			root.add(base);
+			
+			// Find limits for current table
 			int rowStart = table1.getY() + headerDepth; 
 			int rowEnd = table1.getY() + table1.getHeight();
 			int columnStart = table1.getX();

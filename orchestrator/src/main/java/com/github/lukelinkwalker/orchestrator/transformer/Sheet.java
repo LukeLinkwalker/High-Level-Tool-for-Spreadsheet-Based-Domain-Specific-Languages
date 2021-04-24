@@ -30,19 +30,17 @@ public class Sheet {
 	}
 	
 	public void addData(int column, int row, int width, String data) {
-		if(data.isEmpty()) {
-			for(int i = 0; i < width; i += 1) {
-				cells[column + i][row] = null;
-			}
-		} else {
-			Cell cell = new Cell();
+		Cell cell = null;
+
+		if(data.isEmpty() == false) {
+			cell = new Cell();
 			cell.setColumn(column);
 			cell.setRow(row);
 			cell.setData(data);
-			
-			for(int i = 0; i < width; i += 1) {
-				cells[column + i][row] = cell;
-			}
+		}
+		
+		for(int i = 0; i < width; i += 1) {
+			cells[column + i][row] = cell;
 		}
 	}
 	
@@ -55,6 +53,16 @@ public class Sheet {
 	}
 	
 	public ArrayList<BoundingBox> getTableRanges() {
+		for(int row = 0; row < 20; row += 1) {
+			for(int column = 0; column < 20; column += 1) {
+				if(cells[column][row] != null) {
+					System.out.print(cells[column][row].data + "  ");
+				}
+			}
+			
+			System.out.print("\n");
+		}
+		
 		ArrayList<BoundingBox> boxes = new ArrayList<>();
 		
 		for(int row = 0; row < 1000; row += 1) {
