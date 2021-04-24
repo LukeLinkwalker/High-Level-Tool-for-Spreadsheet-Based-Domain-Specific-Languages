@@ -478,9 +478,19 @@ export function copyCellsAndClearOldCells(breakoutOutlineCells, breakoutHeader, 
             })
 
             copyOfBreakOutTableCells.forEach((oldCell, index) => {
-                let newTableHeader = spreadsheet.getNewTableHeaderForCopyingCell(oldCell, breakoutOutlineCells[index],
-                    breakoutHeader)
-                copyCell(oldCell, breakoutOutlineCells[index], newTableHeader)
+                if(spreadsheet.getCellText(oldCell).length == 0) {
+                    let newTableHeader = spreadsheet.getNewTableHeaderForCopyingCell(oldCell, breakoutOutlineCells[index],
+                        breakoutHeader)
+                    copyCell(oldCell, breakoutOutlineCells[index], newTableHeader)
+                }
+            })
+
+            copyOfBreakOutTableCells.forEach((oldCell, index) => {
+                if(spreadsheet.getCellText(oldCell).length > 0) {
+                    let newTableHeader = spreadsheet.getNewTableHeaderForCopyingCell(oldCell, breakoutOutlineCells[index],
+                        breakoutHeader)
+                    copyCell(oldCell, breakoutOutlineCells[index], newTableHeader)
+                }
             })
 
             if (isBreakingOut) {
