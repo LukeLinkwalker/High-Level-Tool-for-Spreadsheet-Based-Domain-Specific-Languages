@@ -169,7 +169,6 @@ export function getTableName(cell) {
     return getSpecificClassFromCell(cell, 'table-cell-')
 }
 
-//TODO: Demo - not done
 export function createBreakoutDataCellReference(column, row) {
     let cellID = createCellID(column, row)
     return 'breakout-data-cell-reference-' + cellID
@@ -178,7 +177,6 @@ export function createBreakoutDataCellReference(column, row) {
 export function getBreakoutDataCellReference(cell) {
     return getSpecificClassFromCell(cell, 'breakout-data-cell-reference-')
 }
-//////////////
 
 export function createBreakoutReferenceToOriginalTable(cell) {
     let tableHeader = findTableHeader(cell)
@@ -364,8 +362,12 @@ export function insertNewMessageInInfoBox(infoBox, value) {
 export function insertNewMessageInErrorBox(errorBox, value) {
     let currentText = $(errorBox).text()
 
-    if (currentText === '') $(errorBox).text(value)
-    else $(errorBox).text(currentText + '\n' + value)
+    if (currentText === '') setErrorBoxText(errorBox, value)
+    else setErrorBoxText(errorBox, currentText + '\n' + value)
+}
+
+export function setErrorBoxText(errorBox, text) {
+    $(errorBox).text(text)
 }
 
 export function getBreakoutTableCells(cell) {

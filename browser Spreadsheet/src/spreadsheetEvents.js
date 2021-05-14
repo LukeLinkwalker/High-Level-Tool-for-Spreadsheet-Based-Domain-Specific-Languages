@@ -50,8 +50,10 @@ export function onCellMouseUp(cell) {
 }
 
 export function onCellMouseEnter(cell) {
+    let errorBox = spreadsheet.getErrorBox(cell)
+
     if (globals.moveBreakoutTableActivated) tools.showBreakoutTableOutline(cell)
-    if ($(cell).hasClass('error')) tools.showErrorMessage(cell)
+    if ($(cell).hasClass('error')) tools.showErrorMessage(errorBox)
 
     if (globals.editingCell !== cell && globals.mouseDown) {
         globals.setSelectedEndCell(cell)
@@ -66,15 +68,18 @@ export function onCellMouseEnter(cell) {
 }
 
 export function onCellMouseLeave(cell) {
+    let errorBox = spreadsheet.getErrorBox(cell)
+
     if (globals.moveBreakoutTableActivated) tools.removeBreakoutTableOutline(cell)
-    if ($(cell).hasClass('error')) tools.hideErrorMessage(cell)
+    if ($(cell).hasClass('error')) tools.hideErrorMessage(errorBox)
 }
 
 export function onCellTextDivFocus(cellTextDiv) {
     let cell = spreadsheet.getCellFromCellTextDiv(cellTextDiv)
     let inputBar = $('#input-bar')
 
-    if (spreadsheet.getIsBrokenOut(cell)) tools.highlightCellAndBreakoutReferenceCell(cell, cellTextDiv)
+    //TODO: Fix together with highlight of breakout cells.
+    // if (spreadsheet.getIsBrokenOut(cell)) tools.highlightCellAndBreakoutReferenceCell(cell, cellTextDiv)
 
     if (globals.cellsMarked) tools.clearMarkedCells()
     globals.setEditingCell(cell)
@@ -88,7 +93,8 @@ export function onCellTextDivFocusout(cellTextDiv) {
     let infoBox = spreadsheet.getInfoBox(cell)
 
     tools.hideCreateTableCodeCompletionForInfoBox(infoBox, cell)
-    if (spreadsheet.getIsBrokenOut(cell)) tools.removeHighlightCellAndBreakoutReferenceCell(cell, cellTextDiv)
+    //TODO: Fix together with highlight of breakout cells.
+    // if (spreadsheet.getIsBrokenOut(cell)) tools.removeHighlightCellAndBreakoutReferenceCell(cell, cellTextDiv)
 }
 
 export function onCellInput(cell) {

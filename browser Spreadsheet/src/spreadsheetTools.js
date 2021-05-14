@@ -78,7 +78,6 @@ export function createError(errorCellColumn, errorCellRow, errorMessage) {
 // export function createErrorUnderline(cell, errorLineIndexes) {
 export function createErrorUnderline(cell) {
     let cellText = spreadsheet.getCellText(cell)
-    //TODO: Refactor after errorLineIndexes work on server.
     let textWithError = cellText
     // let textWithError = cellText.substring(errorLineIndexes[0], errorLineIndexes[1])
     let textWithErrorUnderline = '<span class="errorLine">' + textWithError + '</span>'
@@ -97,14 +96,16 @@ export function createErrorUnderline(cell) {
 
 export function hideAndClearAllErrors() {
     let errorCells = $('.error')
+    errorCells.each((i, element) => hideAndClearError(element))
+}
 
-    errorCells.each((i, element) => {
-        $(element).removeClass('error')
-        $('.errorBox')
-            .css('display', 'none')
-            .text('')
-        removeErrorUnderline(element)
-    })
+export function hideAndClearError(cell) {
+    let errorBox = spreadsheet.getErrorBox(cell)
+
+    $(cell).removeClass('error')
+    spreadsheet.setErrorBoxText(errorBox, '')
+    removeErrorUnderline(cell)
+    hideErrorMessage(errorBox)
 }
 
 export function removeErrorUnderline(cell) {
@@ -112,13 +113,11 @@ export function removeErrorUnderline(cell) {
     spreadsheet.setCellText(cell, cellText, false)
 }
 
-export function showErrorMessage(cell) {
-    let errorBox = spreadsheet.getErrorBox(cell)
+export function showErrorMessage(errorBox) {
     $(errorBox).css('display', 'block')
 }
 
-export function hideErrorMessage(cell) {
-    let errorBox = spreadsheet.getErrorBox(cell)
+export function hideErrorMessage(errorBox) {
     $(errorBox).css('display', 'none')
 }
 
@@ -150,6 +149,7 @@ export function clearCell(cell) {
     spreadsheet.removeBreakoutReferenceToOriginalTable(cell)
     spreadsheet.removeMarkAsBrokenOut(cell)
     spreadsheet.setCellText(cell, '', true)
+    hideAndClearError(cell)
 }
 
 export function createTable(tableName, tableRange, spreadsheetType) {
@@ -699,19 +699,19 @@ export function moveOrBreakoutCells(cell) {
     }
 }
 
-//TODO
-export function highlightCellAndBreakoutReferenceCell(cell, cellTextDiv) {
-    let breakoutReferenceCell = spreadsheet.getBreakoutReferenceCell(cell)
-
-    $(cellTextDiv).css('outline', 'none')
-    $(breakoutReferenceCell).addClass('breakoutHighlight')
-    $(cell).addClass('breakoutHighlight')
-}
-
-export function removeHighlightCellAndBreakoutReferenceCell(cell, cellTextDiv) {
-    let breakoutReferenceCell = spreadsheet.getBreakoutReferenceCell(cell)
-
-    $(cellTextDiv).css('outline', '')
-    $(breakoutReferenceCell).removeClass('breakoutHighlight')
-    $(cell).removeClass('breakoutHighlight')
-}
+//TODO: Only works one way right now. From original table highlighting breakout cell, not the other way around.
+// export function highlightCellAndBreakoutReferenceCell(cell, cellTextDiv) {
+//     let breakoutReferenceCell = spreadsheet.getBreakoutReferenceCell(cell)
+//
+//     $(cellTextDiv).css('outline', 'none')
+//     $(breakoutReferenceCell).addClass('breakoutHighlight')
+//     $(cell).addClass('breakoutHighlight')
+// }
+//
+// export function removeHighlightCellAndBreakoutReferenceCell(cell, cellTextDiv) {
+//     let breakoutReferenceCell = spreadsheet.getBreakoutReferenceCell(cell)
+//
+//     $(cellTextDiv).css('outline', '')
+//     $(breakoutReferenceCell).removeClass('breakoutHighlight')
+//     $(cell).removeClass('breakoutHighlight')
+// }

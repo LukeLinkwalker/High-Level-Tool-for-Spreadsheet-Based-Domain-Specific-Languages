@@ -170,6 +170,8 @@ socket.addEventListener('message', (event) => {
 
 //TODO: This need to be changed, as it doesn't include line index
 function handleErrors(errors) {
+    tools.hideAndClearAllErrors()
+
     console.log("Diagnostic - Number of errors : " + errors.length);
     for(let i = 0; i < errors.length; i++) {
         //tools.createError(errors[i].cellIndexes, errors[i].lineIndexes, errors[i].message)
@@ -258,14 +260,11 @@ export function sendChange(cell) {
         character: content
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////////
-    //                                     Sending cell data to server                               //
-    ///////////////////////////////////////////////////////////////////////////////////////////////////
-    let update = { sheetName:"Hello", column:cellIndexes[0], row:cellIndexes[1], width:colspan, data: content};
-    let update_msg = { method:"update-sheet", id:updateCounter++, data:JSON.stringify(update) };
-    socket.send(JSON.stringify(update_msg));
+    let update = { sheetName:"Hello", column:cellIndexes[0], row:cellIndexes[1], width:colspan, data: content}
+    let update_msg = { method:"update-sheet", id:updateCounter++, data:JSON.stringify(update) }
 
-    if (debug) console.log("Send change: " + JSON.stringify(object));
+    socket.send(JSON.stringify(update_msg))
+    if (debug) console.log("Send change: " + JSON.stringify(object))
 }
 
 export function requestCheckIfTextIsATableName(cellText, column, row, spreadsheetType) {
