@@ -189,16 +189,21 @@ export function onBuildButtonClick() {
     client.requestBuild()
 }
 
-//TODO Update. Done quickly for demo
 export function onMergeButtonClick() {
     let mergedCells = []
     let numberOfRowsSelected = new Set()
 
     globals.selectedCells.forEach((cell) => {
-        if ($(cell).attr('colspan') > 1) mergedCells.push(cell)
-    })
+        let width = $(cell).attr('colspan')
+        if (width > 1) {
+            let cellIndexes = spreadsheet.getCellIndexes(cell)
 
-    if ($(globals.editingCell).attr('colspan') > 1) mergedCells.push(globals.editingCell)
+            for (let i = 0; i < width; i++) {
+                let mergedCell = spreadsheet.getCellFromIndexes(cellIndexes[0] + i, cellIndexes[1])
+                mergedCells.push(mergedCell)
+            }
+        }
+    })
 
     globals.selectedCells.forEach((cell) => {
         let cellIndexes = spreadsheet.getCellIndexes(cell)

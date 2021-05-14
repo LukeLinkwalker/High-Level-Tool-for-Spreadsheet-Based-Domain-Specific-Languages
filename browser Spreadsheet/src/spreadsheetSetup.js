@@ -5,8 +5,7 @@ $(() => {
 })
 
 export function setupActionBar() {
-    $('#action-container')
-        .on('mousedown', (e) => e.preventDefault())
+    $('#action-container').on('mousedown', (e) => e.preventDefault())
 }
 
 export function setupSDSL() {
@@ -29,38 +28,31 @@ export function setupInputBar() {
 }
 
 export function setupSpreadsheetTypeRadioButtons() {
-    $('input[name="spreadsheetType"]')
-        .on('change', () => events.onSpreadsheetTypeRadioButtonsChange())
+    $('input[name="spreadsheetType"]').on('change', () => events.onSpreadsheetTypeRadioButtonsChange())
 }
 
 function setupCreateTableButton() {
-    $('#createTable')
-        .on('click', () => events.onCreateTableButtonClick())
+    $('#createTable').on('click', () => events.onCreateTableButtonClick())
 }
 
 function setupAddRowButton() {
-    $('#addRow')
-        .on('click', () => events.onAddRowButtonClick())
+    $('#addRow').on('click', () => events.onAddRowButtonClick())
 }
 
 function setupDeleteRowButton() {
-    $('#deleteRow')
-        .on('click', () => events.onDeleteRowButtonClick())
+    $('#deleteRow').on('click', () => events.onDeleteRowButtonClick())
 }
 
 function setupDeleteTableButton() {
-    $('#deleteTable')
-        .on('click', () => events.onDeleteTableButtonClick())
+    $('#deleteTable').on('click', () => events.onDeleteTableButtonClick())
 }
 
 function setupBuildButton() {
-    $('#build')
-        .on('click', () => events.onBuildButtonClick())
+    $('#build').on('click', () => events.onBuildButtonClick())
 }
 
 function setupMergeButton() {
-    $('#merge')
-        .on('click', () => events.onMergeButtonClick())
+    $('#merge').on('click', () => events.onMergeButtonClick())
 }
 
 export function setupCell(cell) {
