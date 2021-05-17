@@ -12,7 +12,7 @@ public class SSOpen {
 		this.sheetName = name;
 	}
 
-	public boolean isSGL() {
+	public boolean isSML() {
 		return isSGL;
 	}
 

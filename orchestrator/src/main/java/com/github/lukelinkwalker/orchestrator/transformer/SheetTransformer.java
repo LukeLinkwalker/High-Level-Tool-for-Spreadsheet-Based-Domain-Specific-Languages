@@ -1,14 +1,11 @@
 package com.github.lukelinkwalker.orchestrator.transformer;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import com.github.lukelinkwalker.orchestrator.App;
 import com.github.lukelinkwalker.orchestrator.Util.StringUtilities;
-import com.github.lukelinkwalker.orchestrator.Util.Tuple;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -16,14 +13,14 @@ import com.google.gson.JsonObject;
 
 public class SheetTransformer {
 	public static String parse(Sheet sheet) {
-		if(sheet.isSGL()) {
-			return parseSGL(sheet);
+		if(sheet.isSML()) {
+			return parseSML(sheet);
 		}
 		
 		return parseSDSL(sheet);
 	}
 	
-	public static String parseSGL(Sheet sheet) {
+	public static String parseSML(Sheet sheet) {
 		JsonArray root = new JsonArray();
 		ArrayList<BoundingBox> tables = sheet.getTableRanges();
 		

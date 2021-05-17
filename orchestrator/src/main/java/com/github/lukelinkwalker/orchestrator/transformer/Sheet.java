@@ -25,7 +25,7 @@ public class Sheet {
 		this.isSGL = isSGL;
 	}
 	
-	public boolean isSGL() {
+	public boolean isSML() {
 		return isSGL;
 	}
 	

@@ -24,7 +24,7 @@ import com.google.gson.JsonObject;
 public class SSServer extends WebSocketServer {
 
 	private Gson gson;
-	private String sglGrammar;
+	private String smlGrammar;
 	private JsonArray ssModel;
 	
 	public SSServer(int port)  {
@@ -104,7 +104,7 @@ public class SSServer extends WebSocketServer {
 		SSOpen sso = gson.fromJson(msg.getData(), SSOpen.class);
 		System.out.println("Opening sheet: " + sso.getName());
 		
-		boolean sheetOpened = SheetStore.openSheet(sso.getName(), sso.isSGL());
+		boolean sheetOpened = SheetStore.openSheet(sso.getName(), sso.isSML());
 
 		SSResponse response = new SSResponse(msg);
 		
@@ -169,8 +169,8 @@ public class SSServer extends WebSocketServer {
 		
 		String JSON;
 		
-		if(sheet.isSGL()) {
-			JSON = SheetTransformer.parseSGL(sheet);
+		if(sheet.isSML()) {
+			JSON = SheetTransformer.parseSML(sheet);
 		} else {
 			JSON = SheetTransformer.parseSDSL(sheet);
 		}
@@ -195,13 +195,13 @@ public class SSServer extends WebSocketServer {
 		if(sheet != null) {
 			response.setCode(200);
 			
-			if(sheet.isSGL()) {
-				// handle SGL generator
-				String ssModelString = SheetTransformer.parseSGL(sheet);
+			if(sheet.isSML()) {
+				// handle SML generator
+				String ssModelString = SheetTransformer.parseSML(sheet);
 				loadSSModel(ssModelString);
-				sglGrammar = GrammarCreator.createGrammar();
+				smlGrammar = GrammarCreator.createGrammar();
 				System.out.println("SS Model : " + ssModel);
-				System.out.println("XText Grammar : " + sglGrammar);
+				System.out.println("XText Grammar : " + smlGrammar);
 			} else {
 				// handle SDSL generator
 			}
@@ -288,7 +288,7 @@ public class SSServer extends WebSocketServer {
 		Reader reader = null;
 
 		try {
-			reader = Files.newBufferedReader(Paths.get("src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
+			reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -296,12 +296,12 @@ public class SSServer extends WebSocketServer {
 		return gson.fromJson(reader, JsonArray.class);
 	}
 
-	public JsonArray getSGLSSModel() {
+	public JsonArray getSMLSSModel() {
 		Gson gson = new Gson();
 		Reader reader = null;
 
 		try {
-			reader = Files.newBufferedReader(Paths.get("src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/sglSSModel.json"));
+			reader = Files.newBufferedReader(Paths.get("src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/smlSSModel.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

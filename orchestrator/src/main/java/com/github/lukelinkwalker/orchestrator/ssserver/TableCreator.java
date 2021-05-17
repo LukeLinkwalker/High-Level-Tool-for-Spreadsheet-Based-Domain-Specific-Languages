@@ -61,7 +61,7 @@ public class TableCreator {
 //        JsonArray ssModel = App.SSS.getSDSLSSModelTest();
         JsonArray ssModel;
 
-        if (spreadsheetType.equals("sgl")) ssModel = App.SSS.getSGLSSModel();
+        if (spreadsheetType.equals("sml")) ssModel = App.SSS.getSMLSSModel();
         else ssModel = App.SSS.getSDSLSSModelTest();
 
         if (ssModel != null) {
