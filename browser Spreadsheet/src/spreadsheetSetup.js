@@ -15,7 +15,7 @@ export function setupSDSL() {
     setupDeleteTableButton()
 }
 
-export function setupSGL() {
+export function setupSML() {
     setupBuildButton()
     setupMergeButton()
 }

@@ -20,6 +20,7 @@ socket.addEventListener('open', function(event) {
     let cmsg = { method:"close-sheet", id:"0", data:JSON.stringify(close) };
     socket.send(JSON.stringify(cmsg));
 
+    //TODO: Fix this to SML along with on server
     let open = { sheetName:"Hello", isSGL:true }
     let omsg = { method:"open-sheet", id:"1", data:JSON.stringify(open) };
     socket.send(JSON.stringify(omsg));

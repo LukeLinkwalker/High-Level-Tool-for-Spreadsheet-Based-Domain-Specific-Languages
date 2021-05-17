@@ -120,14 +120,14 @@ export function onDocumentReady() {
     setup.setupInputBar()
     setup.setupActionBar()
     setup.setupSDSL()
-    setup.setupSGL()
+    setup.setupSML()
     globals.setSpreadsheetType('sdsl')
     spreadsheet.createSpreadsheet()
-    globals.setSpreadsheetType('sgl')
+    globals.setSpreadsheetType('sml')
     spreadsheet.createSpreadsheet()
-    tools.changeToSGL()
+    tools.changeToSML()
     spreadsheet.setInitialEditingCell()
-    $('#sglRadioButton').prop('checked', true)
+    $('#smlRadioButton').prop('checked', true)
 }
 
 export function onCellKeydownTab(event) {
@@ -174,7 +174,7 @@ export function onSpreadsheetTypeRadioButtonsChange() {
     let spreadsheetType = $('input[name="spreadsheetType"]:checked').val()
 
     if (spreadsheetType === 'sdsl') tools.changeToSDSL()
-    else if (spreadsheetType === 'sgl') tools.changeToSGL()
+    else if (spreadsheetType === 'sml') tools.changeToSML()
 }
 
 export function onAddRowButtonClick() {

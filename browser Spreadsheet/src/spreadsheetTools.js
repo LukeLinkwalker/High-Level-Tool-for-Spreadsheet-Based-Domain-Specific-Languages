@@ -349,16 +349,16 @@ export function setNextCell(column, row) {
     spreadsheet.setFocusOnCell(newCell)
 }
 
-export function changeToSGL() {
+export function changeToSML() {
     $('.sdslClass').css('display', 'none')
-    $('.sglClass').css('display', '')
-    globals.setSpreadsheetType('sgl')
+    $('.smlClass').css('display', '')
+    globals.setSpreadsheetType('sml')
     spreadsheet.setInitialEditingCell()
 }
 
 export function changeToSDSL() {
     $('.sdslClass').css('display', '')
-    $('.sglClass').css('display', 'none')
+    $('.smlClass').css('display', 'none')
     globals.setSpreadsheetType('sdsl')
     spreadsheet.setInitialEditingCell()
 }
