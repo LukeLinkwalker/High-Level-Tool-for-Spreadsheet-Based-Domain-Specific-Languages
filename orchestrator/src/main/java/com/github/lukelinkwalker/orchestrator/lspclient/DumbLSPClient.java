@@ -76,7 +76,9 @@ public class DumbLSPClient extends WebSocketClient {
 					for(int i = 0; i < PD.getParams().getDiagnostics().length; i += 1) {
 						Diagnostics diag = PD.getParams().getDiagnostics()[i];
 						
-						Tuple<Tuple<Integer, Integer>, String> errorInfo = JsonSearch.find(App.Txt, diag.getRange().getStart().getCharacter());
+						//Tuple<Tuple<Integer, Integer>, String> errorInfo = JsonSearch.find(App.Txt, diag.getRange().getStart().getCharacter());
+						
+						Tuple<Tuple<Integer, Integer>, Tuple<Integer, Integer>> errorInfos = JsonSearch.find(App.Txt, diag.getRange().getStart().getCharacter(), diag.getRange().getEnd().getCharacter());
 						
 						//JsonObj errorCell = JsonSearch.find(App.Txt, diag.getRange().getStart().getCharacter());
 						
@@ -87,17 +89,19 @@ public class DumbLSPClient extends WebSocketClient {
 						
 						JsonObject error = new JsonObject();
 						
-						int column = errorInfo.getA().getA();
+						int column = errorInfos.getA().getA();
 						if(column == -1) {
 							column = 0;
 						}
-						int row = errorInfo.getA().getB();
+						int row = errorInfos.getA().getB();
 						if(row == -1) {
 							row = 0;
 						}
 						
 						error.addProperty("column", column);
 						error.addProperty("row", row);
+						error.addProperty("start", errorInfos.getB().getA());
+						error.addProperty("end", errorInfos.getB().getB());
 						error.addProperty("message", diag.getMessage());
 						
 						// Add error indeces

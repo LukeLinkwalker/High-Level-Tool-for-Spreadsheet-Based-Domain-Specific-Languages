@@ -5,9 +5,13 @@ import com.google.gson.Gson;
 
 public class JsonSearch {
 	public static Tuple<Tuple<Integer, Integer>, Tuple<Integer, Integer>> find(String global, int charBegin, int charEnd) {
-		Tuple<Tuple<Integer, Integer>, String> error = JsonSearch.find(global, 314);
-		Tuple<Integer, Integer> positions = JsonSearch.getCharPositions(global, error.getB(), 313, 314);
+		System.out.println("Locating error!");
+		Tuple<Tuple<Integer, Integer>, String> error = JsonSearch.find(global, charBegin);
+		System.out.println(error);
+		Tuple<Integer, Integer> positions = JsonSearch.getCharPositions(global, error.getB(), charBegin, charEnd);
+		System.out.println(positions);
 		Tuple<Tuple<Integer, Integer>, Tuple<Integer, Integer>> result = new Tuple<>();
+		System.out.println(result);
 		result.setA(error.getA());
 		result.setB(positions);
 		return result;
@@ -91,6 +95,11 @@ public class JsonSearch {
 		String str = local.toString();
 		int localBegin = charBegin - global.indexOf(local);
     	int localEnd = charEnd - global.indexOf(local);
+
+    	System.out.println("Global : " + global);
+    	System.out.println("Local : " + local);
+    	System.out.println("Char Begin : " + charBegin);
+    	System.out.println("Char End : " + charEnd);
     	
 		if(str.contains("name\":")) {
 			int valueBegin = str.indexOf("name\":") + 7;
@@ -113,8 +122,13 @@ public class JsonSearch {
 			}
 		} 
 		else if (str.contains("value\":")) {
+			System.out.println("Testing value!");
 			int valueBegin = str.indexOf("value\":") + 8;
 			int valueEnd = valueBegin + str.substring(valueBegin).indexOf("\"");
+			
+
+	    	System.out.println("Value Begin : " + valueBegin);
+	    	System.out.println("Value End : " + valueEnd);
 			
 			if(localBegin >= valueBegin && localEnd <= valueEnd - 1) {
 				String valueString = str.substring(valueBegin, valueEnd);
