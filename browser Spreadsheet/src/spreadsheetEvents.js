@@ -166,8 +166,10 @@ export function onCellKeydownEnter(event) {
 export function onCreateTableButtonClick() {
     let cellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
     let tableName = spreadsheet.getCellText(globals.editingCell)
+    let infoBox = spreadsheet.getInfoBox(globals.editingCell)
 
-    client.requestGetInitialTableRange(tableName, cellIndexes[0], cellIndexes[1])
+    tools.hideCreateTableCodeCompletionForInfoBox(infoBox, globals.editingCell)
+    client.requestGetInitialTableRange(tableName, cellIndexes[0], cellIndexes[1], globals.spreadsheetType)
 }
 
 export function onSpreadsheetTypeRadioButtonsChange() {
