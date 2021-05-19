@@ -47,7 +47,7 @@ public class SheetTransformer {
 					entry.add("children", new JsonArray());
 				}
 				
-				for(int row = rowStart + 2; row < rowEnd; row += 1) {
+				for(int row = rowStart + 3; row < rowEnd; row += 1) {
 					Cell name = sheet.getCell(columnStart, row);
 					Cell rule = sheet.getCell(columnStart + 1, row);
 					
