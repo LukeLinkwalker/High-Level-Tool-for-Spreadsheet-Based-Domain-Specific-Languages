@@ -20,6 +20,8 @@ import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSDiagnostic;
 import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSError;
 import com.github.lukelinkwalker.orchestrator.transformer.JsonObj;
 import com.github.lukelinkwalker.orchestrator.transformer.JsonSearch;
+import com.github.lukelinkwalker.orchestrator.transformer.Sheet;
+import com.github.lukelinkwalker.orchestrator.transformer.SheetStore;
 
 public class DumbLSPClient extends WebSocketClient {
 
@@ -65,6 +67,8 @@ public class DumbLSPClient extends WebSocketClient {
 				
 				String dumbURI = "inmemory:/demo/" + incrementingID + ".hello";
 				
+				
+				
 				if(dumbURI.equals(PD.getParams().getUri()) == true) {
 					System.out.println("Number of diagnostics: " + PD.getParams().getDiagnostics().length);
 					
@@ -72,6 +76,20 @@ public class DumbLSPClient extends WebSocketClient {
 					errorMsg.addProperty("method", "diagnostic");
 					JsonArray errors = new JsonArray();
 					errorMsg.add("content", errors);
+					
+					
+					// TEMPORARY WAY OF REPORTING ERRORS FOUND BY MIDDLEWARE
+					Sheet WorkingSheet = SheetStore.getSheet("Hello");
+					for(Tuple<Integer, Integer> position : WorkingSheet.getAllErrors()) {
+						JsonObject error = new JsonObject();
+						error.addProperty("column", position.getA());
+						error.addProperty("row", position.getB());
+						error.addProperty("start", -1);
+						error.addProperty("end", -1);
+						error.addProperty("message", "Formating of cell is wrong.");
+						errors.add(error);
+					}
+					
 					
 					for(int i = 0; i < PD.getParams().getDiagnostics().length; i += 1) {
 						Diagnostics diag = PD.getParams().getDiagnostics()[i];
