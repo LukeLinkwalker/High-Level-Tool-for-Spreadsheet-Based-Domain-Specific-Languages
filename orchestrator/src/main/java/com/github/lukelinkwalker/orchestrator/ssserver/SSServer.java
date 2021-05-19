@@ -294,17 +294,17 @@ public class SSServer extends WebSocketServer {
 		ssModel = gson.fromJson(ssModelString, JsonArray.class);
 	}
 
-	public JsonArray getSsModel() {
+	//Use when dyncamic loading of things is implemented.
+	public JsonArray getSDSLModelForDynamicLoading() {
 		return ssModel;
 	}
 
-	//TODO: Remove after testing
-	public JsonArray getSDSLSSModelTest() {
+	public JsonArray getSDSLSSModel() {
 		Gson gson = new Gson();
 		Reader reader = null;
 
 		try {
-			reader = Files.newBufferedReader(Paths.get("src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
+			reader = Files.newBufferedReader(Paths.get("outputs/Hello/ssmodel.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -317,7 +317,7 @@ public class SSServer extends WebSocketServer {
 		Reader reader = null;
 
 		try {
-			reader = Files.newBufferedReader(Paths.get("src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/smlSSModel.json"));
+			reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/smlSSModel.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

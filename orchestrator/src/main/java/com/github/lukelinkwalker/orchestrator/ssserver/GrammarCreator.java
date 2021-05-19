@@ -12,7 +12,7 @@ public class GrammarCreator {
     private static int tablesInitialLength;
 
     public static String createGrammar() {
-        JsonArray ssModel = App.SSS.getSsModel();
+        JsonArray ssModel = App.SSS.getSDSLSSModel();
         StringBuilder terminals = new StringBuilder();
         model = new StringBuilder();
         tables = new StringBuilder();
