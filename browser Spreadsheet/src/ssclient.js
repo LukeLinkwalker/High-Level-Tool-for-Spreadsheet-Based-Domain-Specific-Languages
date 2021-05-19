@@ -251,19 +251,15 @@ export function sendChange(cell) {
     let cellIndexes = spreadsheet.getCellIndexes(cell)
     let colspan = $(cell).prop('colspan')
     let content = spreadsheet.getCellText(cell)
+    let cellType = spreadsheet.getCellType(cell)
+    let skipEval = (cellType !== 'normal')
 
-    let object = {
-        column: cellIndexes[0],
-        row: cellIndexes[1],
-        width: colspan,
-        character: content
-    }
-
-    let update = { sheetName:"Hello", column:cellIndexes[0], row:cellIndexes[1], width:colspan, data: content}
-    let update_msg = { method:"update-sheet", id:updateCounter++, data:JSON.stringify(update) }
+    let update = { sheetName: "Hello", column: cellIndexes[0], row: cellIndexes[1], width: colspan, data: content,
+        skipEval: skipEval }
+    let update_msg = { method: "update-sheet", id: updateCounter++, data: JSON.stringify(update) }
 
     socket.send(JSON.stringify(update_msg))
-    if (debug) console.log("Send change: " + JSON.stringify(object))
+    if (debug) console.log("Send change: " + JSON.stringify(update))
 }
 
 export function requestCheckIfTextIsATableName(cellText, column, row, spreadsheetType) {
