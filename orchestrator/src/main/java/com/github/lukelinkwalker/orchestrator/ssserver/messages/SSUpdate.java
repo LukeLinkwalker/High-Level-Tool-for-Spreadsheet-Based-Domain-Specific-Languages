@@ -6,6 +6,7 @@ public class SSUpdate {
 	private int row;
 	private int width;
 	private String data;
+	private boolean skipEval;
 	
 	public String getSheetName() {
 		return sheetName;
@@ -25,5 +26,9 @@ public class SSUpdate {
 	
 	public String getData() {
 		return data;
+	}
+	
+	public boolean getSkipEval() {
+		return skipEval;
 	}
 }

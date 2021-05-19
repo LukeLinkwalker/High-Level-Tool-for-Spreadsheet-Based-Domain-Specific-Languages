@@ -144,7 +144,7 @@ public class SSServer extends WebSocketServer {
 		System.out.println("Updating sheet: " + ssu.getSheetName());
 		
 		if(sheet != null) {
-			sheet.addData(ssu.getColumn(), ssu.getRow(), ssu.getWidth(), ssu.getData());
+			sheet.addData(ssu.getColumn(), ssu.getRow(), ssu.getWidth(), ssu.getData(), ssu.getSkipEval());
 			
 		}
 		

@@ -38,7 +38,7 @@ public class Sheet {
 		return isSGL;
 	}
 	
-	public void addData(int column, int row, int width, String data) {
+	public void addData(int column, int row, int width, String data, boolean skipEval) {
 		Cell cell = null;
 
 		if(data.isEmpty() == false) {
@@ -47,7 +47,7 @@ public class Sheet {
 			cell.setRow(row);
 			cell.setData(data);
 			
-			if(isSGL == true) {
+			if(isSGL == true && skipEval == false) {
 				removeCellError(column, row);
 				
 				if(SML_CELL_CONTENT_PATTERN.matcher(data).find() == false) {
