@@ -175,8 +175,13 @@ export function onCreateTableButtonClick() {
 export function onSpreadsheetTypeRadioButtonsChange() {
     let spreadsheetType = $('input[name="spreadsheetType"]:checked').val()
 
-    if (spreadsheetType === 'sdsl') tools.changeToSDSL()
-    else if (spreadsheetType === 'sml') tools.changeToSML()
+    if (spreadsheetType === 'sdsl') {
+        client.requestNewFile(false);
+        tools.changeToSDSL()
+    } else if (spreadsheetType === 'sml') {
+        client.requestNewFile(true);
+        tools.changeToSML()
+    } 
 }
 
 export function onAddRowButtonClick() {

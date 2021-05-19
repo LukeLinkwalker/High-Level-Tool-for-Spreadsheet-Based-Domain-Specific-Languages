@@ -300,3 +300,25 @@ export function requestBuild() {
     socket.send(JSON.stringify(message))
     id++
 }
+
+export function requestNewFile(isSML) {
+    if(isSML == true) {
+        let close = { sheetName:"Hello" }
+        let cmsg = { method:"close-sheet", id:"0", data:JSON.stringify(close) };
+        socket.send(JSON.stringify(cmsg));
+        
+        //TODO: Fix this to SML along with on server
+        let open = { sheetName:"Hello", isSGL:true }
+        let omsg = { method:"open-sheet", id:"1", data:JSON.stringify(open) };
+        socket.send(JSON.stringify(omsg));
+    } else {
+        let close = { sheetName:"Hello" }
+        let cmsg = { method:"close-sheet", id:"0", data:JSON.stringify(close) };
+        socket.send(JSON.stringify(cmsg));
+
+        //TODO: Fix this to SML along with on server
+        let open = { sheetName:"Hello", isSGL:false }
+        let omsg = { method:"open-sheet", id:"1", data:JSON.stringify(open) };
+        socket.send(JSON.stringify(omsg));
+    }
+}
