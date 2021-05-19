@@ -209,7 +209,7 @@ public class SSServer extends WebSocketServer {
 
 				File outputDir = new File("outputs/" + ssb.getSheetName());
 				File modelFile = new File("outputs/" + ssb.getSheetName() + "/ssmodel.json");
-				File grammarFile = new File("outputs/" + ssb.getSheetName() + "/sdsl.json");
+				File grammarFile = new File("outputs/" + ssb.getSheetName() + "/sdsl.xtext");
 				try {
 					FileUtils.forceMkdir(outputDir);
 					FileUtils.writeStringToFile(modelFile, ssModel.toString(), (String) null);
