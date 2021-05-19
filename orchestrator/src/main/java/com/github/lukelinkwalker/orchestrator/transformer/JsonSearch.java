@@ -4,6 +4,15 @@ import com.github.lukelinkwalker.orchestrator.Util.Tuple;
 import com.google.gson.Gson;
 
 public class JsonSearch {
+	public static Tuple<Tuple<Integer, Integer>, Tuple<Integer, Integer>> find(String global, int charBegin, int charEnd) {
+		Tuple<Tuple<Integer, Integer>, String> error = JsonSearch.find(global, 314);
+		Tuple<Integer, Integer> positions = JsonSearch.getCharPositions(global, error.getB(), 313, 314);
+		Tuple<Tuple<Integer, Integer>, Tuple<Integer, Integer>> result = new Tuple<>();
+		result.setA(error.getA());
+		result.setB(positions);
+		return result;
+	}
+	
 	public static Tuple<Tuple<Integer, Integer>, String> find(String JSON, int position) {
 		int start = -1;
 		int end = -1;
@@ -74,18 +83,54 @@ public class JsonSearch {
 			);
 	}
 	
-	public static Tuple<Integer, Integer> getCharPositions(String obj, int charBegin, int charEnd) {
+	public static Tuple<Integer, Integer> getCharPositions(String global, String local, int charBegin, int charEnd) {
 		Tuple<Integer, Integer> result = new Tuple<>();
 		result.setA(-1);
 		result.setB(-1);
 		
-		String str = obj.toString();
-		
+		String str = local.toString();
+		int localBegin = charBegin - global.indexOf(local);
+    	int localEnd = charEnd - global.indexOf(local);
+    	
 		if(str.contains("name\":")) {
-			System.out.println("name !!!");
+			int valueBegin = str.indexOf("name\":") + 7;
+			int valueEnd = valueBegin + str.substring(valueBegin).indexOf("\"");
+			
+			if(localBegin >= valueBegin && localEnd <= valueEnd - 1) {
+				String valueString = str.substring(valueBegin, valueEnd);
+				String errorString = local.substring(localBegin, localEnd + 1);
+				
+				//System.out.println("Value : " + valueString);
+				//System.out.println("Error : " + errorString);
+				
+				int resultBegin = valueString.indexOf(errorString);
+				int resultEnd = resultBegin + errorString.length() - 1;
+				
+				//System.out.println("Result : " + resultBegin + " - " + resultEnd);
+				
+				result.setA(resultBegin);
+				result.setB(resultEnd);
+			}
 		} 
 		else if (str.contains("value\":")) {
-			System.out.println("value !!!");
+			int valueBegin = str.indexOf("value\":") + 8;
+			int valueEnd = valueBegin + str.substring(valueBegin).indexOf("\"");
+			
+			if(localBegin >= valueBegin && localEnd <= valueEnd - 1) {
+				String valueString = str.substring(valueBegin, valueEnd);
+				String errorString = local.substring(localBegin, localEnd + 1);
+				
+				//System.out.println("Value : " + valueString);
+				//System.out.println("Error : " + errorString);
+				
+				int resultBegin = valueString.indexOf(errorString);
+				int resultEnd = resultBegin + errorString.length() - 1;
+				
+				//System.out.println("Result : " + resultBegin + " - " + resultEnd);
+				
+				result.setA(resultBegin);
+				result.setB(resultEnd);
+			}
 		}
 		
 		return result;
