@@ -104,7 +104,7 @@ public class CellData {
 			obj.addProperty("value", name.toLowerCase());
 		} else {
 			obj.addProperty("type", "custom");
-			obj.addProperty("value", JsonUtil.tokenWrap(name.toLowerCase()));
+			obj.addProperty("value", JsonUtil.tokenWrap(name));
 		}
 		
 		return obj;
