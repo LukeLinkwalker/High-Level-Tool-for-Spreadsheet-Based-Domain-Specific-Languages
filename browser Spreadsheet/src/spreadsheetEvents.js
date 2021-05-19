@@ -192,10 +192,6 @@ export function onDeleteRowButtonClick() {
     tools.deleteRow(globals.editingCell)
 }
 
-export function onBuildButtonClick() {
-    client.requestBuild()
-}
-
 export function onMergeButtonClick() {
     let mergedCells = []
     let numberOfRowsSelected = new Set()
@@ -222,6 +218,18 @@ export function onMergeButtonClick() {
         if (mergedCells.length > 0) mergedCells.forEach((cell) => tools.demergeCell(cell))
         else tools.mergeCells(globals.selectedCells)
     }
+}
+
+export function onCreateRulesTableButtonClick() {
+    let cellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
+    let infoBox = spreadsheet.getInfoBox(globals.editingCell)
+
+    tools.hideCreateTableCodeCompletionForInfoBox(infoBox, globals.editingCell)
+    client.requestGetInitialTableRange('Rules', cellIndexes[0], cellIndexes[1], globals.spreadsheetType)
+}
+
+export function onBuildButtonClick() {
+    client.requestBuild()
 }
 
 export function onCellKeydownArrowLeft(event) {

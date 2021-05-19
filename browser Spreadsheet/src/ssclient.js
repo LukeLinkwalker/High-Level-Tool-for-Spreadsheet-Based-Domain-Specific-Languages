@@ -106,18 +106,18 @@ socket.addEventListener('open', function(event) {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-    close = { sheetName:"Hello" }
-    cmsg = { method:"close-sheet", id:"0", data:JSON.stringify(close) };
-    socket.send(JSON.stringify(cmsg));
-
-    open = { sheetName:"Hello", isSGL:false }
-    omsg = { method:"open-sheet", id:"1", data:JSON.stringify(open) };
-    socket.send(JSON.stringify(omsg));
+    // close = { sheetName:"Hello" }
+    // cmsg = { method:"close-sheet", id:"0", data:JSON.stringify(close) };
+    // socket.send(JSON.stringify(cmsg));
+    //
+    // open = { sheetName:"Hello", isSGL:false }
+    // omsg = { method:"open-sheet", id:"1", data:JSON.stringify(open) };
+    // socket.send(JSON.stringify(omsg));
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-    tools.changeToSDSL()
-    $('#sdslRadioButton').prop('checked', true)
+    // tools.changeToSDSL()
+    // $('#sdslRadioButton').prop('checked', true)
 
     let cell00sdsl = spreadsheet.getCellFromIndexes(0, 0)
 
@@ -297,7 +297,7 @@ export function requestBuild() {
     id++
 }
 
-//Refactor with SML - Mikkels
+//TODO: Refactor and with SML - Mikkels
 export function requestNewFile(isSML) {
     if(isSML == true) {
         let close = { sheetName:"Hello" }
