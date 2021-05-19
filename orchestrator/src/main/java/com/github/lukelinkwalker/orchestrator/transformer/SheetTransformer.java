@@ -35,6 +35,7 @@ public class SheetTransformer {
 			int columnEnd = table.getColumnEnd();
 			
 			String tableName = sheet.getHead(table).getData();
+			tableName = StringUtilities.stripTrailingSpecials(tableName);
 			if(tableName.toLowerCase().equals("rules")) {
 				entry = JsonUtil.find(root, "type", "rules");
 				
