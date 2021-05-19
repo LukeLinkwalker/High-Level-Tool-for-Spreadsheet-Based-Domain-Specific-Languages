@@ -202,10 +202,6 @@ public class SSServer extends WebSocketServer {
 				// handle SML generator
 				String ssModelString = SheetTransformer.parseSML(sheet);
 				loadSSModel(ssModelString);
-				sdslGrammar = GrammarCreator.createGrammar();
-				System.out.println("SS Model : " + ssModel);
-				System.out.println("XText Grammar : " + sdslGrammar);
-				
 
 				File outputDir = new File("outputs/" + ssb.getSheetName());
 				File modelFile = new File("outputs/" + ssb.getSheetName() + "/ssmodel.json");
@@ -217,6 +213,10 @@ public class SSServer extends WebSocketServer {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+
+				sdslGrammar = GrammarCreator.createGrammar();
+//				System.out.println("SS Model : " + ssModel);
+//				System.out.println("XText Grammar : " + sdslGrammar);
 				
 			} else {
 				// handle SDSL generator
