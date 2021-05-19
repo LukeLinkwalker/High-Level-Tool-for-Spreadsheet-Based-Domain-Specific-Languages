@@ -131,7 +131,7 @@ public class GrammarCreator {
         String name = StringUtilities.removeTokensFromString(jsonObject.get("name").getAsString());
         boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
         JsonArray dataTypes = jsonObject.get("dataTypes").getAsJsonArray();
-        StringJoiner sj = new StringJoiner(" | ", "value = (", ")");
+        StringJoiner sj = new StringJoiner(" | ");
         StringBuilder sb = new StringBuilder();
 
         for (JsonElement jsonElement : dataTypes) {
@@ -141,34 +141,19 @@ public class GrammarCreator {
             if (type.equals("predefined")) dataType = dataType.toUpperCase();
             else dataType = StringUtilities.removeTokensFromString(dataType);
             dataType = replaceWhiteSpaceWithUnderscore(dataType);
-            //TODO: If value = (STRING | SensorType) doesn't work somehow in Xtext, try this grammar:
-            //(valueSensorType = SensorType | valueSTRING = STRING)
-//            sj.add("value" + dataType + " = " + dataType);
-            sj.add(dataType);
+            sj.add(makeFirstLetterLowerCase(name) + "Value" + dataType + " = " + dataType);
         }
 
-        sb.append("\n").append(parentName).append(name).append(":\n")
-                .append("   '{'\n")
-                .append("      '\"column\"' ':' column = INT ','\n")
-                .append("      '\"row\"' ':' row = INT ','\n")
-                //TODO: If value = (STRING | SensorType) doesn't work somehow in Xtext, try this grammar:
-                //(valueSensorType = SensorType | valueSTRING = STRING)
-//                .append("      '\"value\"' ':' (").append(sj).append(")\n")
-                .append("      '\"value\"' ':' ").append(sj).append("\n")
-                .append("   '}'\n")
-                .append(";\n");
+        sb.append("\n")
+                .append("      '\"").append(name).append("\"' ':' '{'\n")
+                .append("         '\"column\"' ':' ").append(makeFirstLetterLowerCase(name)).append("Column = INT").append(" ','\n")
+                .append("         '\"row\"' ':' ").append(makeFirstLetterLowerCase(name)).append("Row = INT").append(" ','\n")
+                .append("         '\"value\"' ':' (").append(sj).append(")\n")
+                .append("      '}'");
 
-        model.append(sb);
+        if (isOptional) makeAttributeOptionalIfTrue(sb);
 
-        StringBuilder returnSb = new StringBuilder();
-        returnSb.append("\n      '\"").append(name).append("\"' ':' '['\n")
-                .append("         ").append(makeFirstLetterLowerCase(name)).append(" += ").append(parentName)
-                    .append(name).append(makeOptionalIfTrue(isOptional)).append(" (',' ")
-                    .append(makeFirstLetterLowerCase(name)).append(" += ").append(parentName).append(name)
-                    .append(")*\n")
-                .append("      ']'");
-
-        return returnSb;
+        return sb;
     }
 
     private static StringBuilder printAttribute(JsonObject jsonObject) {
