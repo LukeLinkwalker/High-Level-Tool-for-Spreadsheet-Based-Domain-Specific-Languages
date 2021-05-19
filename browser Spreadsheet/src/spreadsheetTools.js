@@ -347,14 +347,20 @@ export function setNextCell(column, row) {
 export function changeToSML() {
     $('.sdslClass').css('display', 'none')
     $('.smlClass').css('display', '')
+
+    $('#dynamicTablesml').remove()
     globals.setSpreadsheetType('sml')
+    spreadsheet.createSpreadsheet()
     spreadsheet.setInitialEditingCell()
 }
 
 export function changeToSDSL() {
     $('.sdslClass').css('display', '')
     $('.smlClass').css('display', 'none')
+
+    $('#dynamicTablesdsl').remove()
     globals.setSpreadsheetType('sdsl')
+    spreadsheet.createSpreadsheet()
     spreadsheet.setInitialEditingCell()
 }
 

@@ -301,6 +301,7 @@ export function requestBuild() {
     id++
 }
 
+//Refactor with SML - Mikkels
 export function requestNewFile(isSML) {
     if(isSML == true) {
         let close = { sheetName:"Hello" }
