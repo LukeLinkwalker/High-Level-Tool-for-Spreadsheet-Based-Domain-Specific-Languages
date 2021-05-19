@@ -169,15 +169,13 @@ socket.addEventListener('message', (event) => {
     }
 })
 
-//TODO: This need to be changed, as it doesn't include line index
 function handleErrors(errors) {
     tools.hideAndClearAllErrors()
 
     console.log("Diagnostic - Number of errors : " + errors.length);
     for(let i = 0; i < errors.length; i++) {
-        //tools.createError(errors[i].cellIndexes, errors[i].lineIndexes, errors[i].message)
-        console.log("Error @ " + errors[i].column + " | " + errors[i].row + " - " + errors[i].start + " | " + errors[i].end + " -> " + errors[i].message);
-        tools.createError(errors[i].column, errors[i].row, errors[i].message)
+        console.log("Error @ " + errors[i].column + " | " + errors[i].row + " - " + errors[i].start + " | " + errors[i].end + " -> " + errors[i].message)
+        tools.createError(errors[i].column, errors[i].row, errors[i].start, errors[i].end, errors[i].message)
     }
 }
 

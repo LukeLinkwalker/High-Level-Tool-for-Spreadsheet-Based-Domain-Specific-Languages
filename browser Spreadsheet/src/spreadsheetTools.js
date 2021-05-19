@@ -61,35 +61,30 @@ export function removeBlackBorder(cell) {
     $(cell).removeClass('blackBorder')
 }
 
-//TODO: Refactor after errorLineIndexes work on server.
-// export function createError(errorCellIndexes, errorLineIndexes, errorMessage) {
-export function createError(errorCellColumn, errorCellRow, errorMessage) {
+export function createError(errorCellColumn, errorCellRow, errorLineIndexStart, errorLineIndexEnd, errorMessage) {
     let cell = spreadsheet.getCellFromIndexes(errorCellColumn, errorCellRow)
     let errorBox = spreadsheet.getErrorBox(cell)
 
     spreadsheet.insertNewMessageInErrorBox(errorBox, errorMessage)
-    //TODO: Refactor after errorLineIndexes work on server.
-    // createErrorUnderline(cell, errorLineIndexes)
-    createErrorUnderline(cell)
+    createErrorUnderline(cell, errorLineIndexStart, errorLineIndexEnd)
     $(cell).addClass('error')
 }
 
-//TODO: Refactor after errorLineIndexes work on server.
-// export function createErrorUnderline(cell, errorLineIndexes) {
-export function createErrorUnderline(cell) {
+export function createErrorUnderline(cell, errorLineIndexStart, errorLineIndexEnd) {
     let cellText = spreadsheet.getCellText(cell)
-    let textWithError = cellText
-    // let textWithError = cellText.substring(errorLineIndexes[0], errorLineIndexes[1])
-    let textWithErrorUnderline = '<span class="errorLine">' + textWithError + '</span>'
+    let textWithError
     let cellTextDiv = spreadsheet.getCellTextDiv(cell)
 
-    // $(cell).html($(cell).html().replace(textWithError, textWithRedLine))
-    // $(cellTextDiv).html($(cell).html().replace(textWithError, textWithRedLine))
+    if (errorLineIndexStart === -1 || errorLineIndexEnd === -1) textWithError = cellText
+    else textWithError = cellText.substring(errorLineIndexStart, errorLineIndexEnd)
+
+    let textWithErrorUnderline = '<span class="errorLine">' + textWithError + '</span>'
+    let updatedCellText = cellText.replace(textWithError, textWithErrorUnderline)
 
     if ($(cellTextDiv).is(":focus")) {
         let caret = spreadsheet.getCaretPosition(cellTextDiv)
 
-        $(cellTextDiv).html(textWithErrorUnderline)
+        $(cellTextDiv).html(updatedCellText)
         spreadsheet.setCaretPosition(cellTextDiv, caret)
     } else $(cellTextDiv).html(textWithErrorUnderline)
 }
