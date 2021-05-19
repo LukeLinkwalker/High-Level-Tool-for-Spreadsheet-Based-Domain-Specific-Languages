@@ -1,5 +1,6 @@
 package com.github.lukelinkwalker.orchestrator.ssserver;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.net.InetSocketAddress;
@@ -21,10 +22,12 @@ import com.github.lukelinkwalker.orchestrator.transformer.SheetTransformer;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import org.apache.commons.io.FileUtils;
+
 public class SSServer extends WebSocketServer {
 
 	private Gson gson;
-	private String smlGrammar;
+	private String sdslGrammar;
 	private JsonArray ssModel;
 	
 	public SSServer(int port)  {
@@ -199,9 +202,22 @@ public class SSServer extends WebSocketServer {
 				// handle SML generator
 				String ssModelString = SheetTransformer.parseSML(sheet);
 				loadSSModel(ssModelString);
-				smlGrammar = GrammarCreator.createGrammar();
+				sdslGrammar = GrammarCreator.createGrammar();
 				System.out.println("SS Model : " + ssModel);
-				System.out.println("XText Grammar : " + smlGrammar);
+				System.out.println("XText Grammar : " + sdslGrammar);
+				
+
+				File outputDir = new File("outputs/" + ssb.getSheetName());
+				File modelFile = new File("outputs/" + ssb.getSheetName() + "/ssmodel.json");
+				File grammarFile = new File("outputs/" + ssb.getSheetName() + "/sdsl.json");
+				try {
+					FileUtils.forceMkdir(outputDir);
+					FileUtils.writeStringToFile(modelFile, ssModel.toString(), (String) null);
+					FileUtils.writeStringToFile(grammarFile, sdslGrammar, (String) null);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
 			} else {
 				// handle SDSL generator
 			}
@@ -288,7 +304,7 @@ public class SSServer extends WebSocketServer {
 		Reader reader = null;
 
 		try {
-			reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
+			reader = Files.newBufferedReader(Paths.get("src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/ssmodel.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

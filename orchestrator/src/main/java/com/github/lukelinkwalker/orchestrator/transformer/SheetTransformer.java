@@ -176,7 +176,7 @@ public class SheetTransformer {
 			} else {
 				// Broken out tables
 				if(tableNameParts.length < 2) {
-					// Put out error due to skip
+					// Put out server-generated error due to skip
 					continue;
 				}
 				

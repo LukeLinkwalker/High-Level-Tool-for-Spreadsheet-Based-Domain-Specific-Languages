@@ -26,7 +26,7 @@ public class Sheet {
 	}
 	
 	public Sheet(boolean isSGL) {
-		SML_CELL_CONTENT_PATTERN = Pattern.compile("^(optional )?(object|array|alternative|attribute) : [a-zA-Z0-9_]+");
+		SML_CELL_CONTENT_PATTERN = Pattern.compile("^(optional )?(object|array|alternative|attribute|type) : [a-zA-Z0-9_]+");
 		
 		cells = new Cell[1000][1000];
 		tables = new ArrayList<>();
