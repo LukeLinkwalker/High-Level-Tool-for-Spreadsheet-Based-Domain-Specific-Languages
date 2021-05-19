@@ -3,13 +3,19 @@ package com.github.lukelinkwalker.orchestrator.transformer;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.github.lukelinkwalker.orchestrator.Util.Tuple;
 
 public class Sheet {
 	private Cell[][] cells;
 	private ArrayList<BoundingBox> tables;
+	private static ArrayList<Tuple<Integer, Integer>> errors;
 	private boolean isSGL;
+	Pattern SML_CELL_CONTENT_PATTERN;
 	
 	public static Sheet newSGL() {
 		return new Sheet(true);
@@ -20,8 +26,11 @@ public class Sheet {
 	}
 	
 	public Sheet(boolean isSGL) {
+		SML_CELL_CONTENT_PATTERN = Pattern.compile("^(optional )?(object|array|alternative|attribute) : [a-zA-Z0-9_]+");
+		
 		cells = new Cell[1000][1000];
 		tables = new ArrayList<>();
+		errors = new ArrayList<>();
 		this.isSGL = isSGL;
 	}
 	
@@ -37,11 +46,36 @@ public class Sheet {
 			cell.setColumn(column);
 			cell.setRow(row);
 			cell.setData(data);
+			
+			if(isSGL == true) {
+				removeCellError(column, row);
+				
+				if(SML_CELL_CONTENT_PATTERN.matcher(data).find() == false) {
+					errors.add(new Tuple<Integer, Integer>(column, row));					
+				}
+			}
 		}
 		
 		for(int i = 0; i < width; i += 1) {
 			cells[column + i][row] = cell;
 		}
+	}
+	
+	public List<Tuple<Integer, Integer>> getAllErrors() {
+		return Collections.unmodifiableList(errors);
+	}
+	
+	public void removeCellError(int column, int row) {
+		List<Tuple<Integer, Integer>> toRemove = new ArrayList<>();
+		
+		for(int i = 0; i < errors.size(); i += 1) {
+			Tuple<Integer, Integer> tmp = errors.get(i);
+			if(tmp.getA() == column && tmp.getB() == row) {
+				toRemove.add(tmp);
+			}
+		}
+		
+		errors.removeAll(toRemove);
 	}
 	
 	public Cell getHead(BoundingBox bb) {
