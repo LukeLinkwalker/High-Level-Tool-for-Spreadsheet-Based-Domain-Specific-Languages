@@ -131,39 +131,29 @@ public class GrammarCreator {
         String name = StringUtilities.removeTokensFromString(jsonObject.get("name").getAsString());
         boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
         JsonArray dataTypes = jsonObject.get("dataTypes").getAsJsonArray();
-
         StringJoiner sj = new StringJoiner(" | ");
         StringBuilder sb = new StringBuilder();
 
         for (JsonElement jsonElement : dataTypes) {
             String dataType = jsonElement.getAsJsonObject().get("value").getAsString();
-            //TODO: Test this, as it might give an error at some point. Probably when using custom types.
-//            if (!(dataType.equals("int") || dataType.equals("float") ||
-//                    dataType.equals("boolean"))) dataType = StringUtilities.removeTokensFromString(dataType);
-            if (dataType.equals("string")) dataType = StringUtilities.removeTokensFromString(dataType);
+            String type = jsonElement.getAsJsonObject().get("type").getAsString();
+
+            if (type.equals("predefined")) dataType = dataType.toUpperCase();
+            else dataType = StringUtilities.removeTokensFromString(dataType);
             dataType = replaceWhiteSpaceWithUnderscore(dataType);
-            sj.add("value" + dataType + " = " + dataType);
+            sj.add(makeFirstLetterLowerCase(name) + "Value" + dataType + " = " + dataType);
         }
 
-        sb.append("\n").append(parentName).append(name).append(":\n")
-                .append("   '{'\n")
-                .append("      '\"column\"' ':' column = INT ','\n")
-                .append("      '\"row\"' ':' row = INT ','\n")
-                .append("      '\"value\"' ':' (").append(sj).append(")\n")
-                .append("   '}'\n")
-                .append(";\n");
+        sb.append("\n")
+                .append("      '\"").append(name).append("\"' ':' '{'\n")
+                .append("         '\"column\"' ':' ").append(makeFirstLetterLowerCase(name)).append("Column = INT").append(" ','\n")
+                .append("         '\"row\"' ':' ").append(makeFirstLetterLowerCase(name)).append("Row = INT").append(" ','\n")
+                .append("         '\"value\"' ':' (").append(sj).append(")\n")
+                .append("      '}'");
 
-        model.append(sb);
+        if (isOptional) makeAttributeOptionalIfTrue(sb);
 
-        StringBuilder returnSb = new StringBuilder();
-        returnSb.append("\n      '\"").append(name).append("\"' ':' '['\n")
-                .append("         ").append(makeFirstLetterLowerCase(name)).append(" += ").append(parentName)
-                    .append(name).append(makeOptionalIfTrue(isOptional)).append(" (',' ")
-                    .append(makeFirstLetterLowerCase(name)).append(" += ").append(parentName).append(name)
-                    .append(")*\n")
-                .append("      ']'");
-
-        return returnSb;
+        return sb;
     }
 
     private static StringBuilder printAttribute(JsonObject jsonObject) {
@@ -172,8 +162,11 @@ public class GrammarCreator {
         boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
 
         JsonObject dataTypeObject = jsonObject.get("dataTypes").getAsJsonArray().get(0).getAsJsonObject();
-        String dataType = dataTypeObject.get("value").getAsString().toUpperCase();
+        String type = dataTypeObject.get("type").getAsString();
+        String dataType = dataTypeObject.get("value").getAsString();
         String valueName = getCorrectValueName(makeFirstLetterLowerCase(name));
+        if (type.equals("predefined")) dataType = dataType.toUpperCase();
+        else dataType = StringUtilities.removeTokensFromString(dataType);
         String value = valueName + " = " + dataType;
 
         sb.append("\n")

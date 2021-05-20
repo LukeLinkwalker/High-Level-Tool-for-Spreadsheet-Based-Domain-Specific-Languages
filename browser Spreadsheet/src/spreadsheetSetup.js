@@ -17,6 +17,7 @@ export function setupSDSL() {
 
 export function setupSML() {
     setupBuildButton()
+    setupCreateRulesTableButton()
     setupMergeButton()
 }
 
@@ -49,6 +50,10 @@ function setupDeleteTableButton() {
 
 function setupBuildButton() {
     $('#build').on('click', () => events.onBuildButtonClick())
+}
+
+function setupCreateRulesTableButton() {
+    $('#createRulesTable').on('click', () => events.onCreateRulesTableButtonClick())
 }
 
 function setupMergeButton() {
