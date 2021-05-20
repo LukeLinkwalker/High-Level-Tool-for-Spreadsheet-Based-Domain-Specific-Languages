@@ -232,6 +232,7 @@ public class GrammarCreator {
 
     private static String insertDefaultTerminalRules() {
         return
+                "\nterminal ID: '^'?('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;\n" +
                 "\nterminal STRING: '\"OKZVVTSPKHOVYSMU' -> 'SQPSUQMWUPQSBXDT\"';\n" +
                 "\nterminal INT returns ecore::EInt: ('0'..'9')+;\n" +
                 "\nterminal FLOAT: '-'? INT? '.' INT (('E'|'e') '-'? INT)?;\n" +
