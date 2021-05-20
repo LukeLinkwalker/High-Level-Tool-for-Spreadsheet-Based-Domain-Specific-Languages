@@ -63,4 +63,20 @@ public class StringUtilities {
     	
     	return false;
     }
+    
+    public static boolean isAny(String str) {
+    	if(isBoolean(str)) {
+    		return true;
+    	}
+    	
+    	if(isFloat(str)) {
+    		return true;
+    	}
+    	
+    	if(isInteger(str)) {
+    		return true;
+    	}
+    	
+    	return false;
+    }
 }
