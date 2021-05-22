@@ -3,6 +3,7 @@ package com.github.lukelinkwalker.orchestrator.transformer;
 import java.util.ArrayList;
 
 import com.github.lukelinkwalker.orchestrator.Util.StringUtilities;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 public class Cell {
@@ -92,6 +93,17 @@ public class Cell {
 		JsonObject result = new JsonObject();
 		result.addProperty("column", column);
 		result.addProperty("row", row);
+		
+		if(StringUtilities.isNull(data)) {
+			result.add("value", JsonNull.INSTANCE);
+			return result;
+		}
+
+		// Temp hax - rules & references
+		if(JsonUtil.tokenWrapped(type)) {
+			result.addProperty("value", JsonUtil.tokenWrap(data));
+			return result;
+		}
 		
 		switch(type) {
 			case "alternative":

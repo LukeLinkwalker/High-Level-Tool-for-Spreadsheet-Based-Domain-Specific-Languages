@@ -79,4 +79,12 @@ public class StringUtilities {
     	
     	return false;
     }
+    
+    public static boolean isNull(String str) {
+    	if(str.toLowerCase().equals("null")) {
+    		return true;
+    	}
+    	
+    	return false;
+    }
 }
