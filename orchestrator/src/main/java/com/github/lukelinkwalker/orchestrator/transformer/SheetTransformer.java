@@ -212,8 +212,11 @@ public class SheetTransformer {
 					
 					if(cell != null) {
 						int normalizedColumn = cell.getColumn() - table1.getX();
-						String type = attributes.get(normalizedColumn).getDataType();
-						allObjects.add(cell.getAsJsonObject(type));	
+						//String type = attributes.get(normalizedColumn).getDataType();
+						//allObjects.add(cell.getAsJsonObject(type));	
+						
+						JsonObj attribute = attributes.get(normalizedColumn);
+						allObjects.add(cell.getAsJsonObject(attribute));
 					}
 				}
 			}

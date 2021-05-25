@@ -3,6 +3,7 @@ package com.github.lukelinkwalker.orchestrator.transformer;
 public class JsonType {
 	private int column;
 	private int row;
+	private String type;
 	private String value;
 	
 	public int getColumn() {
@@ -21,6 +22,14 @@ public class JsonType {
 		this.row = row;
 	}
 	
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
 	public String getValue() {
 		return value;
 	}

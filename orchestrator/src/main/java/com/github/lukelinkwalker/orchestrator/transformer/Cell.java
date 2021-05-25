@@ -159,59 +159,76 @@ public class Cell {
 		return result;
 	}
 	
-	public JsonObject getAsJsonObject(JsonType[] types) {
-		System.out.println("getting as json object : " + types[0]);
+	public JsonObject getAsJsonObject(JsonObj attribute) {
+		System.out.println("getting as json object : " + attribute.getDataType());
+		System.out.println("type : " + attribute.getType());
+		
 		JsonObject result = new JsonObject();
 		result.addProperty("column", column);
 		result.addProperty("row", row);
 		
-		//switch(type) {
-		//	case "alternative":
-		//		if(StringUtilities.isInteger(data)) {
-		//			result.addProperty("value", Integer.parseInt(data));
-		//		}
-		//		else if (StringUtilities.isBoolean(data)) {
-		//			result.addProperty("value", Boolean.parseBoolean(data));
-		//		}
-		//		else if (StringUtilities.isFloat(data)) {
-		//			result.addProperty("value", Float.parseFloat(data));
-		//		}
-		//		else {
-		//			result.addProperty("value", JsonUtil.tokenWrap(data));
-		//		}
-		//		
-		//		// String eller custom -> Wrap
-		//		// int, boolean, float -> Don't wrap
-		//		break;
-		//	case "int":
-		//		if(this.isType(type) == true) {
-		//			result.addProperty("value", Integer.parseInt(data));
-		//		} else {
-		//			result.addProperty("value", data);
-		//		}
-		//		break;
-		//	case "float":
-		//		if(this.isType(type) == true) {
-		//			result.addProperty("value", Float.parseFloat(data));
-		//		} else {
-		//			result.addProperty("value", data);
-		//		}
-		//		break;
-		//	case "string":
-		//		result.addProperty("value", JsonUtil.tokenWrap(data));
-		//		break;
-		//	case "boolean":
-		//		if(this.isType(type) == true) {
-		//			result.addProperty("value", Boolean.parseBoolean(data));
-		//		} else {
-		//			result.addProperty("value", data);
-		//		}
-		//		break;
-		//}
-		
-		//if(isCustomType(type) == true) {
-		//	result.addProperty("value", data);
-		//}
+		if(StringUtilities.isNull(data)) {
+			result.add("value", JsonNull.INSTANCE);
+			return result;
+		}
+
+		if(attribute.getType().equals("attribute")) {
+			// Attribute
+			
+			JsonType attributeType = attribute.getDataTypes()[0];
+
+			System.out.println("Attribute type : " + attributeType.getType());
+			System.out.println("Attribute value : " + attributeType.getValue());
+			
+			if(attributeType.getType().equals("reference")) {
+				// Reference
+				result.addProperty("value", JsonUtil.tokenWrap(data));
+			} else {
+				// Predefined or custom
+				if(attributeType.getValue().equals("int")) {
+					if(StringUtilities.isInteger(data)) {
+						result.addProperty("value", Integer.parseInt(data));
+					} else {
+						result.addProperty("value", data);
+					}
+				}
+				else if (attributeType.getValue().equals("float")) {
+					if (StringUtilities.isFloat(data)) {
+						result.addProperty("value", Float.parseFloat(data));
+					} else {
+						result.addProperty("value", data);
+					}
+				}
+				else if (attributeType.getValue().equals("boolean")) {
+					if(StringUtilities.isBoolean(data)) {
+						result.addProperty("value", Boolean.parseBoolean(data));
+					} else {
+						result.addProperty("value", data);
+					}
+				}
+				else if (attributeType.getValue().equals("string")) {
+					result.addProperty("value", JsonUtil.tokenWrap(data));
+				}
+				else {
+					// Rule
+					result.addProperty("value", data);
+				}
+			}
+		} else {
+			// Alternative
+			if(StringUtilities.isInteger(data)) {
+				result.addProperty("value", Integer.parseInt(data));
+			}
+			else if (StringUtilities.isBoolean(data)) {
+				result.addProperty("value", Boolean.parseBoolean(data));
+			}
+			else if (StringUtilities.isFloat(data)) {
+				result.addProperty("value", Float.parseFloat(data));
+			}
+			else {
+				result.addProperty("value", data);
+			}
+		}
 		
 		return result;
 	}

@@ -23,20 +23,22 @@ public class CellData {
     	Matcher matcher = SPLITTING_PATTERN.matcher(input);
     	matcher.find();
     	
-    	if(matcher.group(1) != null) {
-    		isOptional = true;
-    	}
-    	
-    	if(matcher.group(3) != null) {
-    		type = matcher.group(3);
-    	}
-    	
-    	if(matcher.group(7) != null) {
-    		name = matcher.group(7);
-    	}
-    	
-    	if(matcher.group(10) != null) {
-    		refName = matcher.group(10);
+    	if(matcher.matches()) {
+    		if(matcher.group(1) != null) {
+    			isOptional = true;
+    		}
+    		
+    		if(matcher.group(3) != null) {
+    			type = matcher.group(3);
+    		}
+    		
+    		if(matcher.group(7) != null) {
+    			name = matcher.group(7);
+    		}
+    		
+    		if(matcher.group(10) != null) {
+    			refName = matcher.group(10);
+    		}
     	}
 
     	//System.out.println("Test 1 : " + m.group(1)); // optional
