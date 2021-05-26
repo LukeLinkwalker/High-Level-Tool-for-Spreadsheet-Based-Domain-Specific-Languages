@@ -19,7 +19,7 @@ public class CellData {
 		this.column = column;
 		this.row = row;
 		
-		Pattern SPLITTING_PATTERN = Pattern.compile("^(optional)?( |\\t|)+([a-zA-Z0-9_]+)( |\\t|)+:( |\\t|)+( |\\t)+([a-zA-Z0-9_]+)(( |\\t)+)?([a-zA-Z0-9_]+)?");
+		Pattern SPLITTING_PATTERN = Pattern.compile("^(optional)?(\\s+|)([a-zA-Z0-9_]+)(\\s+|):(\\s+|)([a-zA-Z0-9_]+)(\\s+|)?([a-zA-Z0-9_]+)?");
     	Matcher matcher = SPLITTING_PATTERN.matcher(input);
     	matcher.find();
     	
@@ -32,11 +32,11 @@ public class CellData {
     			type = matcher.group(3);
     		}
     		
-    		if(matcher.group(7) != null) {
+    		if(matcher.group(6) != null) {
     			name = matcher.group(7);
     		}
     		
-    		if(matcher.group(10) != null) {
+    		if(matcher.group(8) != null) {
     			refName = matcher.group(10);
     		}
     	}
