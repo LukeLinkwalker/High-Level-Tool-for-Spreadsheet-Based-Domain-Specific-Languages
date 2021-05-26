@@ -13,8 +13,6 @@ export let moveBreakoutTableActivated
 export let breakoutTableCells
 export let ruleTableCreated
 export let hasTypedInCell
-
-//TODO: Should sheetName be here?
 export let spreadsheetName
 
 export function setEditingCell(value) {
@@ -53,10 +51,6 @@ export function setSpreadsheetType(value) {
     spreadsheetType = value
 }
 
-export function setSpreadsheetName(value) {
-    spreadsheetName = value
-}
-
 export function setCurrentColumn(value) {
     currentColumn = value
 }
@@ -79,4 +73,8 @@ export function setRuleTableCreated(value) {
 
 export function setHasTypedInCell(value) {
     hasTypedInCell = value
+}
+
+export function setSpreadsheetName(value) {
+    spreadsheetName = value
 }

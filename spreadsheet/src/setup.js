@@ -1,8 +1,33 @@
-import * as events from './spreadsheetEvents.js'
+import * as elementCell from './spreadsheetElements/cell.js'
+import * as elementTable from './spreadsheetElements/table.js'
+import * as events from './events.js'
+import * as globalVariables from './globalVariables.js'
 
 $(() => {
     events.onDocumentReady()
 })
+
+export function createSpreadsheet() {
+    globalVariables.setColumnSize(30)
+    globalVariables.setRowSize(40)
+
+    let table = $('<table>').attr('id', 'dynamicTable' + globalVariables.spreadsheetType)
+    let tableBody = $('<tbody>').attr('id', 'dynamicBody' + globalVariables.spreadsheetType)
+
+    for (let row = 0; row < globalVariables.rowSize; row++) {
+        let newRow = $('<tr>')
+
+        for (let column = 0; column < globalVariables.columnSize; column++) {
+            newRow.append(elementCell.createCell(column, row, globalVariables.spreadsheetType))
+        }
+        tableBody.append(newRow)
+    }
+
+    elementTable.createRowHeader(globalVariables.rowSize, tableBody)
+    elementTable.createColumnHeader(globalVariables.columnSize, table)
+    table.append(tableBody)
+    $('#cell-container-' + globalVariables.spreadsheetType).append(table)
+}
 
 export function setupActionBar() {
     $('#action-container').on('mousedown', (e) => e.preventDefault())
