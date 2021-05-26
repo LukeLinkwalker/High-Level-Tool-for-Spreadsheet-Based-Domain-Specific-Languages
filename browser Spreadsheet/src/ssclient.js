@@ -295,6 +295,8 @@ export function requestBuild() {
 
     socket.send(JSON.stringify(message))
     id++
+
+    alert('Model has been builded!')
 }
 
 //TODO: Refactor and with SML - Mikkels

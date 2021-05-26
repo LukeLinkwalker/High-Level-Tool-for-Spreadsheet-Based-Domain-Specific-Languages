@@ -93,6 +93,7 @@ export function onCellTextDivFocusout(cellTextDiv) {
     let infoBox = spreadsheet.getInfoBox(cell)
 
     tools.hideCreateTableCodeCompletionForInfoBox(infoBox, cell)
+    globals.setHasTypedInCell(false)
     //TODO: Fix together with highlight of breakout cells.
     // if (spreadsheet.getIsBrokenOut(cell)) tools.removeHighlightCellAndBreakoutReferenceCell(cell, cellTextDiv)
 }
@@ -106,6 +107,7 @@ export function onCellInput(cell) {
     inputBar.val(cellText)
     client.sendChange(cell)
     client.requestCheckIfTextIsATableName(cellText, cellIndexes[0], cellIndexes[1], globals.spreadsheetType)
+    globals.setHasTypedInCell(true)
 }
 
 export function onCellClick(cell) {
@@ -121,12 +123,7 @@ export function onDocumentReady() {
     setup.setupActionBar()
     setup.setupSDSL()
     setup.setupSML()
-    globals.setSpreadsheetType('sdsl')
-    spreadsheet.createSpreadsheet()
-    globals.setSpreadsheetType('sml')
-    spreadsheet.createSpreadsheet()
     tools.changeToSML()
-    spreadsheet.setInitialEditingCell()
     $('#smlRadioButton').prop('checked', true)
 }
 
@@ -178,7 +175,8 @@ export function onSpreadsheetTypeRadioButtonsChange() {
     if (spreadsheetType === 'sdsl') {
         client.requestNewFile(false);
         tools.changeToSDSL()
-    } else if (spreadsheetType === 'sml') {
+    }
+    else {
         client.requestNewFile(true);
         tools.changeToSML()
     } 
@@ -224,8 +222,12 @@ export function onCreateRulesTableButtonClick() {
     let cellIndexes = spreadsheet.getCellIndexes(globals.editingCell)
     let infoBox = spreadsheet.getInfoBox(globals.editingCell)
 
-    tools.hideCreateTableCodeCompletionForInfoBox(infoBox, globals.editingCell)
-    client.requestGetInitialTableRange('Rules', cellIndexes[0], cellIndexes[1], globals.spreadsheetType)
+    if (!globals.ruleTableCreated) {
+        tools.hideCreateTableCodeCompletionForInfoBox(infoBox, globals.editingCell)
+        client.requestGetInitialTableRange('Rules', cellIndexes[0], cellIndexes[1], globals.spreadsheetType)
+        globals.setRuleTableCreated(true)
+    }
+    else alert('Rules table is already created!')
 }
 
 export function onBuildButtonClick() {
@@ -233,7 +235,7 @@ export function onBuildButtonClick() {
 }
 
 export function onCellKeydownArrowLeft(event) {
-    tools.moveOneCellLeft(event)
+    if (!globals.hasTypedInCell) tools.moveOneCellLeft(event)
 }
 
 export function onCellKeydownArrowUp(event) {
@@ -241,7 +243,7 @@ export function onCellKeydownArrowUp(event) {
 }
 
 export function onCellKeydownArrowRight(event) {
-    tools.moveOneCellRight(event)
+    if (!globals.hasTypedInCell) tools.moveOneCellRight(event)
 }
 
 export function onCellKeydownArrowDown(event) {

@@ -11,6 +11,8 @@ export let currentColumn
 export let currentRow
 export let moveBreakoutTableActivated
 export let breakoutTableCells
+export let ruleTableCreated
+export let hasTypedInCell
 
 //TODO: Should sheetName be here?
 export let spreadsheetName
@@ -69,4 +71,12 @@ export function setMoveBreakoutTableActivated(value) {
 
 export function setBreakoutTableCells(value) {
     breakoutTableCells = value
+}
+
+export function setRuleTableCreated(value) {
+    ruleTableCreated = value
+}
+
+export function setHasTypedInCell(value) {
+    hasTypedInCell = value
 }

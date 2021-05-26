@@ -21,6 +21,7 @@ export function demergeCell(cell) {
     $(cell).css('display', '')
     $(cell).removeAttr('colspan')
     $(cell).removeClass(spreadsheet.getMergedCellsName(cell))
+    client.sendChange(cell)
 }
 
 export function setBoldText(cell) {
@@ -352,6 +353,7 @@ export function changeToSML() {
     globals.setSpreadsheetType('sml')
     spreadsheet.createSpreadsheet()
     spreadsheet.setInitialEditingCell()
+    globals.setRuleTableCreated(false)
 }
 
 export function changeToSDSL() {
