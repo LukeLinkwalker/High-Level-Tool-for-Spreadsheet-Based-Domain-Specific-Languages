@@ -156,6 +156,7 @@ public class TableCreator {
                 String typeOfDataType = dataType.get("type").getAsString();
                 value = dataType.get("value").getAsString();
                 if (typeOfDataType.equals("custom")) value = StringUtilities.removeTokensFromString(value);
+                else if (typeOfDataType.equals("reference")) value = "ref " + StringUtilities.removeTokensFromString(value);
             }
 
             App.SSS.sendNotification("set-text", new Object[] {column, row, value});
@@ -240,7 +241,7 @@ public class TableCreator {
         JsonArray children = jsonObject.get("children").getAsJsonArray();
         String type = jsonObject.get("type").getAsString();
 
-        if (!type.equals("attribute")) objectOrArrayCells.add(jsonObject);
+        if (!(type.equals("attribute") || type.equals("alternative"))) objectOrArrayCells.add(jsonObject);
 
         for (JsonElement child : children) {
             objectOrArrayCells.addAll(findHeaderCellsExceptAttributes(child.getAsJsonObject()));

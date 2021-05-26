@@ -18,7 +18,7 @@
             "column": 0,
             "row": 2,
             "type": "predefined",
-            "value": "string"
+            "value": "String"
           }
         ]
       },
@@ -34,7 +34,7 @@
             "column": 1,
             "row": 2,
             "type": "predefined",
-            "value": "string"
+            "value": "String"
           }
         ]
       }

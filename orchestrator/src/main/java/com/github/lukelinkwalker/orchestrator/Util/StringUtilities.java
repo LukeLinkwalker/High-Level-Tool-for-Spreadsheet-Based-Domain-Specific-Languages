@@ -4,6 +4,15 @@ public class StringUtilities {
     public static String removeTokensFromString(String string) {
         return string.substring(16, string.length() - 16);
     }
+
+	//Terminal rule names cannot contain spaces. They therefore need to be removed.
+	public static String replaceWhiteSpaceWithUnderscore(String string) {
+		return string.replaceAll(" ", "_");
+	}
+
+	public static String makeFirstLetterLowerCase(String string) {
+		return string.substring(0, 1).toLowerCase() + string.substring(1);
+	}
     
     public static String stripTrailingSpecials(String str) {
     	int limit = str.length() - 1;

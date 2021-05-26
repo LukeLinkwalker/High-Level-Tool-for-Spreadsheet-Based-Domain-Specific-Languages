@@ -26,7 +26,7 @@ public class Sheet {
 	}
 	
 	public Sheet(boolean isSGL) {
-		SML_CELL_CONTENT_PATTERN = Pattern.compile("^((optional )?(object|array|alternative|attribute|type) : [a-zA-Z0-9_]+)|Rules");
+		SML_CELL_CONTENT_PATTERN = Pattern.compile("((optional\\s*)?(object|array|alternative|attribute)\\s*:\\s*[A-Z][a-zA-Z0-9_]*)|Rules|type\\s*:\\s*(ref\\s*)?[a-zA-Z0-9_]+");
 
 		cells = new Cell[1000][1000];
 		tables = new ArrayList<>();
@@ -51,7 +51,7 @@ public class Sheet {
 				removeCellError(column, row);
 				
 				if(SML_CELL_CONTENT_PATTERN.matcher(data).find() == false) {
-					errors.add(new Tuple<Integer, Integer>(column, row));					
+					errors.add(new Tuple<Integer, Integer>(column, row));
 				}
 			}
 		}

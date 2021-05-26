@@ -47,7 +47,7 @@ public class GrammarCreator {
             case "array":
                 return printArray(jsonObject, parentName);
             case "alternative":
-                return printAlternative(jsonObject, parentName);
+                return printAlternative(jsonObject);
             case "attribute":
                 return printAttribute(jsonObject);
             case "rules":
@@ -73,7 +73,7 @@ public class GrammarCreator {
         model.append(printTable(name, parentName));
 
         model.append(printBreakoutReference(name, parentName));
-        sb.append("         ").append(makeFirstLetterLowerCase(name)).append(" = (").append(parentName).append(name)
+        sb.append("         ").append(StringUtilities.makeFirstLetterLowerCase(name)).append(" = (").append(parentName).append(name)
                     .append(" | ").append(parentName).append(name).append("Reference)")
                     .append(makeOptionalIfTrue(isOptional)).append("\n")
                 .append("      '}'");
@@ -101,18 +101,18 @@ public class GrammarCreator {
         sb.append("\n      '\"").append(name).append("\"' ':' '['\n");
         model.append(printTable(name, parentName));
 
-        assignment.append(makeFirstLetterLowerCase(name)).append(" += ").append(parentName).append(name)
+        assignment.append(StringUtilities.makeFirstLetterLowerCase(name)).append(" += ").append(parentName).append(name)
                 .append(makeOptionalIfTrue(isOptional)).append(" (',' ")
-                .append(makeFirstLetterLowerCase(name)).append(" += ").append(parentName).append(name).append(")*");
+                .append(StringUtilities.makeFirstLetterLowerCase(name)).append(" += ").append(parentName).append(name).append(")*");
 
         //If the object have a parent, it can be referenced to by another table. A reference rule is thus needed.
         if (!parentName.equals("")) {
             model.append(printBreakoutReference(name, parentName));
 
             assignment.insert(0, "((");
-            assignment.append(") | (").append(makeFirstLetterLowerCase(name)).append(" += ").append(parentName)
+            assignment.append(") | (").append(StringUtilities.makeFirstLetterLowerCase(name)).append(" += ").append(parentName)
                     .append(name).append("Reference").append(makeOptionalIfTrue(isOptional)).append(" (',' ")
-                    .append(makeFirstLetterLowerCase(name)).append(" += ").append(parentName).append(name)
+                    .append(StringUtilities.makeFirstLetterLowerCase(name)).append(" += ").append(parentName).append(name)
                     .append("Reference)*))");
         }
 
@@ -127,7 +127,7 @@ public class GrammarCreator {
         return sb;
     }
 
-    private static StringBuilder printAlternative(JsonObject jsonObject, String parentName) {
+    private static StringBuilder printAlternative(JsonObject jsonObject) {
         String name = StringUtilities.removeTokensFromString(jsonObject.get("name").getAsString());
         boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
         JsonArray dataTypes = jsonObject.get("dataTypes").getAsJsonArray();
@@ -135,19 +135,25 @@ public class GrammarCreator {
         StringBuilder sb = new StringBuilder();
 
         for (JsonElement jsonElement : dataTypes) {
-            String dataType = jsonElement.getAsJsonObject().get("value").getAsString();
+            String value = jsonElement.getAsJsonObject().get("value").getAsString();
             String type = jsonElement.getAsJsonObject().get("type").getAsString();
+            String valueName = getCorrectValueName(StringUtilities.makeFirstLetterLowerCase(name));
+            String formattedValue;
 
-            if (type.equals("predefined")) dataType = dataType.toUpperCase();
-            else dataType = StringUtilities.removeTokensFromString(dataType);
-            dataType = replaceWhiteSpaceWithUnderscore(dataType);
-            sj.add(makeFirstLetterLowerCase(name) + "Value" + dataType + " = " + dataType);
+            if (type.equals("predefined")) formattedValue = value.toUpperCase();
+            else {
+                value = StringUtilities.removeTokensFromString(value);
+                if (type.equals("reference")) formattedValue = "[" + value + "|STRING]";
+                else formattedValue = value;
+            }
+            formattedValue = StringUtilities.replaceWhiteSpaceWithUnderscore(formattedValue);
+            sj.add(valueName + value + " = " + formattedValue);
         }
 
         sb.append("\n")
                 .append("      '\"").append(name).append("\"' ':' '{'\n")
-                .append("         '\"column\"' ':' ").append(makeFirstLetterLowerCase(name)).append("Column = INT").append(" ','\n")
-                .append("         '\"row\"' ':' ").append(makeFirstLetterLowerCase(name)).append("Row = INT").append(" ','\n")
+                .append("         '\"column\"' ':' ").append(StringUtilities.makeFirstLetterLowerCase(name)).append("Column = INT").append(" ','\n")
+                .append("         '\"row\"' ':' ").append(StringUtilities.makeFirstLetterLowerCase(name)).append("Row = INT").append(" ','\n")
                 .append("         '\"value\"' ':' (").append(sj).append(")\n")
                 .append("      '}'");
 
@@ -160,20 +166,20 @@ public class GrammarCreator {
         StringBuilder sb = new StringBuilder();
         String name = StringUtilities.removeTokensFromString(jsonObject.get("name").getAsString());
         boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
-
         JsonObject dataTypeObject = jsonObject.get("dataTypes").getAsJsonArray().get(0).getAsJsonObject();
         String type = dataTypeObject.get("type").getAsString();
-        String dataType = dataTypeObject.get("value").getAsString();
-        String valueName = getCorrectValueName(makeFirstLetterLowerCase(name));
-        if (type.equals("predefined")) dataType = dataType.toUpperCase();
-        else dataType = StringUtilities.removeTokensFromString(dataType);
-        String value = valueName + " = " + dataType;
+        String value = dataTypeObject.get("value").getAsString();
+        String valueName = getCorrectValueName(StringUtilities.makeFirstLetterLowerCase(name));
+        if (type.equals("predefined")) value = value.toUpperCase();
+        else if (type.equals("reference")) value = "[" + StringUtilities.removeTokensFromString(value) + "|STRING]";
+        else value = StringUtilities.removeTokensFromString(value);
+        String assignment = valueName + " = " + value;
 
         sb.append("\n")
                 .append("      '\"").append(name).append("\"' ':' '{'\n")
-                .append("         '\"column\"' ':' ").append(makeFirstLetterLowerCase(name)).append("Column = INT").append(" ','\n")
-                .append("         '\"row\"' ':' ").append(makeFirstLetterLowerCase(name)).append("Row = INT").append(" ','\n")
-                .append("         '\"value\"' ':' ").append(wrapInDoubleQuotesBasedOnDataType(dataType, value)).append("\n")
+                .append("         '\"column\"' ':' ").append(StringUtilities.makeFirstLetterLowerCase(name)).append("Column = INT").append(" ','\n")
+                .append("         '\"row\"' ':' ").append(StringUtilities.makeFirstLetterLowerCase(name)).append("Row = INT").append(" ','\n")
+                .append("         '\"value\"' ':' ").append(wrapInDoubleQuotesBasedOnDataType(type, assignment)).append("\n")
                 .append("      '}'");
 
         if (isOptional) makeAttributeOptionalIfTrue(sb);
@@ -193,8 +199,8 @@ public class GrammarCreator {
                 .append("   '{'\n")
                 .append("      '\"Name\"' ':' '\"").append(name).append("\"' ','\n")
                 .append("      '\"Table\"' ':' '['\n")
-                .append("           ").append(makeFirstLetterLowerCase(objectName)).append(" += ").append(name).append("? (',' ")
-                    .append(makeFirstLetterLowerCase(objectName)).append(" += ").append(name).append(")*\n")
+                .append("           ").append(StringUtilities.makeFirstLetterLowerCase(objectName)).append(" += ").append(name).append("? (',' ")
+                    .append(StringUtilities.makeFirstLetterLowerCase(objectName)).append(" += ").append(name).append(")*\n")
                 .append("      ']'\n")
                 .append("   '}'\n")
                 .append(";\n");
@@ -232,6 +238,7 @@ public class GrammarCreator {
 
     private static String insertDefaultTerminalRules() {
         return
+                "\nterminal NULL: 'null';\n" +
                 "\nterminal ID: '^'?('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;\n" +
                 "\nterminal STRING: '\"OKZVVTSPKHOVYSMU' -> 'SQPSUQMWUPQSBXDT\"';\n" +
                 "\nterminal INT returns ecore::EInt: ('0'..'9')+;\n" +
@@ -254,9 +261,8 @@ public class GrammarCreator {
     }
 
     private static String wrapInDoubleQuotesBasedOnDataType(String dataType, String string) {
-        if (dataType.equals("STRING") | dataType.equals("INT") || dataType.equals("FLOAT") ||
-                dataType.equals("BOOLEAN")) return string;
-        else return "'\"' " + string + " '\"' ";
+        if (dataType.equals("custom")) return "'\"' " + string + " '\"' ";
+        else return string;
     }
 
     //If attribute name is name, it shall be used to cross-reference. Thus, the assignment name shall be name instead
@@ -264,14 +270,5 @@ public class GrammarCreator {
     private static String getCorrectValueName(String string) {
         if (string.equals("name")) return string;
         else return string + "Value";
-    }
-
-    //Terminal rule names cannot contain spaces. They therefore need to be removed.
-    private static String replaceWhiteSpaceWithUnderscore(String string) {
-        return string.replaceAll(" ", "_");
-    }
-
-    private static String makeFirstLetterLowerCase(String string) {
-        return string.substring(0, 1).toLowerCase() + string.substring(1);
     }
 }
