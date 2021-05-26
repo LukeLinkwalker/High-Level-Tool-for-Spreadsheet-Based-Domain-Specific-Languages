@@ -56,9 +56,6 @@ public class TableCreator {
     }
 
     private static JsonObject findTableJsonObject(String name, String spreadsheetType) {
-        //TODO: Remove after testing
-//        JsonArray ssModel = App.SSS.getSsModel();
-//        JsonArray ssModel = App.SSS.getSDSLSSModelTest();
         JsonArray ssModel;
 
         if (spreadsheetType.equals("sml")) ssModel = App.SSS.getSMLSSModel();
