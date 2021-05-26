@@ -130,7 +130,8 @@ public class CellData {
 		if(name.toLowerCase().equals("string") || 
 		   name.toLowerCase().equals("int") || 
 		   name.toLowerCase().equals("boolean") || 
-		   name.toLowerCase().equals("float")) 
+		   name.toLowerCase().equals("float") ||
+		   name.toLowerCase().equals("null"))
 		{ 
 			obj.addProperty("type", "predefined");
 			obj.addProperty("value", name);

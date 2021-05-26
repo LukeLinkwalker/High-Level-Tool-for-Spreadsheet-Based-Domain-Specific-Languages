@@ -167,11 +167,6 @@ public class Cell {
 		result.addProperty("column", column);
 		result.addProperty("row", row);
 		
-		if(StringUtilities.isNull(data)) {
-			result.add("value", JsonNull.INSTANCE);
-			return result;
-		}
-
 		if(attribute.getType().equals("attribute")) {
 			// Attribute
 			
@@ -206,7 +201,14 @@ public class Cell {
 						result.addProperty("value", data);
 					}
 				}
-				else if (attributeType.getValue().equals("string")) {
+				else if (attributeType.getValue().equals("null")) {
+					if (StringUtilities.isNull(data)) {
+						result.add("value", JsonNull.INSTANCE);
+					} else {
+						result.addProperty("value", data);
+					}
+				}
+				else if (attributeType.getValue().equals("String")) {
 					result.addProperty("value", JsonUtil.tokenWrap(data));
 				}
 				else {
@@ -224,6 +226,9 @@ public class Cell {
 			}
 			else if (StringUtilities.isFloat(data)) {
 				result.addProperty("value", Float.parseFloat(data));
+			}
+			else if (StringUtilities.isNull(data)) {
+				result.add("value", JsonNull.INSTANCE);
 			}
 			else {
 				result.addProperty("value", data);
