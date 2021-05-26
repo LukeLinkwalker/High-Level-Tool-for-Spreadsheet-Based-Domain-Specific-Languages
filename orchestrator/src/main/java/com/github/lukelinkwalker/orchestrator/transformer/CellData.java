@@ -33,11 +33,11 @@ public class CellData {
     		}
     		
     		if(matcher.group(6) != null) {
-    			name = matcher.group(7);
+    			name = matcher.group(6);
     		}
     		
     		if(matcher.group(8) != null) {
-    			refName = matcher.group(10);
+    			refName = matcher.group(8);
     		}
     	}
 
