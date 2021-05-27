@@ -25,7 +25,7 @@ function createErrorUnderline(cell, errorLineIndexStart, errorLineIndexEnd) {
 
         $(cellTextDiv).html(updatedCellText)
         setCaretPosition(cellTextDiv, caret)
-    } else $(cellTextDiv).html(textWithErrorUnderline)
+    } else $(cellTextDiv).html(updatedCellText)
 }
 
 export function hideAndClearAllErrors() {
