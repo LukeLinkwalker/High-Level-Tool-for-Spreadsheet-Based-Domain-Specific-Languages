@@ -1,6 +1,6 @@
 import * as elementCell from './cell.js'
+import * as spreadsheet from './spreadsheet.js'
 import * as globalVariables from '../globalVariables.js'
-import * as setup from '../setup.js'
 
 export function changeToSML() {
     $('.sdslClass').css('display', 'none')
@@ -8,7 +8,7 @@ export function changeToSML() {
 
     $('#dynamicTablesml').remove()
     globalVariables.setSpreadsheetType('sml')
-    setup.createSpreadsheet()
+    spreadsheet.createSpreadsheet()
     elementCell.setInitialEditingCell()
     globalVariables.setRuleTableCreated(false)
 }
@@ -19,6 +19,6 @@ export function changeToSDSL() {
 
     $('#dynamicTablesdsl').remove()
     globalVariables.setSpreadsheetType('sdsl')
-    setup.createSpreadsheet()
+    spreadsheet.createSpreadsheet()
     elementCell.setInitialEditingCell()
 }

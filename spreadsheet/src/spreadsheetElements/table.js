@@ -254,43 +254,6 @@ export function deleteRow(cell) {
     return true
 }
 
-export function createColumnHeader(tableSize, table) {
-    let columnRow = $('<thead>')
-
-    for (let column = 0; column <= tableSize; column++) {
-        let tableHeader = $('<th>')
-
-        if (column !== 0) tableHeader.text(createSpreadsheetHeaderText(column))
-        tableHeader.on('mousedown', (e) => e.preventDefault())
-        columnRow.append(tableHeader)
-    }
-
-    $(table).prepend(columnRow)
-}
-
-function createSpreadsheetHeaderText(columnNumber) {
-    let temp
-    let letter = ''
-
-    while (columnNumber > 0) {
-        temp = (columnNumber - 1) % 26
-        letter = String.fromCharCode(temp + 65) + letter
-        columnNumber = (columnNumber - temp - 1) / 26
-    }
-
-    return letter
-}
-
-export function createRowHeader(tableSize, table) {
-    $('tr', table).each( (index, element) => {
-        let tableHeader = $('<th>')
-
-        tableHeader.text(index + 1)
-        tableHeader.on('mousedown', (e) => e.preventDefault())
-        $(element).prepend(tableHeader)
-    })
-}
-
 export function deleteTable(cell) {
     let cellsInTable = getAllCellsFromTableCellIsIn(cell)
     let breakoutReferenceToOriginalTable = toolsBreakout.getBreakoutReferenceToOriginalTable(cell)
