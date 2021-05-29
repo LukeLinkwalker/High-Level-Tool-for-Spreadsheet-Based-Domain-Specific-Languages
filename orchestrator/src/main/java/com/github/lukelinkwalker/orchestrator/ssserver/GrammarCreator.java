@@ -75,7 +75,7 @@ public class GrammarCreator {
         model.append(printBreakoutReference(name, parentName));
         sb.append("         ").append(StringUtilities.makeFirstLetterLowerCase(name)).append(" = (").append(parentName).append(name)
                     .append(" | ").append(parentName).append(name).append("Reference)")
-                    .append(makeOptionalIfTrue(isOptional)).append("\n")
+                    .append(ifOptionalAppendQuestionMark(isOptional)).append("\n")
                 .append("      '}'");
 
         int indexBeforeIterating = model.length();
@@ -102,20 +102,21 @@ public class GrammarCreator {
         model.append(printTable(name, parentName));
 
         assignment.append(StringUtilities.makeFirstLetterLowerCase(name)).append(" += ").append(parentName).append(name)
-                .append(makeOptionalIfTrue(isOptional)).append(" (',' ")
-                .append(StringUtilities.makeFirstLetterLowerCase(name)).append(" += ").append(parentName).append(name).append(")*");
+                .append(" (',' ").append(StringUtilities.makeFirstLetterLowerCase(name)).append(" += ")
+                .append(parentName).append(name).append(")*");
 
         //If the object have a parent, it can be referenced to by another table. A reference rule is thus needed.
         if (!parentName.equals("")) {
             model.append(printBreakoutReference(name, parentName));
 
             assignment.insert(0, "((");
-            assignment.append(") | (").append(StringUtilities.makeFirstLetterLowerCase(name)).append(" += ").append(parentName)
-                    .append(name).append("Reference").append(makeOptionalIfTrue(isOptional)).append(" (',' ")
-                    .append(StringUtilities.makeFirstLetterLowerCase(name)).append(" += ").append(parentName).append(name)
-                    .append("Reference)*))");
+            assignment.append(") | (").append(StringUtilities.makeFirstLetterLowerCase(name)).append(" += ")
+                    .append(parentName).append(name).append("Reference").append(" (',' ")
+                    .append(StringUtilities.makeFirstLetterLowerCase(name)).append(" += ").append(parentName)
+                    .append(name).append("Reference)*))");
         }
 
+        assignment.append(ifOptionalAppendQuestionMark(isOptional));
         sb.append("         ").append(assignment).append("\n      ']'");
         int indexBeforeIterating = model.length();
 
@@ -157,7 +158,7 @@ public class GrammarCreator {
                 .append("         '\"value\"' ':' (").append(sj).append(")\n")
                 .append("      '}'");
 
-        if (isOptional) makeAttributeOptionalIfTrue(sb);
+        ifOptionalWrapInParenthesisAndAppendQuestionMark(isOptional, sb);
 
         return sb;
     }
@@ -182,7 +183,7 @@ public class GrammarCreator {
                 .append("         '\"value\"' ':' ").append(wrapInDoubleQuotesBasedOnDataType(type, assignment)).append("\n")
                 .append("      '}'");
 
-        if (isOptional) makeAttributeOptionalIfTrue(sb);
+        ifOptionalWrapInParenthesisAndAppendQuestionMark(isOptional, sb);
 
         return sb;
     }
@@ -250,14 +251,15 @@ public class GrammarCreator {
                 "\nterminal ANY_OTHER: .;";
     }
 
-    private static String makeOptionalIfTrue(boolean isOptional) {
-        if (isOptional) return "?";
-        else return "";
+    private static String ifOptionalAppendQuestionMark(boolean isOptional) {
+        return (isOptional) ? "?" : "";
     }
 
-    private static void makeAttributeOptionalIfTrue(StringBuilder sb) {
-        sb.insert(0, "(");
-        sb.append(")?");
+    private static void ifOptionalWrapInParenthesisAndAppendQuestionMark(boolean isOptional, StringBuilder sb) {
+        if (isOptional) {
+            sb.insert(0, "(");
+            sb.append(")?");
+        }
     }
 
     private static String wrapInDoubleQuotesBasedOnDataType(String dataType, String string) {
