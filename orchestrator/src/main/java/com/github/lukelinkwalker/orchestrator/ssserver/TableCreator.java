@@ -15,9 +15,7 @@ public class TableCreator {
         JsonObject tableObject = findTableJsonObject(tableName, spreadsheetType);
         boolean success = true;
 
-        if (tableObject == null) {
-            success = false;
-        }
+        if (tableObject == null) success = false;
         else {
             int rootColumn = tableObject.get("column").getAsInt();
             int rootRow = tableObject.get("row").getAsInt();
@@ -224,7 +222,7 @@ public class TableCreator {
 
     private static void sendBoldTextCommandForAppropriateCells(JsonObject jsonObject, int startColumn, int startRow,
             int rootColumn, int rootRow) {
-        List<JsonObject> headerCellsExceptAttributes = findHeaderCellsExceptAttributes(jsonObject);
+        List<JsonObject> headerCellsExceptAttributes = findHeaderCellsExceptAttributesAndAlternatives(jsonObject);
 
         for (JsonObject cell : headerCellsExceptAttributes) {
             int column = cell.get("column").getAsInt() + startColumn - rootColumn;
@@ -233,7 +231,7 @@ public class TableCreator {
         }
     }
 
-    private static ArrayList<JsonObject> findHeaderCellsExceptAttributes(JsonObject jsonObject) {
+    private static ArrayList<JsonObject> findHeaderCellsExceptAttributesAndAlternatives(JsonObject jsonObject) {
         ArrayList<JsonObject> objectOrArrayCells = new ArrayList<>();
         JsonArray children = jsonObject.get("children").getAsJsonArray();
         String type = jsonObject.get("type").getAsString();
@@ -241,7 +239,7 @@ public class TableCreator {
         if (!(type.equals("attribute") || type.equals("alternative"))) objectOrArrayCells.add(jsonObject);
 
         for (JsonElement child : children) {
-            objectOrArrayCells.addAll(findHeaderCellsExceptAttributes(child.getAsJsonObject()));
+            objectOrArrayCells.addAll(findHeaderCellsExceptAttributesAndAlternatives(child.getAsJsonObject()));
         }
 
         return objectOrArrayCells;

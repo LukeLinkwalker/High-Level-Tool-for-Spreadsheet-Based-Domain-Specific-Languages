@@ -60,47 +60,55 @@ public class GrammarCreator {
         return new StringBuilder();
     }
 
-    private static StringBuilder printObject(JsonObject jsonObject, String parentName) {
+    public static StringBuilder printObject(JsonObject jsonObject, String parentName) {
         String name = StringUtilities.removeTokensFromString(jsonObject.get("name").getAsString());
-        boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
         JsonArray children = jsonObject.getAsJsonArray("children");
-        String prefix = "\n" + parentName + name + ":\n   '{'";
-        String suffix = "\n   '}'\n;\n";
-        StringJoiner stringJoiner = new StringJoiner(" (',')? ", prefix, suffix);
+        StringBuilder text = new StringBuilder("\n" + parentName + name + ":\n   '{'");
         StringBuilder sb = new StringBuilder();
+        boolean firstChild = true;
 
         sb.append("\n      '\"").append(name).append("\"' ':' '{'\n");
         model.append(printTable(name, parentName));
-
         model.append(printBreakoutReference(name, parentName));
-        sb.append("         ").append(StringUtilities.makeFirstLetterLowerCase(name)).append(" = (").append(parentName).append(name)
-                    .append(" | ").append(parentName).append(name).append("Reference)")
-                    .append(ifOptionalAppendQuestionMark(isOptional)).append("\n")
+        sb.append("         ").append(StringUtilities.makeFirstLetterLowerCase(name)).append(" = (").append(parentName)
+                .append(name).append(" | ").append(parentName).append(name).append("Reference)").append("\n")
                 .append("      '}'");
 
         int indexBeforeIterating = model.length();
 
-        for (JsonElement jsonElement : children) stringJoiner.add(print(jsonElement.getAsJsonObject(),
-                parentName + name).toString());
+        for (JsonElement child : children) {
+            boolean childIsOptional = child.getAsJsonObject().get("isOptional").getAsBoolean();
+            String childText = print(child.getAsJsonObject(),parentName + name).toString();
 
-        model.insert(indexBeforeIterating, stringJoiner);
+            if (!firstChild) {
+                StringBuilder prependText = new StringBuilder("','");
+                String appendText = "";
+
+                if (childIsOptional) {
+                    prependText.insert(0, "(");
+                    appendText = ")? ";
+                }
+                text.append(prependText).append(childText).append(appendText);
+            }
+            else text.append(childText);
+
+            firstChild = false;
+        }
+
+        text.append("\n   '}'\n;\n");
+        model.insert(indexBeforeIterating, text);
 
         return sb;
     }
 
-    private static StringBuilder printArray(JsonObject jsonObject, String parentName) {
+    public static StringBuilder printArray(JsonObject jsonObject, String parentName) {
         String name = StringUtilities.removeTokensFromString(jsonObject.get("name").getAsString());
-        boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
         JsonArray children = jsonObject.getAsJsonArray("children");
-        String prefix = "\n" + parentName + name + ":\n   '{'";
-        String suffix = "\n   '}'\n;\n";
-        StringJoiner stringJoiner = new StringJoiner(" (',')? ", prefix, suffix);
         StringBuilder sb = new StringBuilder();
         StringBuilder assignment = new StringBuilder();
 
         sb.append("\n      '\"").append(name).append("\"' ':' '['\n");
         model.append(printTable(name, parentName));
-
         assignment.append(StringUtilities.makeFirstLetterLowerCase(name)).append(" += ").append(parentName).append(name)
                 .append(" (',' ").append(StringUtilities.makeFirstLetterLowerCase(name)).append(" += ")
                 .append(parentName).append(name).append(")*");
@@ -108,7 +116,6 @@ public class GrammarCreator {
         //If the object have a parent, it can be referenced to by another table. A reference rule is thus needed.
         if (!parentName.equals("")) {
             model.append(printBreakoutReference(name, parentName));
-
             assignment.insert(0, "((");
             assignment.append(") | (").append(StringUtilities.makeFirstLetterLowerCase(name)).append(" += ")
                     .append(parentName).append(name).append("Reference").append(" (',' ")
@@ -116,21 +123,39 @@ public class GrammarCreator {
                     .append(name).append("Reference)*))");
         }
 
-        assignment.append(ifOptionalAppendQuestionMark(isOptional));
         sb.append("         ").append(assignment).append("\n      ']'");
         int indexBeforeIterating = model.length();
 
-        for (JsonElement jsonElement : children) stringJoiner.add(print(jsonElement.getAsJsonObject(),
-                parentName + name).toString());
+        StringBuilder text = new StringBuilder("\n" + parentName + name + ":\n   '{'");
+        boolean firstChild = true;
 
-        model.insert(indexBeforeIterating, stringJoiner);
+        for (JsonElement child : children) {
+            boolean childIsOptional = child.getAsJsonObject().get("isOptional").getAsBoolean();
+            String childText = print(child.getAsJsonObject(),parentName + name).toString();
+
+            if (!firstChild) {
+                StringBuilder prependText = new StringBuilder("','");
+                String appendText = "";
+
+                if (childIsOptional) {
+                    prependText.insert(0, "(");
+                    appendText = ")? ";
+                }
+                text.append(prependText).append(childText).append(appendText);
+            }
+            else text.append(childText);
+
+            firstChild = false;
+        }
+
+        text.append("\n   '}'\n;\n");
+        model.insert(indexBeforeIterating, text);
 
         return sb;
     }
 
-    private static StringBuilder printAlternative(JsonObject jsonObject) {
+    public static StringBuilder printAlternative(JsonObject jsonObject) {
         String name = StringUtilities.removeTokensFromString(jsonObject.get("name").getAsString());
-        boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
         JsonArray dataTypes = jsonObject.get("dataTypes").getAsJsonArray();
         StringJoiner sj = new StringJoiner(" | ");
         StringBuilder sb = new StringBuilder();
@@ -158,15 +183,12 @@ public class GrammarCreator {
                 .append("         '\"value\"' ':' (").append(sj).append(")\n")
                 .append("      '}'");
 
-        ifOptionalWrapInParenthesisAndAppendQuestionMark(isOptional, sb);
-
         return sb;
     }
 
-    private static StringBuilder printAttribute(JsonObject jsonObject) {
+    public static StringBuilder printAttribute(JsonObject jsonObject) {
         StringBuilder sb = new StringBuilder();
         String name = StringUtilities.removeTokensFromString(jsonObject.get("name").getAsString());
-        boolean isOptional = jsonObject.get("isOptional").getAsBoolean();
         JsonObject dataTypeObject = jsonObject.get("dataTypes").getAsJsonArray().get(0).getAsJsonObject();
         String type = dataTypeObject.get("type").getAsString();
         String value = dataTypeObject.get("value").getAsString();
@@ -181,14 +203,12 @@ public class GrammarCreator {
                 .append("         '\"column\"' ':' ").append(StringUtilities.makeFirstLetterLowerCase(name)).append("Column = INT").append(" ','\n")
                 .append("         '\"row\"' ':' ").append(StringUtilities.makeFirstLetterLowerCase(name)).append("Row = INT").append(" ','\n")
                 .append("         '\"value\"' ':' ").append(wrapInDoubleQuotesBasedOnDataType(type, assignment)).append("\n")
-                .append("      '}'");
-
-        ifOptionalWrapInParenthesisAndAppendQuestionMark(isOptional, sb);
+                .append("      '}' ");
 
         return sb;
     }
 
-    private static StringBuilder printTable(String objectName, String parentName) {
+    public static StringBuilder printTable(String objectName, String parentName) {
         String name = parentName + objectName;
         StringBuilder sb = new StringBuilder();
 
@@ -209,7 +229,7 @@ public class GrammarCreator {
         return sb;
     }
 
-    private static void printRules(JsonObject jsonObject) {
+    public static void printRules(JsonObject jsonObject) {
         JsonArray children = jsonObject.getAsJsonArray("children");
 
         for (JsonElement child : children) {
@@ -220,7 +240,7 @@ public class GrammarCreator {
         }
     }
 
-    private static StringBuilder printBreakoutReference(String objectName, String parentName) {
+    public static StringBuilder printBreakoutReference(String objectName, String parentName) {
         String name = parentName + objectName;
         StringBuilder sb = new StringBuilder();
 
@@ -249,17 +269,6 @@ public class GrammarCreator {
                 "\nterminal SL_COMMENT: '//' !('\\n'|'\\r')* ('\\r'? '\\n')?;\n" +
                 "\nterminal WS: (' '|'\\t'|'\\r'|'\\n')+;\n" +
                 "\nterminal ANY_OTHER: .;";
-    }
-
-    private static String ifOptionalAppendQuestionMark(boolean isOptional) {
-        return (isOptional) ? "?" : "";
-    }
-
-    private static void ifOptionalWrapInParenthesisAndAppendQuestionMark(boolean isOptional, StringBuilder sb) {
-        if (isOptional) {
-            sb.insert(0, "(");
-            sb.append(")?");
-        }
     }
 
     private static String wrapInDoubleQuotesBasedOnDataType(String dataType, String string) {
