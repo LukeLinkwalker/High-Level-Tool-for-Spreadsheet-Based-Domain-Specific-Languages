@@ -121,7 +121,7 @@ export function getCellText(cell) {
 export function setCellText(cell, value, sendChange) {
     let cellTextDiv = getCellTextDiv(cell)
 
-    if ($(cellTextDiv).is(":focus")) {
+    if ($(cellTextDiv).is(':focus')) {
         let caret = elementError.getCaretPosition(cellTextDiv)
 
         $(getCellTextDiv(cell)).text(value)
