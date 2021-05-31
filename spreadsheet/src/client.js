@@ -9,15 +9,14 @@ import * as globalVariables from './globalVariables.js'
 let id = 1
 let updateCounter = 10_000_000;
 const socket = new WebSocket('ws://localhost:20895')
-const debug = true
 
-socket.addEventListener('open', function(event) {
-    let close = { sheetName: "Hello" }
-    let cmsg = { method: "close-sheet", id: "0", data: JSON.stringify(close) }
+socket.addEventListener('open', () => {
+    let close = { sheetName: 'Hello' }
+    let cmsg = { method: 'close-sheet', id: '0', data: JSON.stringify(close) }
     socket.send(JSON.stringify(cmsg))
 
-    let open = { sheetName: "Hello", isSML: true }
-    let omsg = { method: "open-sheet", id: "1", data:JSON.stringify(open) }
+    let open = { sheetName: 'Hello', isSGL: true }
+    let omsg = { method: 'open-sheet', id: '1', data:JSON.stringify(open) }
     socket.send(JSON.stringify(omsg))
 })
 
@@ -30,6 +29,9 @@ socket.addEventListener('message', (event) => {
             break
         case 'get-initial-table-range':
             handleGetInitialTableRange(jsonObject.params)
+            break
+        case 'create-table':
+            handleCreateTable(jsonObject.code)
             break
         case 'set-text':
             handleSetText(jsonObject.params)
@@ -95,6 +97,10 @@ function handleGetInitialTableRange(params) {
     }
 }
 
+function handleCreateTable(code) {
+    if (code === 400) alert('Could not create table!')
+}
+
 function handleSetText(params) {
     let cell = elementCell.getCellFromIndexes(params[0], params[1])
     let text = params[2]
@@ -141,12 +147,11 @@ export function sendChange(cell) {
     let cellType = elementCell.getCellType(cell)
     let skipEval = (cellType !== 'normal')
 
-    let update = { sheetName: "Hello", column: cellIndexes[0], row: cellIndexes[1], width: colspan, data: content,
+    let update = { sheetName: 'Hello', column: cellIndexes[0], row: cellIndexes[1], width: colspan, data: content,
         skipEval: skipEval }
-    let update_msg = { method: "update-sheet", id: updateCounter++, data: JSON.stringify(update) }
+    let update_msg = { method: 'update-sheet', id: updateCounter++, data: JSON.stringify(update) }
 
     socket.send(JSON.stringify(update_msg))
-    if (debug) console.log("Send change: " + JSON.stringify(update))
 }
 
 export function requestCheckIfTextIsATableName(cellText, column, row, spreadsheetType) {
@@ -186,22 +191,22 @@ export function requestBuild() {
     alert('Model has been builded!')
 }
 
-export function requestNewFile(isSML) {
-    if (isSML) {
-        let close = { sheetName: "Hello" }
-        let cmsg = { method: "close-sheet", id: "0", data: JSON.stringify(close) }
+export function requestNewFile(isSGL) {
+    if (isSGL) {
+        let close = { sheetName: 'Hello' }
+        let cmsg = { method: 'close-sheet', id: '0', data: JSON.stringify(close) }
         socket.send(JSON.stringify(cmsg))
         
-        let open = { sheetName: "Hello", isSGL: true }
-        let omsg = { method: "open-sheet", id: "1", data: JSON.stringify(open) }
+        let open = { sheetName: 'Hello', isSGL: true }
+        let omsg = { method: 'open-sheet', id: '1', data: JSON.stringify(open) }
         socket.send(JSON.stringify(omsg));
     } else {
-        let close = { sheetName: "Hello" }
-        let cmsg = { method: "close-sheet", id: "0", data: JSON.stringify(close) }
+        let close = { sheetName: 'Hello' }
+        let cmsg = { method: 'close-sheet', id: '0', data: JSON.stringify(close) }
         socket.send(JSON.stringify(cmsg));
 
-        let open = { sheetName: "Hello", isSGL: false }
-        let omsg = { method: "open-sheet", id: "1", data: JSON.stringify(open) }
+        let open = { sheetName: 'Hello', isSGL: false }
+        let omsg = { method: 'open-sheet', id: '1', data: JSON.stringify(open) }
         socket.send(JSON.stringify(omsg))
     }
 }

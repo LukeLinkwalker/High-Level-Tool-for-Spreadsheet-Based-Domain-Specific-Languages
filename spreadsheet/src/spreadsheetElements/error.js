@@ -20,7 +20,7 @@ function createErrorUnderline(cell, errorLineIndexStart, errorLineIndexEnd) {
     let textWithErrorUnderline = '<span class="errorLine">' + textWithError + '</span>'
     let updatedCellText = cellText.replace(textWithError, textWithErrorUnderline)
 
-    if ($(cellTextDiv).is(":focus")) {
+    if ($(cellTextDiv).is(':focus')) {
         let caret = getCaretPosition(cellTextDiv)
 
         $(cellTextDiv).html(updatedCellText)

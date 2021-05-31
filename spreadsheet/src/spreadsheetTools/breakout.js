@@ -268,52 +268,54 @@ export function copyCellsAndClearOldCells(breakoutOutlineCells, breakoutHeader, 
         return globalVariables.breakoutTableCells.includes(nonEmptyCell)
     })
 
-    if (nonEmptyCells.size === 0 || allNonEmptyCellsAreOriginalBreakoutCells) {
+    if (nonEmptyCells.length === 0 || (allNonEmptyCellsAreOriginalBreakoutCells && !isBreakingOut)) {
         if (globalVariables.breakoutTableCells.length !== nonEmptyCells.length) {
-            let copyOfBreakOutTableCells = []
+            let copyOfBreakoutTableCells = []
 
             globalVariables.breakoutTableCells.forEach((boCell) => {
-                copyOfBreakOutTableCells.push($(boCell).clone()[0])
+                copyOfBreakoutTableCells.push($(boCell).clone()[0])
                 elementCell.clearCell(boCell)
             })
 
-            copyOfBreakOutTableCells.forEach((oldCell, index) => {
-                if(elementCell.getCellText(oldCell).length === 0) {
+            copyOfBreakoutTableCells.forEach((oldCell, index) => {
+                if (elementCell.getCellText(oldCell).length === 0) {
                     let newTableHeader = elementTable.getNewTableHeaderForCopyingCell(oldCell, breakoutOutlineCells[index],
                         breakoutHeader)
                     elementCell.copyCell(oldCell, breakoutOutlineCells[index], newTableHeader)
                 }
             })
 
-            copyOfBreakOutTableCells.forEach((oldCell, index) => {
-                if(elementCell.getCellText(oldCell).length > 0) {
+            //TODO: Could possibly be delete and the above sat to >=. But old error might still exists, deleting server
+            // side data. Not tested thorough enough to delete it.
+            copyOfBreakoutTableCells.forEach((oldCell, index) => {
+                if (elementCell.getCellText(oldCell).length > 0) {
                     let newTableHeader = elementTable.getNewTableHeaderForCopyingCell(oldCell, breakoutOutlineCells[index],
                         breakoutHeader)
                     elementCell.copyCell(oldCell, breakoutOutlineCells[index], newTableHeader)
                 }
             })
 
-            if (isBreakingOut) {
-                let referenceToOriginalTable = createBreakoutReferenceToOriginalTable(oldTableHeader)
-
-                breakoutOutlineCells.forEach((cell) => {
-                    $(cell).addClass(referenceToOriginalTable)
-                    //TODO: For breakout highlighting. Create reference name here to original cells. They maybe have a
-                    // new location.
-                })
-                insertNameColumnWhenBreakingOut(copyOfBreakOutTableCells, oldTableHeader)
-                cleanupTableAfterInsertingNameColumnWhenBreakingOut(copyOfBreakOutTableCells[0], oldTableHeader)
-
-                let oldTableHeaderText = elementCell.getCellText(oldTableHeader)
-                let newBreakoutHeader = breakoutOutlineCells[0]
-                let newBreakoutHeaderText = elementCell.getCellText(newBreakoutHeader)
-                let newBreakoutHeaderNewText = oldTableHeaderText + ' -> ' + newBreakoutHeaderText
-
-                elementCell.setCellText(newBreakoutHeader, newBreakoutHeaderNewText, true)
-            }
+            if (isBreakingOut) setBreakoutHeaders(breakoutOutlineCells, copyOfBreakoutTableCells, oldTableHeader)
         }
     }
-    else {
-        alert('Cannot place table here as some of the cells are not empty! ')
-    }
+    else alert('Cannot place table here as some of the cells are not empty!')
+}
+
+function setBreakoutHeaders(breakoutOutlineCells, copyOfBreakOutTableCells, oldTableHeader) {
+    let referenceToOriginalTable = createBreakoutReferenceToOriginalTable(oldTableHeader)
+
+    breakoutOutlineCells.forEach((cell) => {
+        $(cell).addClass(referenceToOriginalTable)
+        //TODO: For breakout highlighting. Create reference name here to original cells. They maybe have a
+        // new location.
+    })
+    insertNameColumnWhenBreakingOut(copyOfBreakOutTableCells, oldTableHeader)
+    cleanupTableAfterInsertingNameColumnWhenBreakingOut(copyOfBreakOutTableCells[0], oldTableHeader)
+
+    let oldTableHeaderText = elementCell.getCellText(oldTableHeader)
+    let newBreakoutHeader = breakoutOutlineCells[0]
+    let newBreakoutHeaderText = elementCell.getCellText(newBreakoutHeader)
+    let newBreakoutHeaderNewText = oldTableHeaderText + ' -> ' + newBreakoutHeaderText
+
+    elementCell.setCellText(newBreakoutHeader, newBreakoutHeaderNewText, true)
 }
