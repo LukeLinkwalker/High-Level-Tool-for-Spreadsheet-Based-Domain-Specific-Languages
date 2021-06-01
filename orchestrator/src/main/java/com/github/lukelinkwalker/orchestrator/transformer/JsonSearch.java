@@ -4,16 +4,20 @@ import com.github.lukelinkwalker.orchestrator.Util.Tuple;
 import com.google.gson.Gson;
 
 public class JsonSearch {
-	public static Tuple<Tuple<Integer, Integer>, Tuple<Integer, Integer>> find(String global, int charBegin, int charEnd) {
-		Tuple<Tuple<Integer, Integer>, String> error = JsonSearch.find(global, charBegin);
-		Tuple<Integer, Integer> positions = JsonSearch.getCharPositions(global, error.getB(), charBegin, charEnd);
-		Tuple<Tuple<Integer, Integer>, Tuple<Integer, Integer>> result = new Tuple<>();
-		result.setA(error.getA());
-		result.setB(positions);
+	public static JsonSearchResult find(String context, int charBegin, int charEnd) {
+		ErrorObject error = JsonSearch.find(context, charBegin);
+		ErrorRange range = JsonSearch.getCharPositions(context, error.getJson(), charBegin, charEnd);
+		
+		JsonSearchResult result = new JsonSearchResult();
+		result.setColumn(error.getColumn());
+		result.setRow(error.getRow());
+		result.setCharBegin(range.getStart());
+		result.setCharEnd(range.getEnd());
+		
 		return result;
 	}
-	
-	public static Tuple<Tuple<Integer, Integer>, String> find(String JSON, int position) {
+
+	public static ErrorObject find(String JSON, int position) {
 		int start = -1;
 		int end = -1;
 		int objectCounter = 0;
@@ -62,80 +66,57 @@ public class JsonSearch {
 			}
 		}
 		
+		ErrorObject result = new ErrorObject();
+		
 		if(start == -1) {
-			return new Tuple<>(
-					new Tuple<Integer, Integer>(
-							0, 
-							0
-					), 
-					"Empty"
-				);
+			result.setJson("Empty");
+			return result;
 		}
 		
 		String json = JSON.substring(start, end + 1);
+
+		result.setColumn(getFirstColumn(json));
+		result.setRow(getFirstRow(json));
+		result.setJson(json);
 		
-		return new Tuple<>(
-				new Tuple<Integer, Integer>(
-						getFirstColumn(json), 
-						getFirstRow(json)
-				), 
-				json
-			);
+		return result;
 	}
 	
-	public static Tuple<Integer, Integer> getCharPositions(String global, String local, int charBegin, int charEnd) {
-		Tuple<Integer, Integer> result = new Tuple<>();
-		result.setA(-1);
-		result.setB(-1);
+	public static ErrorRange getCharPositions(String context, String object, int charBegin, int charEnd) {
+		ErrorRange result = new ErrorRange();
 		
-		String str = local.toString();
-		int localBegin = charBegin - global.indexOf(local);
-    	int localEnd = charEnd - global.indexOf(local);
+		String str = object.toString();
+		int localBegin = charBegin - context.indexOf(object);
+    	int localEnd = charEnd - context.indexOf(object);
 
 		if(str.contains("name\":")) {
 			int valueBegin = str.indexOf("name\":") + 7;
 			int valueEnd = valueBegin + str.substring(valueBegin).indexOf("\"");
 			
-			//System.out.println("Value Begin : " + valueBegin);
-	    	//System.out.println("Value End : " + valueEnd);
-			
 			if(localBegin >= valueBegin && localEnd <= valueEnd - 1) {
 				String valueString = str.substring(valueBegin, valueEnd);
-				String errorString = local.substring(localBegin, localEnd + 1);
-				
-				//System.out.println("Value : " + valueString);
-				//System.out.println("Error : " + errorString);
+				String errorString = object.substring(localBegin, localEnd + 1);
 				
 				int resultBegin = valueString.indexOf(errorString);
 				int resultEnd = resultBegin + errorString.length() - 1;
 				
-				//System.out.println("Result : " + resultBegin + " - " + resultEnd);
-				
-				result.setA(resultBegin);
-				result.setB(resultEnd);
+				result.setStart(resultBegin);
+				result.setEnd(resultEnd);
 			}
 		} 
 		else if (str.contains("value\":")) {
 			int valueBegin = str.indexOf("value\":") + 8;
 			int valueEnd = valueBegin + str.substring(valueBegin).indexOf("\"");
 			
-	    	//System.out.println("Value Begin : " + valueBegin);
-	    	//System.out.println("Value End : " + valueEnd);
-			
 			if(localBegin >= valueBegin && localEnd <= valueEnd - 1) {
 				String valueString = str.substring(valueBegin, valueEnd);
-				String errorString = local.substring(localBegin, localEnd + 1);
-				
-				//System.out.println("Value : " + valueString);
-				//System.out.println("Error : " + errorString);
+				String errorString = object.substring(localBegin, localEnd + 1);
 				
 				int resultBegin = valueString.indexOf(errorString);
 				int resultEnd = resultBegin + errorString.length() - 1;
 				
-				//System.out.println("Result : " + resultBegin + " - " + resultEnd);
-				
-				result.setA(resultBegin);
-				result.setB(resultEnd);
+				result.setStart(resultBegin);
+				result.setEnd(resultEnd);
 			}
 		}
 		

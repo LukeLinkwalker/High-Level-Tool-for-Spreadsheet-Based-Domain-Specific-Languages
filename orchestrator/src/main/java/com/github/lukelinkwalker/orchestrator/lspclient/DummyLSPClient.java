@@ -18,6 +18,7 @@ import com.github.lukelinkwalker.orchestrator.lspclient.messages.PublishDiagnost
 import com.github.lukelinkwalker.orchestrator.lspclient.messages.PublishDiagnostics.DiagnosticParams.Diagnostics;
 import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSDiagnostic;
 import com.github.lukelinkwalker.orchestrator.ssserver.messages.SSError;
+import com.github.lukelinkwalker.orchestrator.transformer.JsonSearchResult;
 import com.github.lukelinkwalker.orchestrator.transformer.JsonObj;
 import com.github.lukelinkwalker.orchestrator.transformer.JsonSearch;
 import com.github.lukelinkwalker.orchestrator.transformer.Sheet;
@@ -95,23 +96,27 @@ public class DummyLSPClient extends WebSocketClient {
 					for(int i = 0; i < PD.getParams().getDiagnostics().length; i += 1) {
 						Diagnostics diag = PD.getParams().getDiagnostics()[i];
 						
-						Tuple<Tuple<Integer, Integer>, Tuple<Integer, Integer>> errorInfos = JsonSearch.find(App.Txt, diag.getRange().getStart().getCharacter(), diag.getRange().getEnd().getCharacter());
+						JsonSearchResult errorInfos = JsonSearch.find(
+								App.Txt, 
+								diag.getRange().getStart().getCharacter(), 
+								diag.getRange().getEnd().getCharacter()
+						);
 	
 						JsonObject error = new JsonObject();
 						
-						int column = errorInfos.getA().getA();
+						int column = errorInfos.getColumn();
 						if(column == -1) {
 							column = 0;
 						}
-						int row = errorInfos.getA().getB();
+						int row = errorInfos.getRow();
 						if(row == -1) {
 							row = 0;
 						}
 						
 						error.addProperty("column", column);
 						error.addProperty("row", row);
-						error.addProperty("start", errorInfos.getB().getA());
-						error.addProperty("end", errorInfos.getB().getB());
+						error.addProperty("start", errorInfos.getCharBegin());
+						error.addProperty("end", errorInfos.getCharEnd());
 						error.addProperty("message", diag.getMessage());
 						
 						errors.add(error);
