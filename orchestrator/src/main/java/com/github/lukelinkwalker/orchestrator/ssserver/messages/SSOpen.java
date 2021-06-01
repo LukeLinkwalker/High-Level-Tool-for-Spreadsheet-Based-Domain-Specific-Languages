@@ -2,7 +2,7 @@ package com.github.lukelinkwalker.orchestrator.ssserver.messages;
 
 public class SSOpen {
 	private String sheetName;
-	private boolean isSGL;
+	private boolean isSML;
 
 	public String getName() {
 		return sheetName;
@@ -13,10 +13,15 @@ public class SSOpen {
 	}
 
 	public boolean isSML() {
-		return isSGL;
+		return isSML;
 	}
 
-	public void setSGL(boolean isSGL) {
-		this.isSGL = isSGL;
+	public void setSML(boolean isSML) {
+		this.isSML = isSML;
+	}
+
+	@Override
+	public String toString() {
+		return "SSOpen [sheetName=" + sheetName + ", isSML=" + isSML + "]";
 	}
 }

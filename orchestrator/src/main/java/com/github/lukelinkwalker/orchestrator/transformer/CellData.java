@@ -3,6 +3,7 @@ package com.github.lukelinkwalker.orchestrator.transformer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.github.lukelinkwalker.orchestrator.Util.StringUtilities;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -114,7 +115,7 @@ public class CellData {
 		JsonObject obj = new JsonObject();
 		obj.addProperty("column", column);
 		obj.addProperty("row", row);
-		obj.addProperty("name", JsonUtil.tokenWrap(name));
+		obj.addProperty("name", StringUtilities.tokenWrap(name));
 		obj.addProperty("type", type.toLowerCase());
 		obj.addProperty("isOptional", isOptional);
 		obj.add("children", new JsonArray());
@@ -137,11 +138,11 @@ public class CellData {
 			obj.addProperty("value", name);
 		} else if (name.equals("ref")) {
 			obj.addProperty("type", "reference");
-			obj.addProperty("value", JsonUtil.tokenWrap(refName));
+			obj.addProperty("value", StringUtilities.tokenWrap(refName));
 		}
 		else {
 			obj.addProperty("type", "custom");
-			obj.addProperty("value", JsonUtil.tokenWrap(name));
+			obj.addProperty("value", StringUtilities.tokenWrap(name));
 		}
 		
 		return obj;

@@ -1,6 +1,9 @@
 package com.github.lukelinkwalker.orchestrator.Util;
 
 public class StringUtilities {
+	private static String tokenStart = "OKZVVTSPKHOVYSMU";
+	private static String tokenStop = "SQPSUQMWUPQSBXDT";
+	
     public static String removeTokensFromString(String string) {
         return string.substring(16, string.length() - 16);
     }
@@ -96,4 +99,16 @@ public class StringUtilities {
     	
     	return false;
     }
+    
+	public static String tokenWrap(String str) {
+		return (tokenStart + str + tokenStop);
+	}
+	
+	public static String tokenStrip(String str) {
+		return str.replace(tokenStart, "").replace(tokenStop, "");
+	}
+	
+	public static boolean tokenWrapped(String str) {
+		return (str.contains(tokenStart) && str.contains(tokenStop));
+	}
 }

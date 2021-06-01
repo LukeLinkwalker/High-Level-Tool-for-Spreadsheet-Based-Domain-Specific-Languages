@@ -23,7 +23,7 @@ import com.github.lukelinkwalker.orchestrator.transformer.JsonSearch;
 import com.github.lukelinkwalker.orchestrator.transformer.Sheet;
 import com.github.lukelinkwalker.orchestrator.transformer.SheetStore;
 
-public class DumbLSPClient extends WebSocketClient {
+public class DummyLSPClient extends WebSocketClient {
 
 	private final String initializeMsg = "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"initialize\",\"params\":{\"rootPath\":null,\"rootUri\":null,\"capabilities\":{\"workspace\":{\"applyEdit\":true,\"workspaceEdit\":{\"documentChanges\":true,\"resourceOperations\":[\"create\",\"rename\",\"delete\"],\"failureHandling\":\"textOnlyTransactional\"},\"didChangeConfiguration\":{\"dynamicRegistration\":true},\"didChangeWatchedFiles\":{\"dynamicRegistration\":true},\"symbol\":{\"dynamicRegistration\":true,\"symbolKind\":{\"valueSet\":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]}},\"executeCommand\":{\"dynamicRegistration\":true},\"configuration\":true,\"workspaceFolders\":true},\"textDocument\":{\"publishDiagnostics\":{\"relatedInformation\":true,\"tagSupport\":true},\"synchronization\":{\"dynamicRegistration\":true,\"willSave\":true,\"willSaveWaitUntil\":true,\"didSave\":true},\"completion\":{\"dynamicRegistration\":true,\"contextSupport\":true,\"completionItem\":{\"snippetSupport\":true,\"commitCharactersSupport\":true,\"documentationFormat\":[\"markdown\",\"plaintext\"],\"deprecatedSupport\":true,\"preselectSupport\":true},\"completionItemKind\":{\"valueSet\":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25]}},\"hover\":{\"dynamicRegistration\":true,\"contentFormat\":[\"markdown\",\"plaintext\"]},\"signatureHelp\":{\"dynamicRegistration\":true,\"signatureInformation\":{\"documentationFormat\":[\"markdown\",\"plaintext\"],\"parameterInformation\":{\"labelOffsetSupport\":true}}},\"definition\":{\"dynamicRegistration\":true,\"linkSupport\":true},\"references\":{\"dynamicRegistration\":true},\"documentHighlight\":{\"dynamicRegistration\":true},\"documentSymbol\":{\"dynamicRegistration\":true,\"symbolKind\":{\"valueSet\":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26]},\"hierarchicalDocumentSymbolSupport\":true},\"codeAction\":{\"dynamicRegistration\":true,\"codeActionLiteralSupport\":{\"codeActionKind\":{\"valueSet\":[\"\",\"quickfix\",\"refactor\",\"refactor.extract\",\"refactor.inline\",\"refactor.rewrite\",\"source\",\"source.organizeImports\"]}}},\"codeLens\":{\"dynamicRegistration\":true},\"formatting\":{\"dynamicRegistration\":true},\"rangeFormatting\":{\"dynamicRegistration\":true},\"onTypeFormatting\":{\"dynamicRegistration\":true},\"rename\":{\"dynamicRegistration\":true,\"prepareSupport\":true},\"documentLink\":{\"dynamicRegistration\":true},\"typeDefinition\":{\"dynamicRegistration\":true,\"linkSupport\":true},\"implementation\":{\"dynamicRegistration\":true,\"linkSupport\":true},\"colorProvider\":{\"dynamicRegistration\":true},\"foldingRange\":{\"dynamicRegistration\":true,\"rangeLimit\":5000,\"lineFoldingOnly\":true},\"declaration\":{\"dynamicRegistration\":true,\"linkSupport\":true}}},\"trace\":\"off\",\"workspaceFolders\":null}}\r\n";
 	private final String initializedMsg = "{\"jsonrpc\":\"2.0\",\"method\":\"initialized\",\"params\":{}}";
@@ -32,13 +32,14 @@ public class DumbLSPClient extends WebSocketClient {
 	private final String didChangeTemplateMsg = "{\"jsonrpc\":\"2.0\",\"method\":\"textDocument/didChange\",\"params\":{\"textDocument\":{\"uri\":\"inmemory:/demo/dc915592-2cda-71e9-3c1a-f61dc6884cae.hello\",\"version\":$VERSION$},\"contentChanges\":[{\"range\":{\"start\":{\"line\":$LINE$,\"character\":$POSITION$},\"end\":{\"line\":$LINE$,\"character\":$POSITION$}},\"rangeLength\":0,\"text\":\"$CHARACTER$\"}]}}";
 	
 	private final String openFileMsg = "{\"jsonrpc\":\"2.0\",\"method\":\"textDocument/didOpen\",\"params\":{\"textDocument\":{\"uri\":\"inmemory:/demo/$INCREMENTINGID$.hello\",\"languageId\":\"hello\",\"version\":1,\"text\":\"$FILECONTENTS$\"}}}";
-
+	private final String closeFileMsg = "{\"jsonrpc\":\"2.0\",\"method\":\"textDocument/didClose\",\"params\":{\"textDcoument\":{\"uri\":\"inmemory:/demo/$INCREMENTINGID$.hello\"}}}";
+	
 	private final String didChangeMsg = "{\"jsonrpc\":\"2.0\",\"method\":\"textDocument/didChange\",\"params\":{\"textDocument\":{\"uri\":\"inmemory:/demo/dc915592-2cda-71e9-3c1a-f61dc6884cae.hello\",\"version\":3},\"contentChanges\":[{\"range\":{\"start\":{\"line\":4,\"character\":0},\"end\":{\"line\":4,\"character\":0}},\"rangeLength\":0,\"text\":\"H\"}]}}";
 	private boolean initialized = false;
 	private int version = 1;
 	private int incrementingID = 1;
 	
-	public DumbLSPClient(URI serverUri) {
+	public DummyLSPClient(URI serverUri) {
 		super(serverUri);
 	}
 
@@ -94,17 +95,8 @@ public class DumbLSPClient extends WebSocketClient {
 					for(int i = 0; i < PD.getParams().getDiagnostics().length; i += 1) {
 						Diagnostics diag = PD.getParams().getDiagnostics()[i];
 						
-						//Tuple<Tuple<Integer, Integer>, String> errorInfo = JsonSearch.find(App.Txt, diag.getRange().getStart().getCharacter());
-						
 						Tuple<Tuple<Integer, Integer>, Tuple<Integer, Integer>> errorInfos = JsonSearch.find(App.Txt, diag.getRange().getStart().getCharacter(), diag.getRange().getEnd().getCharacter());
-						
-						//JsonObj errorCell = JsonSearch.find(App.Txt, diag.getRange().getStart().getCharacter());
-						
-						//JsonObject error = new JsonObject();
-						//error.addProperty("column", errorCell.getColumn());
-						//error.addProperty("row", errorCell.getRow());
-						//error.addProperty("message", diag.getMessage());
-						
+	
 						JsonObject error = new JsonObject();
 						
 						int column = errorInfos.getA().getA();
@@ -122,32 +114,13 @@ public class DumbLSPClient extends WebSocketClient {
 						error.addProperty("end", errorInfos.getB().getB());
 						error.addProperty("message", diag.getMessage());
 						
-						// Add error indeces
-						
 						errors.add(error);
 					}
-					
-					//System.out.println("Diagnostic document : " + PD.getParams().getUri());
-					//System.out.println("Dumb ID : " + dumbURI + " -> " + (dumbURI.equals(PD.getParams().getUri())));
-					//System.out.println("Number of errors : " + PD.getParams().getDiagnostics().length);
 					
 					App.SSS.sendErrors(errorMsg);		
 				}
 				
 			}
-			
-			//System.out.println("Diagnostic: " + message);
-			//Gson gson = new Gson();
-			//PublishDiagnostics PD = gson.fromJson(message, PublishDiagnostics.class);
-			//
-			//for(Diagnostics diag : PD.getParams().getDiagnostics()) {
-			//	SSDiagnostic result = new SSDiagnostic();
-	    	//	result.setUri("inmemory:/demo/world.hello"); // PD.getParams().getUri());
-	    	//	result.setCode(diag.getCode());
-	    	//	result.setMessage(diag.getMessage());
-	    	//	result.setSeverity(diag.getSeverity());
-	    	//	App.SSS.sendDiagnostic(result);
-			//}
 		}
 	}
 
@@ -196,8 +169,15 @@ public class DumbLSPClient extends WebSocketClient {
 					}
 				}
 				
+				// Hax approach ..
+				// Close old
+				String toSend = closeFileMsg;
+				toSend = toSend.replace("$INCREMENTINGID$", String.valueOf(incrementingID));
+				send(toSend);
+				
+				// Open new
 				incrementingID += 1;
-				String toSend = openFileMsg;
+				toSend = openFileMsg;
 				toSend = toSend.replace("$INCREMENTINGID$", String.valueOf(incrementingID));
 				toSend = toSend.replace("$FILECONTENTS$", StringEscapeUtils.escapeJson(_content));
 				send(toSend);

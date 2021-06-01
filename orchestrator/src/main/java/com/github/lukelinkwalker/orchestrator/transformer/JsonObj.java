@@ -2,6 +2,8 @@ package com.github.lukelinkwalker.orchestrator.transformer;
 
 import java.util.Arrays;
 
+import com.github.lukelinkwalker.orchestrator.Util.StringUtilities;
+
 public class JsonObj {
 	private int column;
 	private int row;
@@ -24,7 +26,7 @@ public class JsonObj {
 		this.row = row;
 	}
 	public String getNameOnly() {
-		return JsonUtil.tokenStrip(name);
+		return StringUtilities.tokenStrip(name);
 	}
 	public String getName() {
 		return name;
@@ -69,14 +71,14 @@ public class JsonObj {
 		JsonObj modifiedArray = new JsonObj();
 		modifiedArray.setColumn(getColumn());
 		modifiedArray.setRow(getRow());
-		modifiedArray.setName(JsonUtil.tokenWrap(getNameOnly()));
+		modifiedArray.setName(StringUtilities.tokenWrap(getNameOnly()));
 		modifiedArray.setType("array");
 		modifiedArray.setOptional(false);
 		
 		JsonObj newChild = new JsonObj();
 		newChild.setColumn(getColumn());
 		newChild.setRow(getRow() + 1);
-		newChild.setName(JsonUtil.tokenWrap("Name"));
+		newChild.setName(StringUtilities.tokenWrap("Name"));
 		newChild.setType("attribute");
 		newChild.setOptional(false);
 		newChild.setChildren(new JsonObj[] {});

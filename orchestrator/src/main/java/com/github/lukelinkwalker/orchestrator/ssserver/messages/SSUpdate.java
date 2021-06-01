@@ -31,4 +31,10 @@ public class SSUpdate {
 	public boolean getSkipEval() {
 		return skipEval;
 	}
+
+	@Override
+	public String toString() {
+		return "SSUpdate [sheetName=" + sheetName + ", column=" + column + ", row=" + row + ", width=" + width
+				+ ", data=" + data + ", skipEval=" + skipEval + "]";
+	}
 }

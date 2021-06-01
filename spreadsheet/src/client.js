@@ -15,7 +15,7 @@ socket.addEventListener('open', () => {
     let cmsg = { method: 'close-sheet', id: '0', data: JSON.stringify(close) }
     socket.send(JSON.stringify(cmsg))
 
-    let open = { sheetName: 'Hello', isSGL: true }
+    let open = { sheetName: 'Hello', isSML: true }
     let omsg = { method: 'open-sheet', id: '1', data:JSON.stringify(open) }
     socket.send(JSON.stringify(omsg))
 })
@@ -191,13 +191,13 @@ export function requestBuild() {
     alert('Model has been builded!')
 }
 
-export function requestNewFile(isSGL) {
-    if (isSGL) {
+export function requestNewFile(isSML) {
+    if (isSML) {
         let close = { sheetName: 'Hello' }
         let cmsg = { method: 'close-sheet', id: '0', data: JSON.stringify(close) }
         socket.send(JSON.stringify(cmsg))
         
-        let open = { sheetName: 'Hello', isSGL: true }
+        let open = { sheetName: 'Hello', isSML: true }
         let omsg = { method: 'open-sheet', id: '1', data: JSON.stringify(open) }
         socket.send(JSON.stringify(omsg));
     } else {
@@ -205,7 +205,7 @@ export function requestNewFile(isSGL) {
         let cmsg = { method: 'close-sheet', id: '0', data: JSON.stringify(close) }
         socket.send(JSON.stringify(cmsg));
 
-        let open = { sheetName: 'Hello', isSGL: false }
+        let open = { sheetName: 'Hello', isSML: false }
         let omsg = { method: 'open-sheet', id: '1', data: JSON.stringify(open) }
         socket.send(JSON.stringify(omsg))
     }

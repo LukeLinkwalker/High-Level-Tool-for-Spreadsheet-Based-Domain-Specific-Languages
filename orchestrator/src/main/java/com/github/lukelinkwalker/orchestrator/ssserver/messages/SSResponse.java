@@ -1,6 +1,7 @@
 package com.github.lukelinkwalker.orchestrator.ssserver.messages;
 
 public class SSResponse {
+	private final String jsonrpc = "2.0";
 	private String method;
 	private int id;
 	private int code;

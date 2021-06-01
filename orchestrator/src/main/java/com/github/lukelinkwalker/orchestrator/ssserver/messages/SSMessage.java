@@ -1,9 +1,10 @@
 package com.github.lukelinkwalker.orchestrator.ssserver.messages;
 
 public class SSMessage {
+	private String jsonrpc;
 	private String method;
+	private String params;
 	private int id;
-	private String data;
 	
 	public String getMethod() {
 		return method;
@@ -21,16 +22,16 @@ public class SSMessage {
 		this.id = id;
 	}
 	
-	public String getData() {
-		return data;
+	public String getParams() {
+		return params;
 	}
 	
-	public void setData(String data) {
-		this.data = data;
+	public void setParams(String data) {
+		this.params = data;
 	}
 	
 	@Override
 	public String toString() {
-		return "SSMessage [method=" + method + ", id=" + id + ", data=" + data + "]";
+		return "SSMessage [method=" + method + ", id=" + id + ", data=" + params + "]";
 	}
 }

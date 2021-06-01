@@ -71,8 +71,8 @@ public class Cell {
 	}
 	
 	public boolean isCustomType(String type) {
-		if(JsonUtil.tokenWrapped(type) == true) {
-			String cleanType = JsonUtil.tokenStrip(type);
+		if(StringUtilities.tokenWrapped(type) == true) {
+			String cleanType = StringUtilities.tokenStrip(type);
 			
 			if(
 					!cleanType.equals("int") && 
@@ -100,8 +100,8 @@ public class Cell {
 		}
 
 		// Temp hax - rules & references
-		if(JsonUtil.tokenWrapped(type)) {
-			result.addProperty("value", JsonUtil.tokenWrap(data));
+		if(StringUtilities.tokenWrapped(type)) {
+			result.addProperty("value", StringUtilities.tokenWrap(data));
 			return result;
 		}
 		
@@ -120,7 +120,7 @@ public class Cell {
 					if(isCustomType(type) == true) {
 						result.addProperty("value", String.valueOf(data));
 					} else {
-						result.addProperty("value", JsonUtil.tokenWrap(data));						
+						result.addProperty("value", StringUtilities.tokenWrap(data));						
 					}
 				}
 				
@@ -142,7 +142,7 @@ public class Cell {
 				}
 				break;
 			case "string":
-				result.addProperty("value", JsonUtil.tokenWrap(data));
+				result.addProperty("value", StringUtilities.tokenWrap(data));
 				break;
 			case "boolean":
 				if(this.isType(type) == true) {
@@ -177,7 +177,7 @@ public class Cell {
 			
 			if(attributeType.getType().equals("reference")) {
 				// Reference
-				result.addProperty("value", JsonUtil.tokenWrap(data));
+				result.addProperty("value", StringUtilities.tokenWrap(data));
 			} else {
 				// Predefined or custom
 				if(attributeType.getValue().equals("int")) {
@@ -209,7 +209,7 @@ public class Cell {
 					}
 				}
 				else if (attributeType.getValue().equals("String")) {
-					result.addProperty("value", JsonUtil.tokenWrap(data));
+					result.addProperty("value", StringUtilities.tokenWrap(data));
 				}
 				else {
 					// Rule

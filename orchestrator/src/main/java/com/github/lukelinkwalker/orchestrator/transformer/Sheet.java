@@ -14,10 +14,11 @@ public class Sheet {
 	private Cell[][] cells;
 	private ArrayList<BoundingBox> tables;
 	private static ArrayList<Tuple<Integer, Integer>> errors;
-	private boolean isSGL;
+	private boolean isSML;
+	private Model ssModel;
 	Pattern SML_CELL_CONTENT_PATTERN;
 	
-	public static Sheet newSGL() {
+	public static Sheet newSML() {
 		return new Sheet(true);
 	}
 	
@@ -25,17 +26,17 @@ public class Sheet {
 		return new Sheet(false);
 	}
 	
-	public Sheet(boolean isSGL) {
+	public Sheet(boolean isSML) {
 		SML_CELL_CONTENT_PATTERN = Pattern.compile("((optional\\s*)?(object|array|alternative|attribute)\\s*:\\s*[A-Z][a-zA-Z0-9_]*)|Rules|type\\s*:\\s*(ref\\s*)?[a-zA-Z0-9_]+");
 
 		cells = new Cell[1000][1000];
 		tables = new ArrayList<>();
 		errors = new ArrayList<>();
-		this.isSGL = isSGL;
+		this.isSML = isSML;
 	}
 	
 	public boolean isSML() {
-		return isSGL;
+		return isSML;
 	}
 	
 	public void addData(int column, int row, int width, String data, boolean skipEval) {
@@ -47,10 +48,11 @@ public class Sheet {
 			cell.setRow(row);
 			cell.setData(data);
 			
-			if(isSGL == true && skipEval == false) {
+			if(isSML == true && skipEval == false) {
 				removeCellError(column, row);
 				
 				if(SML_CELL_CONTENT_PATTERN.matcher(data).find() == false) {
+					System.out.println("Test data : " + "\"" + data + "\"");
 					errors.add(new Tuple<Integer, Integer>(column, row));
 				}
 			}
@@ -86,6 +88,15 @@ public class Sheet {
 		return cells[column][row];
 	}
 	
+	public Model getSsModel() {
+		if(ssModel == null) {
+			// Loading model -- Should eventually be replaced with model loading based on sheet name extension
+	    	ssModel = new Model("outputs/Hello/ssmodel.json");
+		}
+		
+		return ssModel;
+	}
+
 	public ArrayList<BoundingBox> getTableRanges() {
 		for(int row = 0; row < 20; row += 1) {
 			for(int column = 0; column < 20; column += 1) {

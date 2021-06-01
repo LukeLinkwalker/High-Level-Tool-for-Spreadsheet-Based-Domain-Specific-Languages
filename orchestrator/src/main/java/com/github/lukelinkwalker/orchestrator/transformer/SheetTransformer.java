@@ -57,7 +57,7 @@ public class SheetTransformer {
 						JsonObject nameObj = new JsonObject();
 						nameObj.addProperty("column", columnStart);
 						nameObj.addProperty("row", row);
-						nameObj.addProperty("value", JsonUtil.tokenWrap(name.getData()));
+						nameObj.addProperty("value", StringUtilities.tokenWrap(name.getData()));
 
 						JsonObject valueObj = new JsonObject();
 						valueObj.addProperty("column", columnStart + 1);
@@ -84,6 +84,9 @@ public class SheetTransformer {
 									entry = CD.getAsObject();
 								} else {
 									JsonObject parent = getJsonParent(entry, sheet, table, i, column, row);
+									
+									System.out.println(CD.getName() + " -> " + CD.getType());
+									
 									if(CD.getType().equals("type")) {
 										parent.get("dataTypes").getAsJsonArray().add(CD.getAsType());
 									} else {
@@ -160,7 +163,7 @@ public class SheetTransformer {
 			String[] tableNameParts = parseTableName(tableName);
 			StringBuilder SB = new StringBuilder();
 			for(String str : tableNameParts) {
-				SB.append(StringUtilities.stripTrailingSpecials(JsonUtil.tokenStrip(str)));
+				SB.append(StringUtilities.stripTrailingSpecials(StringUtilities.tokenStrip(str)));
 			}
 			
 			// Structure objects
@@ -169,11 +172,11 @@ public class SheetTransformer {
 			int headerDepth = 0;
 			
 			// Modify arrLayout and attributes
-			if(App.M.checkIfExists(tableName) == true) {
+			if(sheet.getSsModel().checkIfExists(tableName) == true) {
 				// Modifed and unmodified tables
-				arrLayout = App.M.getArrayLayout(tableName, mapOfBreakouts.get(tableName));
-				attributes = App.M.getAttributes(tableName, mapOfBreakouts.get(tableName));
-				headerDepth = App.M.getDepth(tableName, true, mapOfBreakouts.get(tableName));
+				arrLayout = sheet.getSsModel().getArrayLayout(tableName, mapOfBreakouts.get(tableName));
+				attributes = sheet.getSsModel().getAttributes(tableName, mapOfBreakouts.get(tableName));
+				headerDepth = sheet.getSsModel().getDepth(tableName, true, mapOfBreakouts.get(tableName));
 			} else {
 				// Broken out tables
 				if(tableNameParts.length < 2) {
@@ -181,14 +184,14 @@ public class SheetTransformer {
 					continue;
 				}
 				
-				JsonObj arr = App.M.getArray(
+				JsonObj arr = sheet.getSsModel().getArray(
 					StringUtilities.stripTrailingSpecials(tableNameParts[0]), 
 					StringUtilities.stripTrailingSpecials(tableNameParts[1])
 				);
 				
-				arrLayout = App.M.getArrayLayout(arr);
-				attributes = App.M.getAttributes(arr, null);
-				headerDepth = App.M.getDepth(arr, true, null);
+				arrLayout = sheet.getSsModel().getArrayLayout(arr);
+				attributes = sheet.getSsModel().getAttributes(arr, null);
+				headerDepth = sheet.getSsModel().getDepth(arr, true, null);
 			}
 			
 			// Add base element to output
@@ -212,9 +215,6 @@ public class SheetTransformer {
 					
 					if(cell != null) {
 						int normalizedColumn = cell.getColumn() - table1.getX();
-						//String type = attributes.get(normalizedColumn).getDataType();
-						//allObjects.add(cell.getAsJsonObject(type));	
-						
 						JsonObj attribute = attributes.get(normalizedColumn);
 						allObjects.add(cell.getAsJsonObject(attribute));
 					}
@@ -226,13 +226,9 @@ public class SheetTransformer {
 			for(int index = 0; index < attributes.size(); index += 1) {
 				String listName = arrLayout.get(index).get(arrLayout.get(index).size() - 1);
 				
-				if(App.M.isFirstAttribute(attributes, arrLayout, index) == true) {
-					tmpObjRef.put(JsonUtil.tokenStrip(listName), null);
+				if(sheet.getSsModel().isFirstAttribute(attributes, arrLayout, index) == true) {
+					tmpObjRef.put(StringUtilities.tokenStrip(listName), null);
 				}
-				
-				//if(App.M.isFirstAttribute(tableName, index) == true) {
-				//	tmpObjRef.put(JsonUtil.tokenStrip(listName), null);
-				//}
 			}
 			
 			// Merge JSON objects
@@ -244,16 +240,15 @@ public class SheetTransformer {
 				
 				String prevListName = "";
 				if(currListStructure.size() > 1) {
-					prevListName = JsonUtil.tokenStrip(currListStructure.get(currListStructure.size() - 2));
+					prevListName = StringUtilities.tokenStrip(currListStructure.get(currListStructure.size() - 2));
 				}
-				String currListName = JsonUtil.tokenStrip(currListStructure.get(currListStructure.size() - 1));
+				String currListName = StringUtilities.tokenStrip(currListStructure.get(currListStructure.size() - 1));
 				
 				JsonElement tmpElement = null;
 				JsonArray tmpArray = null;
 				JsonObject tmpObject = null;
 				
-				//if(App.M.isFirstAttribute(tableName, normalizedColumn)) {
-				if(App.M.isFirstAttribute(attributes, arrLayout, normalizedColumn) == true) {
+				if(sheet.getSsModel().isFirstAttribute(attributes, arrLayout, normalizedColumn) == true) {
 					if(currListStructure.size() == 1) {
 						table.add(new JsonObject());
 						tmpObjRef.put(currListName, table.get(table.size() - 1));

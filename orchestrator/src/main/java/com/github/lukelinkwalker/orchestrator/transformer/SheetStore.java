@@ -6,12 +6,12 @@ public class SheetStore {
 	// Temp solution
 	private static HashMap<String, Sheet> sheets = new HashMap<>();
 	
-	public static boolean openSheet(String name, boolean isSGL) {
+	public static boolean openSheet(String name, boolean isSML) {
 		if(sheets.containsKey(name)) {
 			return false;
 		}
 		
-		sheets.put(name, new Sheet(isSGL));
+		sheets.put(name, new Sheet(isSML));
 		
 		return true;
 	}

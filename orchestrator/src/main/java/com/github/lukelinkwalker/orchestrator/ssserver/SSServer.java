@@ -104,8 +104,9 @@ public class SSServer extends WebSocketServer {
 	}
 	
 	private void handleOpenSheet(SSMessage msg) {
-		SSOpen sso = gson.fromJson(msg.getData(), SSOpen.class);
+		SSOpen sso = gson.fromJson(msg.getParams(), SSOpen.class);
 		System.out.println("Opening sheet: " + sso.getName());
+		System.out.println("Sheet: " + sso.toString());
 		
 		boolean sheetOpened = SheetStore.openSheet(sso.getName(), sso.isSML());
 
@@ -121,7 +122,7 @@ public class SSServer extends WebSocketServer {
 	}
 	
 	private void handleCloseSheet(SSMessage msg) {
-		SSClose ssc = gson.fromJson(msg.getData(), SSClose.class);
+		SSClose ssc = gson.fromJson(msg.getParams(), SSClose.class);
 		System.out.println("Closing sheet: " + ssc.getName());
 		
 		Sheet sheetClosed = SheetStore.closeSheet(ssc.getName());
@@ -138,14 +139,14 @@ public class SSServer extends WebSocketServer {
 	}
 	
 	private void handleUpdateSheet(SSMessage msg) {
-		SSUpdate ssu = gson.fromJson(msg.getData(), SSUpdate.class);
+		SSUpdate ssu = gson.fromJson(msg.getParams(), SSUpdate.class);
 		Sheet sheet = SheetStore.getSheet(ssu.getSheetName());
 		
 		System.out.println("Updating sheet: " + ssu.getSheetName());
 		
 		if(sheet != null) {
 			sheet.addData(ssu.getColumn(), ssu.getRow(), ssu.getWidth(), ssu.getData(), ssu.getSkipEval());
-			
+			System.out.println("Updated sheet: " + ssu.toString());
 		}
 		
 		SSResponse response = new SSResponse(msg);
@@ -164,7 +165,7 @@ public class SSServer extends WebSocketServer {
 	}
 
 	private void handleEvaluate(SSMessage msg) {
-		SSEvaluate sse = gson.fromJson(msg.getData(), SSEvaluate.class);
+		SSEvaluate sse = gson.fromJson(msg.getParams(), SSEvaluate.class);
 	}
 	
 	private void handleEvaluate(SSEvaluate sse) {
@@ -187,7 +188,7 @@ public class SSServer extends WebSocketServer {
 	}
 	
 	private void handleBuild(SSMessage msg) {
-		SSBuild ssb = gson.fromJson(msg.getData(), SSBuild.class);
+		SSBuild ssb = gson.fromJson(msg.getParams(), SSBuild.class);
 		System.out.println("Building sheet: " + ssb.getSheetName());
 		
 		Sheet sheet = SheetStore.getSheet(ssb.getSheetName());
@@ -232,7 +233,7 @@ public class SSServer extends WebSocketServer {
 	}
 
 	private void handleCheckIfTextIsATableName(SSMessage msg) {
-		SSCheckIfTextIsATableName ssCheckIfTextIsATableName = gson.fromJson(msg.getData(), SSCheckIfTextIsATableName.class);
+		SSCheckIfTextIsATableName ssCheckIfTextIsATableName = gson.fromJson(msg.getParams(), SSCheckIfTextIsATableName.class);
 		String cellText = ssCheckIfTextIsATableName.getCellText();
 		int column = ssCheckIfTextIsATableName.getColumn();
 		int row = ssCheckIfTextIsATableName.getRow();
@@ -248,7 +249,7 @@ public class SSServer extends WebSocketServer {
 	}
 
 	private void handleGetInitialTableRange(SSMessage msg) {
-		SSGetInitialTableRange ssGetInitialTableRange = gson.fromJson(msg.getData(), SSGetInitialTableRange.class);
+		SSGetInitialTableRange ssGetInitialTableRange = gson.fromJson(msg.getParams(), SSGetInitialTableRange.class);
 		String tableName = ssGetInitialTableRange.getTableName();
 		int column = ssGetInitialTableRange.getColumn();
 		int row = ssGetInitialTableRange.getRow();
@@ -264,7 +265,7 @@ public class SSServer extends WebSocketServer {
 	}
 
 	private void handleCreateTable(SSMessage msg) {
-		SSCreateTable ssCreateTable = gson.fromJson(msg.getData(), SSCreateTable.class);
+		SSCreateTable ssCreateTable = gson.fromJson(msg.getParams(), SSCreateTable.class);
 		String tableName = ssCreateTable.getTableName();
 		int column = ssCreateTable.getColumn();
 		int row = ssCreateTable.getRow();
@@ -314,7 +315,7 @@ public class SSServer extends WebSocketServer {
 		Reader reader = null;
 
 		try {
-			reader = Files.newBufferedReader(Paths.get("orchestrator/src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/smlSSModel.json"));
+			reader = Files.newBufferedReader(Paths.get("src/main/java/com/github/lukelinkwalker/orchestrator/ssserver/smlSSModel.json"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
