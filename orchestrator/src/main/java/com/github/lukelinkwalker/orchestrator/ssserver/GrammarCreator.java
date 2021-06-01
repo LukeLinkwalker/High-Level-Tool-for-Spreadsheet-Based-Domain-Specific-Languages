@@ -11,8 +11,7 @@ public class GrammarCreator {
     private static StringBuilder tables;
     private static int tablesInitialLength;
 
-    public static String createGrammar() {
-        JsonArray ssModel = App.SSS.getSDSLSSModel();
+    public static String createGrammar(JsonArray ssModel) {
         StringBuilder terminals = new StringBuilder();
         model = new StringBuilder();
         tables = new StringBuilder();

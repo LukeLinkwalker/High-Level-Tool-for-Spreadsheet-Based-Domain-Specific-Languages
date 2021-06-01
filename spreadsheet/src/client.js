@@ -12,11 +12,11 @@ const socket = new WebSocket('ws://localhost:20895')
 
 socket.addEventListener('open', () => {
     let close = { sheetName: 'Hello' }
-    let cmsg = { method: 'close-sheet', id: '0', data: JSON.stringify(close) }
+    let cmsg = { method: 'close-sheet', id: '0', params: JSON.stringify(close) }
     socket.send(JSON.stringify(cmsg))
 
     let open = { sheetName: 'Hello', isSML: true }
-    let omsg = { method: 'open-sheet', id: '1', data:JSON.stringify(open) }
+    let omsg = { method: 'open-sheet', id: '1', params:JSON.stringify(open) }
     socket.send(JSON.stringify(omsg))
 })
 
@@ -149,7 +149,7 @@ export function sendChange(cell) {
 
     let update = { sheetName: 'Hello', column: cellIndexes[0], row: cellIndexes[1], width: colspan, data: content,
         skipEval: skipEval }
-    let update_msg = { method: 'update-sheet', id: updateCounter++, data: JSON.stringify(update) }
+    let update_msg = { method: 'update-sheet', id: updateCounter++, params: JSON.stringify(update) }
 
     socket.send(JSON.stringify(update_msg))
 }
@@ -157,7 +157,7 @@ export function sendChange(cell) {
 export function requestCheckIfTextIsATableName(cellText, column, row, spreadsheetType) {
     let data = { sheetName: globalVariables.spreadsheetName, cellText: cellText, column: column, row: row,
         spreadsheetType: spreadsheetType }
-    let message = { method: 'check-if-text-is-a-table-name', id: id, data: JSON.stringify(data) }
+    let message = { method: 'check-if-text-is-a-table-name', id: id, params: JSON.stringify(data) }
 
     socket.send(JSON.stringify(message))
     id++
@@ -166,7 +166,7 @@ export function requestCheckIfTextIsATableName(cellText, column, row, spreadshee
 export function requestGetInitialTableRange(tableName, column, row, spreadsheetType) {
     let data = { sheetName: globalVariables.spreadsheetName, tableName: tableName, column: column, row: row,
         spreadsheetType: spreadsheetType }
-    let message = { method: 'get-initial-table-range', id: id, data: JSON.stringify(data) }
+    let message = { method: 'get-initial-table-range', id: id, params: JSON.stringify(data) }
 
     socket.send(JSON.stringify(message))
     id++
@@ -175,7 +175,7 @@ export function requestGetInitialTableRange(tableName, column, row, spreadsheetT
 export function requestCreateTable(tableName, column, row, spreadsheetType) {
     let data = { sheetName: globalVariables.spreadsheetName, tableName: tableName, column: column, row: row,
         spreadsheetType: spreadsheetType }
-    let message = { method: 'create-table', id: id, data: JSON.stringify(data) }
+    let message = { method: 'create-table', id: id, params: JSON.stringify(data) }
 
     socket.send(JSON.stringify(message))
     id++
@@ -183,7 +183,7 @@ export function requestCreateTable(tableName, column, row, spreadsheetType) {
 
 export function requestBuild() {
     let data = { sheetName: globalVariables.spreadsheetName }
-    let message = { method: 'build', id: id, data: JSON.stringify(data) }
+    let message = { method: 'build', id: id, params: JSON.stringify(data) }
 
     socket.send(JSON.stringify(message))
     id++
@@ -194,19 +194,19 @@ export function requestBuild() {
 export function requestNewFile(isSML) {
     if (isSML) {
         let close = { sheetName: 'Hello' }
-        let cmsg = { method: 'close-sheet', id: '0', data: JSON.stringify(close) }
+        let cmsg = { method: 'close-sheet', id: '0', params: JSON.stringify(close) }
         socket.send(JSON.stringify(cmsg))
         
         let open = { sheetName: 'Hello', isSML: true }
-        let omsg = { method: 'open-sheet', id: '1', data: JSON.stringify(open) }
+        let omsg = { method: 'open-sheet', id: '1', params: JSON.stringify(open) }
         socket.send(JSON.stringify(omsg));
     } else {
         let close = { sheetName: 'Hello' }
-        let cmsg = { method: 'close-sheet', id: '0', data: JSON.stringify(close) }
+        let cmsg = { method: 'close-sheet', id: '0', params: JSON.stringify(close) }
         socket.send(JSON.stringify(cmsg));
 
         let open = { sheetName: 'Hello', isSML: false }
-        let omsg = { method: 'open-sheet', id: '1', data: JSON.stringify(open) }
+        let omsg = { method: 'open-sheet', id: '1', params: JSON.stringify(open) }
         socket.send(JSON.stringify(omsg))
     }
 }

@@ -16,12 +16,12 @@ public class App
 	
     public static void main( String[] args ) throws URISyntaxException, InterruptedException, ParserConfigurationException, IOException, SAXException
     {
-    	//// Hosting server for UI to connect to
-    	//SSS = new SSServer(20895);
-    	//SSS.start();
-    	//
-    	//// Connecting to LSP
-    	//DC = new DummyLSPClient(new URI("ws://localhost:4389"));
-    	//DC.connect();
+    	// Hosting server for UI to connect to
+    	SSS = new SSServer(20895);
+    	SSS.start();
+    	
+    	// Connecting to LSP
+    	DC = new DummyLSPClient(new URI("ws://localhost:4389"));
+    	DC.connect();
     }
 }

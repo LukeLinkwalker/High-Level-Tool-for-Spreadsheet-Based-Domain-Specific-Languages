@@ -180,11 +180,8 @@ public class SSServer extends WebSocketServer {
 		}
 		
 		System.out.println("Evaluating : " + JSON);
-		//App.DC.setContent(SDSL_JSON);
 		App.Txt = JSON;
 		App.DC.openFileWithContent(JSON);
-		
-		//System.out.println("Evaluated: " + SDSL_JSON);
 	}
 	
 	private void handleBuild(SSMessage msg) {
@@ -210,14 +207,14 @@ public class SSServer extends WebSocketServer {
 				try {
 					FileUtils.forceMkdir(outputDir);
 					FileUtils.writeStringToFile(modelFile, ssModel, (String) null);
-					String sdslGrammar = GrammarCreator.createGrammar();
+					String sdslGrammar = GrammarCreator.createGrammar(getSDSLSSModel());
 					FileUtils.writeStringToFile(grammarFile, sdslGrammar, (String) null);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 				
 			} else {
-				// handle SDSL generator
+				// handle SDSL generator - Initiate LSP code generation from here
 			}
 		}
 		

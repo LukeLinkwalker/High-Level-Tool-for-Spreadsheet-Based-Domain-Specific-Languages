@@ -1,0 +1,48 @@
+Model:
+   {Model}
+   '[' tables += Table? (',' tables += Table)* ']'
+;
+
+Table:
+   SensorTable
+;
+
+SensorTable:
+   {SensorTable}
+   '{'
+      '"Name"' ':' '"Sensor"' ','
+      '"Table"' ':' '['
+           sensor += Sensor? (',' sensor += Sensor)*
+      ']'
+   '}'
+;
+
+Sensor:
+   '{'
+      '"Name"' ':' '{'
+         '"column"' ':' nameColumn = INT ','
+         '"row"' ':' nameRow = INT ','
+         '"value"' ':' name = STRING
+      '}' 
+   '}'
+;
+
+terminal NULL: 'null';
+
+terminal ID: '^'?('a'..'z'|'A'..'Z'|'_') ('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
+
+terminal STRING: '"OKZVVTSPKHOVYSMU' -> 'SQPSUQMWUPQSBXDT"';
+
+terminal INT returns ecore::EInt: ('0'..'9')+;
+
+terminal FLOAT: '-'? INT? '.' INT (('E'|'e') '-'? INT)?;
+
+terminal BOOLEAN: 'true' | 'false';
+
+terminal ML_COMMENT: '/*' -> '*/';
+
+terminal SL_COMMENT: '//' !('\n'|'\r')* ('\r'? '\n')?;
+
+terminal WS: (' '|'\t'|'\r'|'\n')+;
+
+terminal ANY_OTHER: .;
