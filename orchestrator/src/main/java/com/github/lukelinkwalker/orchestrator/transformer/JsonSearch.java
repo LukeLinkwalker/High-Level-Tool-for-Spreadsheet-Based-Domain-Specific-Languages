@@ -86,16 +86,16 @@ public class JsonSearch {
 		ErrorRange result = new ErrorRange();
 		
 		String str = object.toString();
-		int localBegin = charBegin - context.indexOf(object);
-    	int localEnd = charEnd - context.indexOf(object);
+		int objectBegin = charBegin - context.indexOf(object);
+    	int objectEnd = charEnd - context.indexOf(object);
 
 		if(str.contains("name\":")) {
 			int valueBegin = str.indexOf("name\":") + 7;
 			int valueEnd = valueBegin + str.substring(valueBegin).indexOf("\"");
 			
-			if(localBegin >= valueBegin && localEnd <= valueEnd - 1) {
+			if(objectBegin >= valueBegin && objectEnd <= valueEnd - 1) {
 				String valueString = str.substring(valueBegin, valueEnd);
-				String errorString = object.substring(localBegin, localEnd + 1);
+				String errorString = object.substring(objectBegin, objectEnd + 1);
 				
 				int resultBegin = valueString.indexOf(errorString);
 				int resultEnd = resultBegin + errorString.length() - 1;
@@ -108,9 +108,9 @@ public class JsonSearch {
 			int valueBegin = str.indexOf("value\":") + 8;
 			int valueEnd = valueBegin + str.substring(valueBegin).indexOf("\"");
 			
-			if(localBegin >= valueBegin && localEnd <= valueEnd - 1) {
+			if(objectBegin >= valueBegin && objectEnd <= valueEnd - 1) {
 				String valueString = str.substring(valueBegin, valueEnd);
-				String errorString = object.substring(localBegin, localEnd + 1);
+				String errorString = object.substring(objectBegin, objectEnd + 1);
 				
 				int resultBegin = valueString.indexOf(errorString);
 				int resultEnd = resultBegin + errorString.length() - 1;
